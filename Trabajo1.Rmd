@@ -10,3 +10,12 @@ knitr::opts_chunk$set(echo = TRUE)
 ```
 
 $CT_{ij} = PrecioPeajes_{ij} + Distancia_{ij}(km) * PrecioGasolina/km + Salario(Horas) * Tiempo_{ij}(Horas)$
+
+## TITULO DE PRUEBA
+
+```{r setup, include=FALSE} 
+ x<-1+4
+print(x)
+
+```
+
