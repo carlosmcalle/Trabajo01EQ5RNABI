@@ -9,15 +9,129 @@ output: html_document
 knitr::opts_chunk$set(echo = TRUE)
 ```
 
+```{r}
+library(GA)
+```
+
+# Optimización numérica
+
+## Función de Rastrigin
+
+La función de Rastrigin se define como:
+
+$$
+f(\mathbf{x}) = A n + \sum_{i=1}^{n} \left[ x_i^2 - A \cos(2 \pi x_i) \right]
+$$
+
+Donde, $\mathbf{x} = (x_1, x_2, \ldots, x_n) \in \mathbb{R}^n$
+
+```{r}
+rastrigin <- function(x, A = 10) {
+  n <- length(x)
+  A * n + sum(x^2 - A * cos(2 * pi * x))
+}
+```
+
+## Función de Schwefel
+
+$$
+f(\mathbf{x}) = 418.9829 \cdot n - \sum_{i=1}^{n} x_i \sin\left(\sqrt{|x_i|}\right)
+$$
+
+Donde, $\mathbf{x} = (x_1, x_2, \ldots, x_n) \in \mathbb{R}^n$
+
+```{r}
+schwefel <- function(x) {
+  n <- length(x)
+  418.9829 * n - sum(x * sin(sqrt(abs(x))))
+}
+```
+
+## Descenso del gradiente
+
+## Algoritmos evolutivos
+
+### Rastrigin
+
+#### Dos dimensiones
+
+```{r}
+set.seed(420)  # Semilla
+
+GA_rastrigin_2d <- ga(
+  type = "real-valued",
+  fitness = function(x) -rastrigin(x),  # GA maximiza, por eso usamos el negativo
+  lower = c(-5.12, -5.12),              # Límites inferiores
+  upper = c(5.12, 5.12),                # Límites superiores
+  popSize = 50,                         # Tamaño de la población
+  maxiter = 100,                        # Número máximo de iteraciones
+  run = 50                              # Criterio de parada si no mejora
+)
+
+# Mostrar resultados
+summary(GA_rastrigin_2d)
+
+```
+
+#### Tres dimensiones
+
+```{r}
+set.seed(420)  # Semilla
+
+GA_rastrigin_3d <- ga(
+  type = "real-valued",
+  fitness = function(x) -rastrigin(x),  # GA maximiza, por eso usamos el negativo
+  lower = c(-5.12, -5.12, -5.12),       # Límites inferiores
+  upper = c(5.12, 5.12, 5.12),          # Límites superiores
+  popSize = 50,                         # Tamaño de la población
+  maxiter = 100,                        # Número máximo de iteraciones
+  run = 50                              # Criterio de parada si no mejora
+)
+
+# Mostrar resultados
+summary(GA_rastrigin_3d)
+```
+
+## Optimización de partículas
+
+```{r}
+pso_rastrigin_2d <- psoptim(
+  par = c(NA, NA),                   # Inicialización (puede ser aleatoria)
+  fn = rastrigin,                    # Función a minimizar
+  lower = c(-5.12, -5.12),           # Límites inferiores
+  upper = c(5.12, 5.12),             # Límites superiores
+  control = list(
+    maxit = 200,                     # Número de iteraciones
+    s = 40,                          # Tamaño del enjambre (partículas)
+    trace = 1                        # Mostrar progreso
+  )
+)
+```
+
+```{r}
+pso_rastrigin_2d <- psoptim(
+  par = c(NA, NA),                   # Inicialización (puede ser aleatoria)
+  fn = rastrigin,                    # Función a minimizar
+  lower = c(-5.12, -5.12, -5.12),    # Límites inferiores
+  upper = c(5.12, 5.12, 5.12),       # Límites superiores
+  control = list(
+    maxit = 200,                     # Número de iteraciones
+    s = 40,                          # Tamaño del enjambre (partículas)
+    trace = 1                        # Mostrar progreso
+  )
+)
+```
+
+## Evolución diferencial
+
 $CT_{ij} = PrecioPeajes_{ij} + Distancia_{ij}(km) * PrecioGasolina/km + Salario(Horas) * Tiempo_{ij}(Horas)$
 
 ## TITULO DE PRUEBA
 
-```{r setup, include=FALSE} 
+```{r setup, include=FALSE}
  x<-1+4
 print(x)
 
 ```
 
 ### subtitulo
-
