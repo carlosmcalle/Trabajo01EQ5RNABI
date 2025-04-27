@@ -32,6 +32,204 @@ rastrigin <- function(x, A = 10) {
 }
 ```
 
+### Grafico de la función de Rastrigin (1D)
+
+```{r}
+# RASTRIGIN 1-D
+# Este bloque dibuja la función Rastrigin en una sola variable
+# y marca con puntos rojos los mínimos locales situados
+# en cada número entero entre −5 y +5.
+
+# 1) Convertimos la función ‘rastrigin()’ a una versión que
+#    acepte un vector de x y devuelva un vector de resultados.
+#    Vectorize() hace eso automáticamente.
+rastrigin_1d <- Vectorize(function(x) rastrigin(x))
+
+# 2) Dibujamos la curva:
+#    • from / to  → rango del eje X
+#    • n          → número de puntos que se calculan
+#    • xlab, ylab → etiquetas de los ejes
+#    • main       → título del gráfico
+curve(
+  rastrigin_1d(x),          # la función a pintar
+  from = -5.12, to = 5.12,  # límites de X
+  n    = 1000,              # resolución del trazo
+  xlab = "x",               # texto en eje X
+  ylab = "f(x)",            # texto en eje Y
+  main = "Rastrigin 1D — campo de pozos periódicos"
+)
+
+# 3) Añadimos PUNTOS ROJOS en cada entero (… −5, −4, …, 4, 5)
+#    para resaltar los mínimos locales de la función.
+points(
+  -5:5,                     # posiciones X de los puntos
+  rastrigin_1d(-5:5),       # alturas Y = f(x) en esas X
+  pch = 19,                 # tipo de símbolo (19 = punto sólido)
+  col = "red"               # color de los puntos
+)
+
+```
+
+#### Análisis del gráfico “Rastrigin 1-D — campo de pozos periódicos”
+
++---------------------------------------------+---------------------------------------------------------------+--------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------+
+| Elemento visual                             | Observación                                                   | Interpretación                                                                                                                                                                                         |
++=============================================+===============================================================+========================================================================================================================================================================================================+
+| **Línea negra dentada**                     | Ondas regulares de amplitud creciente al alejarse del centro. | Resultado de la combinación *cuadrado* (x2x\^{2}x2) + *coseno* (cos⁡2πx\cos 2\\pi xcos2πx). El término cuadrático empuja hacia arriba (crece como cuenco), el coseno introduce la ondulación periódica. |
++---------------------------------------------+---------------------------------------------------------------+--------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------+
+| **Puntos rojos (11)**                       | Un punto rojo en cada entero desde −5 hasta 5.                | Representan los **mínimos locales**: los pozos donde un optimizador basado solo en gradientes podría quedar atrapado.                                                                                  |
++---------------------------------------------+---------------------------------------------------------------+--------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------+
+| **Valle más profundo en** x=0x = 0x=0       | Punto rojo más bajo (f(x)=0).                                 | **Mínimo global** de la función.                                                                                                                                                                       |
++---------------------------------------------+---------------------------------------------------------------+--------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------+
+| **Simetría izquierda-derecha**              | La curva es espejo respecto a x=0.                            | Tanto x2 como cos⁡(2πx) son funciones pares → la función es simétrica.                                                                                                                                  |
++---------------------------------------------+---------------------------------------------------------------+--------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------+
+| **Incremento de altura hacia los extremos** | Las puntas laterales alcanzan f(x)≈40f(x) .                   | Dominio del término x2. Cuanto más lejos del centro, más alto el coste.                                                                                                                                |
++---------------------------------------------+---------------------------------------------------------------+--------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------+
+
+1.  **Alta multimodalidad**\
+    Once pozos en un intervalo de solo 10 unidades indican que la función está plagada de óptimos locales.
+
+2.  **Periodocidad**\
+    La distancia constante entre picos (≈ 1) viene del coseno cos⁡(2πx); cada ciclo completo genera un pozo.
+
+### Grafico de la función de Rastrigin (2D)
+
+```{r}
+
+# RASTRIGIN 2-D 
+# Objetivo: dibujar un “mapa de calor” que muestre los pozos locales
+# y el mínimo global de la función Rastrigin en dos variables.
+
+
+# 1. Crear la rejilla (grilla) de puntos 
+#    • seq() genera 200 valores igualmente espaciados
+#    • El rango va de −5.12 a +5.12 (dominio típico de prueba)
+x <- y <- seq(-5.12, 5.12, length.out = 200)
+
+# 2. Calcular f(x1,x2) para cada punto de la rejilla 
+#    • outer() combina todos los x con todos los y
+#    • Vectorize() convierte la llamada a rastrigin() en “apta para matriz”
+z <- outer(
+  x, y,
+  Vectorize(function(a, b) rastrigin(c(a, b)))  # a = x1, b = x2
+)
+
+# 3. Dibujar el contorno coloreado 
+filled.contour(
+  x, y, z,
+  color.palette = terrain.colors,  # paleta “relieve” (verde-marrón)
+  nlevels       = 30,              # número de franjas de color
+  plot.title = title(
+    main = "Rastrigin 2-D — campo de minas",   # título grande
+    xlab = "x1",                               # etiqueta eje X
+    ylab = "x2"                                # etiqueta eje Y
+  ),
+
+  # --- plot.axes: todo lo que añadas aquí se superpone al gráfico ---
+  plot.axes = {
+    axis(1); axis(2)                                # muestra los ejes
+    abline(h = -5:5, v = -5:5,                      # rejilla entera
+           col = "grey90", lty = 3)                 # líneas gris claro
+    points(0, 0,                                    # coord. (0,0)
+           pch = 8,    # símbolo estrella
+           col = "black",
+           cex = 1.5)                              # tamaño 1.5×
+  }
+)
+
+
+```
+
+#### Análisis del gráfico “Rastrigin 2-D — campo de minas”
+
++---------------------------------------------+-------------------------------------------+-----------------------------------------------------------------------------------------------------------------+
+| # Elemento visual                           | # Qué se observa                          | # Qué significa                                                                                                 |
+|                                             |                                           |                                                                                                                 |
+| **Gradiente de color (barra a la derecha)** | Verde muy oscuro → Valores cercanos a 0.\ | Indica la *altura* de la función f(x1,x2). Los colores claros son “cerros”; los oscuros, “valles”.              |
+|                                             | Amarillo → ≈ 40.\                         |                                                                                                                 |
+|                                             | Rosa-blanco → ≈ 80 (más alto).            |                                                                                                                 |
++---------------------------------------------+-------------------------------------------+-----------------------------------------------------------------------------------------------------------------+
+| **Estrella negra en (0, 0)**                | Único punto marcado en el centro.         | **Mínimo global**: f(0,0)=0. Cualquier optimizador querrá llegar aquí.                                          |
++---------------------------------------------+-------------------------------------------+-----------------------------------------------------------------------------------------------------------------+
+| **Malla gris punteada**                     | Líneas cada unidad en ambos ejes.         | Subraya que la función es **separable y periódica**: los mínimos locales se repiten exactamente en cada entero. |
++---------------------------------------------+-------------------------------------------+-----------------------------------------------------------------------------------------------------------------+
+| **Óvalos verdes/amarillos repetidos**       | Patrón regular horizontal y vertical.     | Cada óvalo es un **pozo local**; la cuadrícula entera corresponde a la estructura cos⁡(2πxi) de Rastrigin.       |
++---------------------------------------------+-------------------------------------------+-----------------------------------------------------------------------------------------------------------------+
+|                                             |                                           |                                                                                                                 |
++---------------------------------------------+-------------------------------------------+-----------------------------------------------------------------------------------------------------------------+
+
+1.  **Alta multimodalidad**\
+    Hay decenas de valles; un descenso por gradiente típico corre riesgo de quedar atrapado en cualquiera de ellos.
+
+2.  **Separabilidad**\
+    Las líneas punteadas muestran que los mínimos están exactamente en los cruces de enteros (x1,x2)∈Z2. La función puede verse como la suma de dos copias 1-D independientes.
+
+3.  **Incremento radial suave**\
+    A medida que nos alejamos del centro, los colores se vuelven lentamente rosados
+
+4.  **“Campo de minas”**\
+    Optimizar aquí es como cruzar un terreno lleno de cráteres: cada cuadrícula contiene un pozo que puede atrapar al algoritmo.
+
+## Grafico de la función de Rastrigin (3D)
+
+```{r}
+# RASTRIGIN 2-D  –  Superficie 3-D (versión mejorada)
+# ----------------------------------------------------------
+# Este bloque pinta la “montaña rusa” de la función Rastrigin
+# en dos variables.
+
+
+persp(
+  x, y, z,                    # rejilla X, Y y matriz Z = f(x1,x2)
+
+  # --- Ángulo de la cámara --------------------------------
+  theta  = 45,                # giro horizontal (0º = de frente)
+  phi    = 30,                # elevación de la cámara (0º = plano)
+
+  # --- Escala y tamaño ------------------------------------
+  expand = 0.6,               # “achata” la altura poco mas de la mitad
+                              
+  # --- Colores y sombras ----------------------------------
+  col    = "springgreen",     # color básico de la superficie
+  shade  = 0.2,               # 0 = sin sombra ; 1 = oscurecer mucho
+  ltheta = 120,               # ángulo de la luz (120º = diagonal)
+
+  # --- Detalles de los ejes -------------------------------
+  ticktype = "detailed",      # ticks completos con números
+
+  # --- Etiquetas de los ejes ------------------------------
+  xlab = "x1",                # etiqueta eje X
+  ylab = "x2",                # etiqueta eje Y
+  zlab = "f(x)",              # etiqueta eje Z (altura)
+
+  # --- Título del gráfico ---------------------------------
+  main = "Rastrigin 2D — superficie 3D "
+)
+
+```
+
+#### Superficie 3-D de la función Rastrigin en dos dimensiones.
+
+Se aprecia un cuenco global con un mosaico de mínimos locales periódicos.\
+
+El mínimo global está en (0,0) y las crestas alcanzan valores de f(x)≈80.
+
+-   **Implicaciones para la optimización**
+
+```         
+-   **Gradiente “traicionero”**\
+    Desde un punto alto, el gradiente guía hacia el valle **más cercano, no el global**; por eso un descenso por gradiente sencillo suele frenarse en uno de esos cráteres periféricos.
+
+-   **Incremento radial suave + oscilación fina**\
+    La combinación hace que los valles laterales sean relativamente profundos: un algoritmo necesita capacidad de *exploración* para saltar varias crestas y acercarse al centro.
+
+<!-- -->
+
+-   Métodos **locales** (GD, Newton) requieren muchos reinicios o mejoras (momentum, annealing).
+
+-    Estrategias **bioinspiradas** (PSO, hormigas) o **cuasi-Newton** (L-BFGS-B) suelen rendir mejor, porque pueden escapar de pozos.
+```
+
 ## Función de Schwefel
 
 $$
@@ -47,7 +245,507 @@ schwefel <- function(x) {
 }
 ```
 
-## Descenso del gradiente
+## Descenso del gradiente (GD)
+
+### Gradiente
+
+```{r}
+grad_rastrigin <- function(x, A = 10) {
+  2 * x + 2 * pi * A * sin(2 * pi * x)
+}
+```
+
+### Función GD
+
+```{r}
+# Función GD simple con historial
+gd_once <- function(x0, lr = 0.01, iters = 200) {
+  x <- x0
+  hist <- matrix(NA, nrow = iters, ncol = length(x0) + 1)  # guarda x1, x2, f(x)
+
+  for (k in 1:iters) {
+    g <- grad_rastrigin(x)       # gradiente
+    x <- x - lr * g              # paso GD
+    hist[k, ] <- c(x, rastrigin(x))  # guardar estado
+  }
+
+  colnames(hist) <- c(paste0("x", 1:length(x0)), "f")
+  return(as.data.frame(hist))
+}
+
+```
+
+### Rastringin
+
+### Implementación de GD en Rastrigin 1D
+
+#### Trayectoria de GD puro sobre Rastringin (1D)
+
+```{r}
+
+# GRÁFICO 1-D CON GD_PURO  
+
+# 1. Ejecutar el descenso por gradiente 
+x0 <- 3                            # punto de partida
+traj1d <- gd_once(x0, lr = 0.01, iters = 200)
+
+# 2. Añadir la columna de iteración  
+traj1d$iter <- seq_len(nrow(traj1d)) - 1   # 0, 1, 2, …
+
+# 3. Graficar Rastrigin 1-D y la trayectoria
+rastrigin_v <- Vectorize(rastrigin)
+
+curve(rastrigin_v(x), from = -5.12, to = 5.12, n = 1000,
+      xlab = "x", ylab = "f(x)",
+      main = "Trayectoria de GD puro en Rastrigin 1-D")
+
+# Línea azul con el camino del algoritmo
+points(traj1d$x1, traj1d$f, type = "l",
+       col = "dodgerblue", lwd = 2)
+
+# Puntos de inicio (rojo) y final (negro)
+points(x0, rastrigin(x0),                pch = 19, col = "red")   # inicio
+points(tail(traj1d$x1, 1), tail(traj1d$f, 1),
+       pch = 17, col = "black")                                   # fin
+
+
+```
+
++-------------------+-----------------------------------------------------------------------------------------------------------------------------+
+| # Color / Símbolo | # Significado correcto                                                                                                      |
+|                   |                                                                                                                             |
+| **▲ Negro**       | **Punto inicial** x0≈2.9\mathbf{x}\_0 \approx 2.9x0​≈2.9. El descenso por gradiente parte aquí, en la ladera alta del valle. |
++-------------------+-----------------------------------------------------------------------------------------------------------------------------+
+| **● Rojo**        | **Punto final**: mínimo local alcanzado tras 200 iteraciones, x≈2.8 con f(x)≈14 ⁣− ⁣15                                        |
++-------------------+-----------------------------------------------------------------------------------------------------------------------------+
+| **Zona azul**     | Todos los pasos intermedios; muestra cómo GD oscila dentro del mismo valle hasta estabilizarse en el punto rojo.            |
++-------------------+-----------------------------------------------------------------------------------------------------------------------------+
+
+#### Análisis
+
+1.  **Descenso rápido**\
+    El algoritmo parte del punto **negro** (valor f≈27) y se desliza cuesta abajo siguiendo el gradiente.
+
+2.  **Oscilaciones amortiguadas**\
+    En azul se ve cómo va rebotando a ambos lados del eje del valle. Cada rebote es más pequeño porque el gradiente se reduce a medida que se acerca al fondo.
+
+3.  **Convergencia local, fracaso global:**\
+    El algoritmo se detiene en el **punto rojo**, el fondo del pozo local. Allí la pendiente es prácticamente nula y se cumple el criterio de paro. **Queda atrapado** en el primer mínimo local encontrado.
+
+4.  **Influencia del punto de partida**: cualquier inicio en el intervalo [2.5,3.5] produciría resultados parecidos; reiniciar desde zonas distintas sólo trasladaría el problema a otros pozos.
+
+5.  **Distancia al óptimo global**\
+    El óptimo global de Rastrigin (x=0,  f=0) queda fuera de la zona azul; GD nunca lo “visita”. Esto evidencia la limitación de los métodos locales en funciones multimodales.
+
+6.  **Necesidad de estrategias complementarias**: para alcanzar el óptimo global en Rastrigin se requieren técnicas que permitan “saltar” valles (momentum, tasa de aprendizaje adaptativa, meta-heurísticas globales).
+
+### Implementación de GD en Rastrigin 2D
+
+#### Trayectoria de GD puro sobre Rastringin (2D)
+
+```{r}
+# 1) Librerías para graficar -----------------------------------
+library(ggplot2)
+library(viridis)
+
+# 2) Malla (superficie de referencia) --------------------------
+x_vals <- y_vals <- seq(-5.12, 5.12, length.out = 200)
+contour_df <- expand.grid(x1 = x_vals, x2 = y_vals)
+contour_df$z <- mapply(
+  function(a, b) rastrigin(c(a, b)),
+  contour_df$x1, contour_df$x2
+)
+
+# 3) Ejecutar Gradient Descent puro ----------------------------
+#    · sin argumentos “max_iter” ni “tol” → usamos ‘iters’
+gd_res <- gd_once(c(3, 3), lr = 0.01, iters = 200)
+
+# 4) Construir data frame con las columnas que ggplot necesita
+traj_df <- data.frame(
+  x1   = gd_res$x1,                 # posiciones en eje X
+  x2   = gd_res$x2,                 # posiciones en eje Y
+  f    = gd_res$f,                  # valor de la función
+  iter = seq_len(nrow(gd_res)) - 1  # contador de iteraciones 0…199
+)
+# 5) Definir los puntos de Inicio y Fin para la leyenda -------
+puntos_df <- data.frame(
+  x1   = c(traj_df$x1[1], tail(traj_df$x1, 1)),
+  x2   = c(traj_df$x2[1], tail(traj_df$x2, 1)),
+  tipo = factor(c("Fin", "Inicio"), levels = c("Fin", "Inicio"))
+)
+
+# 5) Gráfico estático ------------------------------------------------
+ggplot() +
+  # Fondo: mapa de calor f(x)
+  geom_tile(data = contour_df,
+            aes(x1, x2, fill = z)) +
+  geom_contour(data = contour_df,
+               aes(x1, x2, z = z),
+               colour = "white", alpha = 0.25, bins = 25) +
+  scale_fill_viridis_c(option = "D", name = expression(f(x))) +
+
+  # Trayectoria
+  geom_path(data = traj_df,
+            aes(x1, x2),
+            colour = "dodgerblue", linewidth = 1.3) +
+  geom_point(data = traj_df[1, ],        # punto inicial
+             aes(x1, x2),
+             colour = "black", size = 3) +
+  geom_point(data = tail(traj_df, 1),    # punto final
+             aes(x1, x2),
+             colour = "red", size = 3) +
+  # Puntos de inicio y fin con leyenda automática
+  geom_point(data = puntos_df,
+             aes(x = x1, y = x2, colour = tipo, shape = tipo),
+             size = 3) +
+  scale_colour_manual(values = c("Inicio" = "black", "Fin" = "red"),
+                      name   = "") +
+  scale_shape_manual(values = c("Inicio" = 16,      # círculo lleno
+                                "Fin"    = 17),     # triángulo
+                     name    = "") +
+
+  # Detalles estéticos
+  labs(title    = "Trayectoria de GD puro sobre Rastrigin 2D",
+       subtitle = "•  Rojo = mínimo local donde se atasca",
+       x = expression(x[1]), y = expression(x[2])) +
+  theme_minimal(base_size = 14) +
+  theme(legend.position = "right",
+        plot.title      = element_text(face = "bold"))
+
+
+```
+
+##### Descripción del gráfico
+
+-   
+
+    +-------------------------------+------------------------------------------------------------------------------------+
+    | Elemento                      | Significado                                                                        |
+    +===============================+====================================================================================+
+    | 🔵 **Trayectoria azul**       | Secuencia de pasos que toma Gradient Descent desde el punto inicial.               |
+    +-------------------------------+------------------------------------------------------------------------------------+
+    | ⚫ **Círculo negro (Inicio)** | Posición de partida (3,3) del algoritmo.                                           |
+    +-------------------------------+------------------------------------------------------------------------------------+
+    | 🔺 **Triángulo rojo (Fin)**   | Mínimo local donde GD queda atrapado tras 200 iteraciones.                         |
+    +-------------------------------+------------------------------------------------------------------------------------+
+    | **Mapa de colores (f(x))**    | Valor de la función Rastrigin; violeta oscuro ≃ 0 (valles), amarillo ≃ 80 (picos). |
+    +-------------------------------+------------------------------------------------------------------------------------+
+
+##### Análisis del comportamiento del algoritmo
+
++------------------------------------------------------------------------+-------------------------------------------------------------------------------------------------------------------------------------------------------------+
+| Observación                                                            | Interpretación                                                                                                                                              |
++========================================================================+=============================================================================================================================================================+
+| El recorrido es **muy corto** y se queda en la parte superior-derecha. | GD se vio atraído por el **valle local más próximo** y no dispuso de mecanismos para “saltar” la siguiente cresta.                                          |
++------------------------------------------------------------------------+-------------------------------------------------------------------------------------------------------------------------------------------------------------+
+| Valor final f≈17 frente al mínimo global f\*=0.                        | Confirma el **estancamiento prematuro** en un óptimo local.                                                                                                 |
++------------------------------------------------------------------------+-------------------------------------------------------------------------------------------------------------------------------------------------------------+
+| Trayectoria casi rectilínea hacia un solo pozo.                        | El gradiente inicial apunta con fuerza a la depresión más cercana; tras llegar al fondo la norma del gradiente se vuelve pequeña y el algoritmo se detiene. |
++------------------------------------------------------------------------+-------------------------------------------------------------------------------------------------------------------------------------------------------------+
+
+En funciones **altamente multimodales** como Rastrigin, el número de valles hace muy improbable que GD, partiendo lejos del origen, alcance el **mínimo global**.
+
+#### Animacion de la trayectoria de GD puro sobre Rastringin (2D)
+
+```{r}
+
+# GRÁFICO Y ANIMACIÓN 2-D DE UNA ÚNICA TRAYECTORIA GD (sin   
+# reinicios) SOBRE LA FUNCIÓN RASTRIGIN.                     
+
+
+
+# 0) Librerías y supuestos previos
+
+library(ggplot2)
+library(viridis)
+library(gganimate)
+library(dplyr)
+library(gifski)
+
+
+
+# 1) Datos de la superficie (contorno con leyenda f(x))
+# ─────────────────────────────────────────────────────────────
+x_vals <- y_vals <- seq(-5.12, 5.12, length.out = 200)
+
+contour_df <- expand.grid(x1 = x_vals, x2 = y_vals) %>%
+  mutate(z = mapply(function(a, b) rastrigin(c(a, b)), x1, x2))
+
+
+# 2) Una sola trayectoria con gd_once()
+# ─────────────────────────────────────────────────────────────
+set.seed(42)                 # reproducibilidad
+x0 <- c(3, 3)                # punto inicial elegido
+gd_res <- gd_once(x0, lr = 0.01, iters = 50)
+
+traj_df <- gd_res %>%
+  mutate(iter = seq_len(n()) - 1)   # 0,1,2,… para animación
+
+
+# 3) Gráfico estático
+# ─────────────────────────────────────────────────────────────
+ggplot() +
+  geom_tile(data = contour_df,       # mapa de calor de f(x)
+            aes(x1, x2, fill = z)) +
+  geom_contour(data = contour_df,    # líneas de nivel
+               aes(x1, x2, z = z),
+               colour = "white", alpha = 0.3, bins = 30) +
+  scale_fill_viridis_c(option = "D", name = expression(f(x))) +
+
+  geom_path(data = traj_df,          # trayectoria azul
+            aes(x1, x2),
+            colour = "red", linewidth = 1.3) +
+  geom_point(aes(x = x0[1], y = x0[2]),         # inicio (rojo)
+             colour = "red",  size = 3) +
+  geom_point(aes(x = tail(traj_df$x1,1),         # fin (negro)
+                 y = tail(traj_df$x2,1)),
+             colour = "black", size = 3) +
+
+  labs(title    = "Trayectoria de GD puro sobre Rastrigin 2-D",
+       subtitle = "egro = inicio   •   Rojo = mínimo local alcanzado",
+       x = expression(x[1]), y = expression(x[2])) +
+  theme_minimal(base_size = 14) +
+  theme(legend.position = "right",
+        plot.title = element_text(face = "bold"))
+
+
+# 4) Animación 2-D de la misma trayectoria
+# ─────────────────────────────────────────────────────────────
+p_anim <- ggplot() +
+  geom_tile(data = contour_df,
+            aes(x1, x2, fill = z)) +
+  geom_contour(data = contour_df,
+               aes(x1, x2, z = z),
+               colour = "white", alpha = 0.3, bins = 30) +
+  scale_fill_viridis_c(name = expression(f(x)), option = "D") +
+
+  geom_path(data = traj_df,
+            aes(x1, x2),
+            colour = "red", linewidth = 1.3) +
+  geom_point(data = traj_df,
+             aes(x1, x2),
+             colour = "black", size = 2) +
+
+  labs(title    = "Animación: trayectoria de GD puro (Rastrigin 2-D)",
+       subtitle = "Iteración: {frame_along}",
+       x = expression(x[1]), y = expression(x[2])) +
+  theme_minimal(base_size = 14) +
+  theme(legend.position = "right",
+        plot.title = element_text(face = "bold")) +
+
+  transition_reveal(along = iter) +
+  ease_aes("linear")
+
+animate(p_anim,
+        nframes  = max(traj_df$iter) + 1,
+        fps      = 15,
+        width    = 700,
+        height   = 500,
+        units    = "px",
+        renderer = gifski_renderer())
+
+
+```
+
+![](images/clipboard-1677513745.gif)
+
+##### Dinámica observada
+
+1.  **Inicio en un pico elevado**\
+    Al “play”, el punto negro parte en una zona amarilla (valor alto de fff), indicando un punto inicial lejos del mínimo.
+
+2.  **Descenso pronunciado**\
+    En las primeras iteraciones, el punto negro se desplaza rápidamente hacia regiones más oscuras (valores de f decrecientes), cayendo dentro de un pozo local.
+
+3.  **Estabilización**\
+    Una vez dentro del valle, la trayectoria azul rodea el fondo con pequeños vaivenes, reflejando zig-zags de GD puro en un entorno multimodal.
+
+4.  **Sin escape del mínimo local**\
+    A pesar de varias decenas de iteraciones, el punto nunca atraviesa la cresta que llevaría al valle central
+
+### Implementación de GD en Rastrigin 3D
+
+#### Animacion de la trayectoria de GD puro sobre Rastringin (3D)
+
+```{r}
+library(plotly)
+library(htmlwidgets)
+
+# — 1) Superficie de Rastrigin —
+x_vals  <- y_vals <- seq(-5.12, 5.12, length.out = 50)
+z_matrix <- outer(x_vals, y_vals,
+                  Vectorize(function(a,b) rastrigin(c(a,b))))
+
+# — 2) Ejecución de GD desde (3,3) —
+set.seed(42)
+res   <- gd_once(c(3, 3), lr = 0.01, iters = 50)
+traj  <- as.matrix(res[, c("x1","x2")])    # n × 2
+fvals <- res$f                              # longitud n
+iters <- seq_len(nrow(res)) - 1             # 0:(n-1)
+
+# — 3) Óptimo local —
+opt_idx   <- which.min(fvals)
+opt_point <- traj[opt_idx, ]
+opt_val   <- fvals[opt_idx]
+
+# — 4) Construcción de frames CORREGIDA —
+frames <- lapply(seq_along(iters), function(i) {
+  list(
+    data = list(
+      NULL,  # trace 0: superficie (estático)
+      # trace 1: línea hasta iter i
+      list(
+        x    = traj[1:i,1],
+        y    = traj[1:i,2],
+        z    = fvals[1:i],
+        type = "scatter3d", mode = "lines",
+        line = list(color=0:(i-1), colorscale="Rainbow",
+                    cmin=0, cmax=max(iters), width=6)
+      ),
+      # trace 2: punto móvil en iter i
+      list(
+        x      = traj[i,1],
+        y      = traj[i,2],
+        z      = fvals[i],
+        type   = "scatter3d", mode = "markers",
+        marker = list(size=6, color="black")
+      ),
+      NULL   # trace 3: óptimo (estático)
+    ),
+    name   = as.character(iters[i]),
+    traces = c(1,2)  # animamos sólo línea y punto
+  )
+})
+
+
+# — 5) Figura inicial con 4 traces —
+fig <- plot_ly() %>%
+  # trace 0: superficie
+  add_surface(
+    x = ~x_vals, y = ~y_vals, z = ~z_matrix,
+    colorscale = "Viridis", opacity = 0.2, showscale = FALSE
+  ) %>%
+  # trace 1: línea (iter 0)
+  add_trace(
+    x    = traj[1,1], y = traj[1,2], z = fvals[1],
+    type = "scatter3d", mode = "lines",
+    line = list(color=0, colorscale="Rainbow",
+                cmin=0, cmax=max(iters), width=6),
+    name = "Trayectoria"
+  ) %>%
+  # trace 2: punto inicial
+  add_trace(
+    x      = traj[1,1], y = traj[1,2], z = fvals[1],
+    type   = "scatter3d", mode = "markers",
+    marker = list(size=6, color="black"),
+    name   = "Punto actual"
+  ) %>%
+  # trace 3: óptimo encontrado
+  add_trace(
+    x      = opt_point[1], y = opt_point[2], z = opt_val,
+    type   = "scatter3d", mode = "markers",
+    marker = list(size=10, symbol="diamond", color="yellow"),
+    name   = "Óptimo encontrado"
+  ) %>%
+  layout(
+    title = paste0("GD en Rastrigin 3D — Iteración 0 — f = ", round(fvals[1],4)),
+    scene = list(
+      xaxis = list(title = "x1", range = c(-5.12,5.12)),
+      yaxis = list(title = "x2", range = c(-5.12,5.12)),
+      zaxis = list(title = "f(x)"),
+      camera = list(
+        eye = list(x=0.05, y=1.50, z=0.30),
+        center = list(x=0,y=0,z=0),
+        up     = list(x=0,y=0,z=1)
+      )
+    ),
+    sliders = list(
+      list(
+        active = 0, pad = list(t=50),
+        currentvalue = list(prefix="Iteración: "),
+        steps = lapply(seq_along(iters), function(i) {
+          list(
+            method = "animate",
+            args   = list(list(as.character(iters[i])),
+                          list(mode="immediate",
+                               frame=list(duration=100, redraw=TRUE))),
+            label  = as.character(iters[i])
+          )
+        })
+      )
+    ),
+    updatemenus = list(
+      list(
+        type="buttons", showactive=FALSE,
+        x=1, xanchor="right", y=0, yanchor="bottom",
+        buttons=list(
+          list(label="▶ Play", method="animate",
+               args=list(NULL, list(frame=list(duration=100,redraw=TRUE),
+                                     mode="immediate"))),
+          list(label="⏸ Pause", method="animate",
+               args=list(list(NULL), list(frame=list(duration=0,redraw=FALSE),
+                                         mode="immediate")))
+        )
+      )
+    )
+  )
+
+# — 6) Inyecta frames y habilita autoplay —
+fig$x$frames <- frames
+fig <- fig %>% onRender("
+  function(el,x){
+    el.on('plotly_buttonclicked',function(e){
+      if(e.button && e.button.label==='▶ Play'){
+        Plotly.animate(el,null,{frame:{duration:100,redraw:true},mode:'immediate'});
+      }
+    });
+  }
+")
+
+# — 7) Guarda y muestra —
+htmlwidgets::saveWidget(fig,
+  "rastrigin_gd_3d_zoom_maximo_correcto.html",
+  selfcontained = TRUE)
+fig
+
+```
+
+| Elemento | Significado |
+|----------|-------------|
+
++--------------------------------------+-----------------------------------------------------------------------------------------------------------+
+| **Superficie translúcida (Viridis)** | Muestra el paisaje completo de la función Rastrigin: valles profundos (violeta) y picos altos (amarillo). |
++--------------------------------------+-----------------------------------------------------------------------------------------------------------+
+
++-----------------------------------------+---------------------------------------------------------------------------------------+
+| 🟠 **Línea multicolor (“Trayectoria”)** | Cada tonalidad marca un paso de GD: del azul al naranja conforme avanza la iteración. |
++-----------------------------------------+---------------------------------------------------------------------------------------+
+
++-------------------------------------+----------------------------------------------------+
+| ⚫ **Punto negro (“Punto actual”)** | Indica la posición de GD en la iteración mostrada. |
++-------------------------------------+----------------------------------------------------+
+
++---------------------------------------------+-----------------------------------------------------------+
+| **Diamante amarillo (“Óptimo encontrado”)** | Señala el mínimo local donde el algoritmo quedó atrapado. |
++---------------------------------------------+-----------------------------------------------------------+
+
++-----------------------------------------------------------------------------------------------------------+
+| ▶️⏸️ **Controles Play/Pause + slider** \| Permiten navegar interactivamente por las iteraciones. \| \| \| |
++-----------------------------------------------------------------------------------------------------------+
+
+##### Comportamiento de GD en 3D
+
+1.  **Descenso inicial:**\
+    Desde el punto (3 , 3 ), GD baja rápidamente por la “pared” del valle, capturado por el gradiente pronunciado.
+
+2.  **Ingreso en un cráter local:**\
+    Tras unas pocas iteraciones, la trayectoria desciende al fondo de un pozo lateral, lejos del centro (0,0).
+
+3.  **Estancamiento y micro-oscillaciones:**\
+    Dentro de ese cráter, GD gira en pequeños zig-zags alrededor de un mínimo que no es el global.
+
+4.  **No alcanza el mínimo global:**\
+    El diamante amarillo permanece alejado del valle central de la superficie, confirmando la captura en un mínimo local.
 
 ## Algoritmos evolutivos
 
@@ -125,13 +823,3 @@ pso_rastrigin_2d <- psoptim(
 ## Evolución diferencial
 
 $CT_{ij} = PrecioPeajes_{ij} + Distancia_{ij}(km) * PrecioGasolina/km + Salario(Horas) * Tiempo_{ij}(Horas)$
-
-## TITULO DE PRUEBA
-
-```{r setup, include=FALSE}
- x<-1+4
-print(x)
-
-```
-
-### subtitulo
