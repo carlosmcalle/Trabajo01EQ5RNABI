@@ -1,0 +1,7 @@
+Opción				¿Qué hace?							Ejemplo
+echo=FALSE			No muestra el código, solo los resultados.			{r, echo=FALSE}
+message=FALSE			Oculta mensajes (por ejemplo, de library()).			{r, message=FALSE}
+warning=FALSE			Oculta advertencias (warnings).					{r, warning=FALSE}
+eval=FALSE			No ejecuta el código (solo lo muestra).				{r, eval=FALSE}
+include=FALSE			Ejecuta el código, pero no muestra ni código ni resultados.	{r, include=FALSE}
+fig.width=5, fig.height=5	Controla el tamaño de las figuras.				{r, fig.width=5, fig.height=5}

@@ -1,0 +1,252 @@
+---
+title: "Función de Rosenbrock"
+output: html_document
+date: "2025-04-27"
+---
+
+```{r rm, include=FALSE}
+#Borrar variables de ambiente en caso de ser necesario 
+rm(list = ls())
+```
+
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+```{r, message=FALSE}
+#Librerias
+library(GA) #Algoritmos Evolutivos
+library(pso) #Optimización de Particulas
+library(DEoptim)  #Evolución Diferencial
+```
+
+## Función de Rosenbrock
+
+La función de Rosenbrock de forma generalizada para para n variables se define como:
+
+$$
+f(\mathbf{x}) = \sum_{i=1}^{n-1} \left[ a - x_i \right]^2 + b \left( x_{i+1} - x_i^2 \right)^2
+$$
+Donde, $\mathbf{x} = (x_1, x_2, \ldots, x_n) \in \mathbb{R}^n$
+
+$a$ y $b$ son parámetros que controlan la forma de la función. Típicamente, $a = 1$ y $b=100$, para estos parámetros comunes el mínimo global se va encontrar en el conjunto de coordenadas $(x_1, x_2, \ldots, x_n) = (1, 1, \ldots, 1)$ 
+
+```{r rosenbrock}
+#Definimos la función general
+rosenbrock_n <- function(x, a = 1, b = 100) {
+  n <- length(x)
+  sum_value <- 0
+  for(i in 1:(n-1)) {
+    sum_value <- sum_value + (a - x[i])^2 + b * (x[i+1] - x[i]^2)^2
+  }
+  return(sum_value)
+}
+```
+
+Realizamos la grafica en 3D con dos dimensiones x1, x2
+
+```{r, message=FALSE,echo=FALSE}
+library(plotly)
+# Crear cuadrícula
+x_seq <- seq(-2, 2, length.out = 100)
+y_seq <- seq(-2, 2, length.out = 100)
+
+# Evaluar
+z <- outer(x_seq, y_seq, Vectorize(function(x, y) rosenbrock_n(c(x, y))))
+
+fig <- plot_ly(
+  x = ~x_seq,
+  y = ~y_seq,
+  z = ~z,
+  type = "surface"
+) %>%
+  add_markers(
+    x = 1,
+    y = 1,
+    z = 0,   # El valor mínimo conocido
+    marker = list(
+      color = "red",  # O el color que quieras para destacarlo
+      size = 8,
+      symbol = "circle"
+    )
+  ) %>%
+  layout(
+    scene = list(
+      xaxis = list(title = "x1"),
+      yaxis = list(title = "X2"),
+      zaxis = list(title = "f(x)")
+    )
+  )
+
+fig
+```
+
+```{r}
+rosenbrock_n(c(1,1))
+```
+## ***1. Optimización de la función Rosenbrock en tres dimensiones $(x_1, x_2, x_3)$***
+
+### **1.1 Descenso por gradiente (BFGS)**
+
+```{r DG}
+set.seed(1986)
+x0 <- runif(3, -3, 3)  
+
+res_gradiente_3d <- optim(
+  par = x0,
+  fn = rosenbrock_n,
+  method = "BFGS"
+)
+
+x0
+res_gradiente_3d$par
+res_gradiente_3d$value
+
+```
+### **1.2 Algortimos Evolutivos**
+
+```{r GA}
+set.seed(1984)
+res_evolutivo_3d <- ga(
+  type = "real-valued",
+  fitness = function(x) -rosenbrock_n(x),  #  GA maximiza
+  lower = c(-3, -3, -3),
+  upper = c(3, 3, 3),
+  popSize = 50,
+  maxiter = 100,
+  run=50
+)
+
+res_evolutivo_3d@solution
+res_evolutivo_3d@fitnessValue
+
+summary(res_evolutivo_3d)
+```
+
+### **1.3 Optimización de partículas**
+
+```{r}
+res_pso_3d <- psoptim(
+  par = runif(3, -3, 3),
+  fn = rosenbrock_n,
+  lower = c(-3, -3, -3),
+  upper = c(3, 3, 3),
+  control = list(maxit = 100)
+)
+
+res_pso_3d$par
+res_pso_3d$value
+
+```
+### **1.4 Evolución Diferencial**
+
+```{r}
+res_de_3d <- DEoptim(
+  fn = rosenbrock_n,
+  lower = c(-3, -3, -3),
+  upper = c(3, 3, 3),
+  control = DEoptim.control(itermax = 100)
+)
+
+res_de_3d$optim$bestmem
+res_de_3d$optim$bestval
+```
+## ***2. Optimización de la función Rosenbrock en dos dimensiones $(x_1, x_2)$***
+
+### **2.1 Descenso por gradiente (BFGS)**
+
+```{r}
+set.seed(1986)
+x0 <- runif(2, -3, 3)
+x0 <- c(-2,2)
+res_gradiente_2d <- optim(
+  par = x0,
+  fn = rosenbrock_n,
+  method = "BFGS"
+)
+
+x0
+res_gradiente_2d$par
+res_gradiente_2d$value
+res_gradiente_2d$counts["function"][1]
+```
+### **2.2 Algortimos Evolutivos**
+
+```{r}
+# Optimizamos con GA
+res_evolutivo_2d <- ga(
+  type = "real-valued",
+  fitness = function(x) -rosenbrock_n(x), # GA maximiza por defecto
+  lower = c(-3, -3),
+  upper = c(3, 3),
+  popSize = 50,
+  maxiter = 100,
+  run = 50
+)
+
+res_evolutivo_2d@solution
+res_evolutivo_2d@fitnessValue
+
+summary(res_evolutivo_2d)
+```
+
+### **2.3 Optimización de partículas**
+
+```{r}
+# Optimizamos con PSO
+set.seed(1986)
+res_pso_2d <- psoptim(
+  par = runif(2, -3, 3),
+  fn = rosenbrock_n,
+  lower = c(-3, -3),
+  upper = c(3, 3),
+  control = list(maxit = 100)
+)
+
+res_pso_2d$par
+res_pso_2d$value
+```
+### **2.4 Evolución Diferencial**
+
+```{r}
+# Optimizamos con DE
+set.seed(123)
+res_de_2d <- DEoptim(
+  fn = rosenbrock_n,
+  lower = c(-3, -3),
+  upper = c(3, 3),
+  control = DEoptim.control(NP = 50, itermax = 100)
+)
+
+res_de_2d$optim$bestmem
+res_de_2d$optim$bestval
+```
+
+```{r resultado_optimizacion, echo=FALSE}
+library(knitr)
+
+# Crear un data frame con los encabezados y las filas
+tabla_optimizacion <- data.frame(
+  "Método" = c("Descenso por gradiente",
+               "Algoritmos evolutivos",
+               "Optimización de partículas",
+               "Evolución Diferencial"),
+  "Valor de x1" = c(res_gradiente_2d$par[1], NA, NA, NA),
+  "Valor de x2" = c(res_gradiente_2d$par[2], NA, NA, NA),
+  "Valor Función Objetivo" = c(res_gradiente_2d$value, NA, NA, NA),
+  "Número de Evaluaciones" = c(as.numeric(res_gradiente_2d$counts[1]), NA, NA, NA),
+  check.names = FALSE
+)
+
+# Mostrar la tabla
+kable(tabla_optimizacion, caption = "Resultados Optimización de Rosenbrock (x1,x2)")
+```
+
+```{r}
+res_gradiente_2d$par[1]
+res_gradiente_2d$value
+as.numeric(res_gradiente_2d$counts[1])
+
+```
+
