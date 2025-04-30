@@ -9,8 +9,10 @@ output: html_document
 knitr::opts_chunk$set(echo = TRUE)
 ```
 
-```{r}
 library(GA)
+
+```{r}
+
 ```
 
 # Optimización numérica
@@ -72,19 +74,13 @@ points(
 
 #### Análisis del gráfico “Rastrigin 1-D — campo de pozos periódicos”
 
-+---------------------------------------------+---------------------------------------------------------------+--------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------+
-| Elemento visual                             | Observación                                                   | Interpretación                                                                                                                                                                                         |
-+=============================================+===============================================================+========================================================================================================================================================================================================+
-| **Línea negra dentada**                     | Ondas regulares de amplitud creciente al alejarse del centro. | Resultado de la combinación *cuadrado* (x2x\^{2}x2) + *coseno* (cos⁡2πx\cos 2\\pi xcos2πx). El término cuadrático empuja hacia arriba (crece como cuenco), el coseno introduce la ondulación periódica. |
-+---------------------------------------------+---------------------------------------------------------------+--------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------+
-| **Puntos rojos (11)**                       | Un punto rojo en cada entero desde −5 hasta 5.                | Representan los **mínimos locales**: los pozos donde un optimizador basado solo en gradientes podría quedar atrapado.                                                                                  |
-+---------------------------------------------+---------------------------------------------------------------+--------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------+
-| **Valle más profundo en** x=0x = 0x=0       | Punto rojo más bajo (f(x)=0).                                 | **Mínimo global** de la función.                                                                                                                                                                       |
-+---------------------------------------------+---------------------------------------------------------------+--------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------+
-| **Simetría izquierda-derecha**              | La curva es espejo respecto a x=0.                            | Tanto x2 como cos⁡(2πx) son funciones pares → la función es simétrica.                                                                                                                                  |
-+---------------------------------------------+---------------------------------------------------------------+--------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------+
-| **Incremento de altura hacia los extremos** | Las puntas laterales alcanzan f(x)≈40f(x) .                   | Dominio del término x2. Cuanto más lejos del centro, más alto el coste.                                                                                                                                |
-+---------------------------------------------+---------------------------------------------------------------+--------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------+
+| Elemento visual | Observación | Interpretación |
+|----|----|----|
+| **Línea negra dentada** | Ondas regulares de amplitud creciente al alejarse del centro. | Resultado de la combinación *cuadrado* (x2x\^{2}x2) + *coseno* (cos⁡2πx\cos 2\\pi xcos2πx). El término cuadrático empuja hacia arriba (crece como cuenco), el coseno introduce la ondulación periódica. |
+| **Puntos rojos (11)** | Un punto rojo en cada entero desde −5 hasta 5. | Representan los **mínimos locales**: los pozos donde un optimizador basado solo en gradientes podría quedar atrapado. |
+| **Valle más profundo en** x=0x = 0x=0 | Punto rojo más bajo (f(x)=0). | **Mínimo global** de la función. |
+| **Simetría izquierda-derecha** | La curva es espejo respecto a x=0. | Tanto x2 como cos⁡(2πx) son funciones pares → la función es simétrica. |
+| **Incremento de altura hacia los extremos** | Las puntas laterales alcanzan f(x)≈40f(x) . | Dominio del término x2. Cuanto más lejos del centro, más alto el coste. |
 
 1.  **Alta multimodalidad**\
     Once pozos en un intervalo de solo 10 unidades indican que la función está plagada de óptimos locales.
@@ -419,29 +415,20 @@ ggplot() +
 
 -   
 
-    +-------------------------------+------------------------------------------------------------------------------------+
-    | Elemento                      | Significado                                                                        |
-    +===============================+====================================================================================+
-    | 🔵 **Trayectoria azul**       | Secuencia de pasos que toma Gradient Descent desde el punto inicial.               |
-    +-------------------------------+------------------------------------------------------------------------------------+
-    | ⚫ **Círculo negro (Inicio)** | Posición de partida (3,3) del algoritmo.                                           |
-    +-------------------------------+------------------------------------------------------------------------------------+
-    | 🔺 **Triángulo rojo (Fin)**   | Mínimo local donde GD queda atrapado tras 200 iteraciones.                         |
-    +-------------------------------+------------------------------------------------------------------------------------+
-    | **Mapa de colores (f(x))**    | Valor de la función Rastrigin; violeta oscuro ≃ 0 (valles), amarillo ≃ 80 (picos). |
-    +-------------------------------+------------------------------------------------------------------------------------+
+    | Elemento | Significado |
+    |----|----|
+    | 🔵 **Trayectoria azul** | Secuencia de pasos que toma Gradient Descent desde el punto inicial. |
+    | ⚫ **Círculo negro (Inicio)** | Posición de partida (3,3) del algoritmo. |
+    | 🔺 **Triángulo rojo (Fin)** | Mínimo local donde GD queda atrapado tras 200 iteraciones. |
+    | **Mapa de colores (f(x))** | Valor de la función Rastrigin; violeta oscuro ≃ 0 (valles), amarillo ≃ 80 (picos). |
 
 ##### Análisis del comportamiento del algoritmo
 
-+------------------------------------------------------------------------+-------------------------------------------------------------------------------------------------------------------------------------------------------------+
-| Observación                                                            | Interpretación                                                                                                                                              |
-+========================================================================+=============================================================================================================================================================+
-| El recorrido es **muy corto** y se queda en la parte superior-derecha. | GD se vio atraído por el **valle local más próximo** y no dispuso de mecanismos para “saltar” la siguiente cresta.                                          |
-+------------------------------------------------------------------------+-------------------------------------------------------------------------------------------------------------------------------------------------------------+
-| Valor final f≈17 frente al mínimo global f\*=0.                        | Confirma el **estancamiento prematuro** en un óptimo local.                                                                                                 |
-+------------------------------------------------------------------------+-------------------------------------------------------------------------------------------------------------------------------------------------------------+
-| Trayectoria casi rectilínea hacia un solo pozo.                        | El gradiente inicial apunta con fuerza a la depresión más cercana; tras llegar al fondo la norma del gradiente se vuelve pequeña y el algoritmo se detiene. |
-+------------------------------------------------------------------------+-------------------------------------------------------------------------------------------------------------------------------------------------------------+
+| Observación | Interpretación |
+|----|----|
+| El recorrido es **muy corto** y se queda en la parte superior-derecha. | GD se vio atraído por el **valle local más próximo** y no dispuso de mecanismos para “saltar” la siguiente cresta. |
+| Valor final f≈17 frente al mínimo global f\*=0. | Confirma el **estancamiento prematuro** en un óptimo local. |
+| Trayectoria casi rectilínea hacia un solo pozo. | El gradiente inicial apunta con fuerza a la depresión más cercana; tras llegar al fondo la norma del gradiente se vuelve pequeña y el algoritmo se detiene. |
 
 En funciones **altamente multimodales** como Rastrigin, el número de valles hace muy improbable que GD, partiendo lejos del origen, alcance el **mínimo global**.
 
@@ -713,25 +700,25 @@ fig
 | Elemento | Significado |
 |----------|-------------|
 
-+--------------------------------------+-----------------------------------------------------------------------------------------------------------+
+|  |  |
+|----|----|
 | **Superficie translúcida (Viridis)** | Muestra el paisaje completo de la función Rastrigin: valles profundos (violeta) y picos altos (amarillo). |
-+--------------------------------------+-----------------------------------------------------------------------------------------------------------+
 
-+-----------------------------------------+---------------------------------------------------------------------------------------+
+|  |  |
+|----|----|
 | 🟠 **Línea multicolor (“Trayectoria”)** | Cada tonalidad marca un paso de GD: del azul al naranja conforme avanza la iteración. |
-+-----------------------------------------+---------------------------------------------------------------------------------------+
 
-+-------------------------------------+----------------------------------------------------+
+|  |  |
+|----|----|
 | ⚫ **Punto negro (“Punto actual”)** | Indica la posición de GD en la iteración mostrada. |
-+-------------------------------------+----------------------------------------------------+
 
-+---------------------------------------------+-----------------------------------------------------------+
+|  |  |
+|----|----|
 | **Diamante amarillo (“Óptimo encontrado”)** | Señala el mínimo local donde el algoritmo quedó atrapado. |
-+---------------------------------------------+-----------------------------------------------------------+
 
-+-----------------------------------------------------------------------------------------------------------+
-| ▶️⏸️ **Controles Play/Pause + slider** \| Permiten navegar interactivamente por las iteraciones. \| \| \| |
-+-----------------------------------------------------------------------------------------------------------+
+|  |
+|----|
+| ▶️⏸️ **Controles Play/Pause + slider** \| Permiten navegar interactivamente por las iteraciones. \| \| \| \| \| |
 
 ##### Comportamiento de GD en 3D
 
@@ -823,3 +810,19 @@ pso_rastrigin_2d <- psoptim(
 ## Evolución diferencial
 
 $CT_{ij} = PrecioPeajes_{ij} + Distancia_{ij}(km) * PrecioGasolina/km + Salario(Horas) * Tiempo_{ij}(Horas)$
+
+```{r}
+matriz_distancia <- read.csv("matriz_distancia.csv", row.names = 1)
+matriz_tiempos <- read.csv("matriz_tiempos.csv", row.names = 1)
+matriz_peajes <- read.csv("matriz_peajes.csv", row.names = 1)
+```
+
+```{r}
+matriz_costo_gasolina <-  191*matriz_distancia
+matriz_costo_salario <- 5416*matriz_tiempos
+
+```
+
+```{r}
+matriz_costo_total <- matriz_peajes + matriz_costo_gasolina + matriz_costo_salario
+```
