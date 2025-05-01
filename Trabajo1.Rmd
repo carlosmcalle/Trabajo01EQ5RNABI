@@ -74,13 +74,19 @@ points(
 
 #### Análisis del gráfico “Rastrigin 1-D — campo de pozos periódicos”
 
-| Elemento visual | Observación | Interpretación |
-|----|----|----|
-| **Línea negra dentada** | Ondas regulares de amplitud creciente al alejarse del centro. | Resultado de la combinación *cuadrado* (x2x\^{2}x2) + *coseno* (cos⁡2πx\cos 2\\pi xcos2πx). El término cuadrático empuja hacia arriba (crece como cuenco), el coseno introduce la ondulación periódica. |
-| **Puntos rojos (11)** | Un punto rojo en cada entero desde −5 hasta 5. | Representan los **mínimos locales**: los pozos donde un optimizador basado solo en gradientes podría quedar atrapado. |
-| **Valle más profundo en** x=0x = 0x=0 | Punto rojo más bajo (f(x)=0). | **Mínimo global** de la función. |
-| **Simetría izquierda-derecha** | La curva es espejo respecto a x=0. | Tanto x2 como cos⁡(2πx) son funciones pares → la función es simétrica. |
-| **Incremento de altura hacia los extremos** | Las puntas laterales alcanzan f(x)≈40f(x) . | Dominio del término x2. Cuanto más lejos del centro, más alto el coste. |
++---------------------------------------------+---------------------------------------------------------------+--------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------+
+| Elemento visual                             | Observación                                                   | Interpretación                                                                                                                                                                                         |
++=============================================+===============================================================+========================================================================================================================================================================================================+
+| **Línea negra dentada**                     | Ondas regulares de amplitud creciente al alejarse del centro. | Resultado de la combinación *cuadrado* (x2x\^{2}x2) + *coseno* (cos⁡2πx\cos 2\\pi xcos2πx). El término cuadrático empuja hacia arriba (crece como cuenco), el coseno introduce la ondulación periódica. |
++---------------------------------------------+---------------------------------------------------------------+--------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------+
+| **Puntos rojos (11)**                       | Un punto rojo en cada entero desde −5 hasta 5.                | Representan los **mínimos locales**: los pozos donde un optimizador basado solo en gradientes podría quedar atrapado.                                                                                  |
++---------------------------------------------+---------------------------------------------------------------+--------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------+
+| **Valle más profundo en** x=0x = 0x=0       | Punto rojo más bajo (f(x)=0).                                 | **Mínimo global** de la función.                                                                                                                                                                       |
++---------------------------------------------+---------------------------------------------------------------+--------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------+
+| **Simetría izquierda-derecha**              | La curva es espejo respecto a x=0.                            | Tanto x2 como cos⁡(2πx) son funciones pares → la función es simétrica.                                                                                                                                  |
++---------------------------------------------+---------------------------------------------------------------+--------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------+
+| **Incremento de altura hacia los extremos** | Las puntas laterales alcanzan f(x)≈40f(x) .                   | Dominio del término x2. Cuanto más lejos del centro, más alto el coste.                                                                                                                                |
++---------------------------------------------+---------------------------------------------------------------+--------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------+
 
 1.  **Alta multimodalidad**\
     Once pozos en un intervalo de solo 10 unidades indican que la función está plagada de óptimos locales.
@@ -415,20 +421,29 @@ ggplot() +
 
 -   
 
-    | Elemento | Significado |
-    |----|----|
-    | 🔵 **Trayectoria azul** | Secuencia de pasos que toma Gradient Descent desde el punto inicial. |
-    | ⚫ **Círculo negro (Inicio)** | Posición de partida (3,3) del algoritmo. |
-    | 🔺 **Triángulo rojo (Fin)** | Mínimo local donde GD queda atrapado tras 200 iteraciones. |
-    | **Mapa de colores (f(x))** | Valor de la función Rastrigin; violeta oscuro ≃ 0 (valles), amarillo ≃ 80 (picos). |
+    +----------------------------------+------------------------------------------------------------------------------------+
+    | Elemento                         | Significado                                                                        |
+    +==================================+====================================================================================+
+    | 🔵 **Trayectoria azul**          | Secuencia de pasos que toma Gradient Descent desde el punto inicial.               |
+    +----------------------------------+------------------------------------------------------------------------------------+
+    | ⚫ **Círculo negro (Inicio)**    | Posición de partida (3,3) del algoritmo.                                           |
+    +----------------------------------+------------------------------------------------------------------------------------+
+    | 🔺 **Triángulo rojo (Fin)**      | Mínimo local donde GD queda atrapado tras 200 iteraciones.                         |
+    +----------------------------------+------------------------------------------------------------------------------------+
+    | **Mapa de colores (f(x))**       | Valor de la función Rastrigin; violeta oscuro ≃ 0 (valles), amarillo ≃ 80 (picos). |
+    +----------------------------------+------------------------------------------------------------------------------------+
 
 ##### Análisis del comportamiento del algoritmo
 
-| Observación | Interpretación |
-|----|----|
-| El recorrido es **muy corto** y se queda en la parte superior-derecha. | GD se vio atraído por el **valle local más próximo** y no dispuso de mecanismos para “saltar” la siguiente cresta. |
-| Valor final f≈17 frente al mínimo global f\*=0. | Confirma el **estancamiento prematuro** en un óptimo local. |
-| Trayectoria casi rectilínea hacia un solo pozo. | El gradiente inicial apunta con fuerza a la depresión más cercana; tras llegar al fondo la norma del gradiente se vuelve pequeña y el algoritmo se detiene. |
++------------------------------------------------------------------------+-------------------------------------------------------------------------------------------------------------------------------------------------------------+
+| Observación                                                            | Interpretación                                                                                                                                              |
++========================================================================+=============================================================================================================================================================+
+| El recorrido es **muy corto** y se queda en la parte superior-derecha. | GD se vio atraído por el **valle local más próximo** y no dispuso de mecanismos para “saltar” la siguiente cresta.                                          |
++------------------------------------------------------------------------+-------------------------------------------------------------------------------------------------------------------------------------------------------------+
+| Valor final f≈17 frente al mínimo global f\*=0.                        | Confirma el **estancamiento prematuro** en un óptimo local.                                                                                                 |
++------------------------------------------------------------------------+-------------------------------------------------------------------------------------------------------------------------------------------------------------+
+| Trayectoria casi rectilínea hacia un solo pozo.                        | El gradiente inicial apunta con fuerza a la depresión más cercana; tras llegar al fondo la norma del gradiente se vuelve pequeña y el algoritmo se detiene. |
++------------------------------------------------------------------------+-------------------------------------------------------------------------------------------------------------------------------------------------------------+
 
 En funciones **altamente multimodales** como Rastrigin, el número de valles hace muy improbable que GD, partiendo lejos del origen, alcance el **mínimo global**.
 
@@ -700,25 +715,25 @@ fig
 | Elemento | Significado |
 |----------|-------------|
 
-|  |  |
-|----|----|
++--------------------------------------+-----------------------------------------------------------------------------------------------------------+
 | **Superficie translúcida (Viridis)** | Muestra el paisaje completo de la función Rastrigin: valles profundos (violeta) y picos altos (amarillo). |
++--------------------------------------+-----------------------------------------------------------------------------------------------------------+
 
-|  |  |
-|----|----|
++-----------------------------------------+---------------------------------------------------------------------------------------+
 | 🟠 **Línea multicolor (“Trayectoria”)** | Cada tonalidad marca un paso de GD: del azul al naranja conforme avanza la iteración. |
++-----------------------------------------+---------------------------------------------------------------------------------------+
 
-|  |  |
-|----|----|
++-------------------------------------+----------------------------------------------------+
 | ⚫ **Punto negro (“Punto actual”)** | Indica la posición de GD en la iteración mostrada. |
++-------------------------------------+----------------------------------------------------+
 
-|  |  |
-|----|----|
++---------------------------------------------+-----------------------------------------------------------+
 | **Diamante amarillo (“Óptimo encontrado”)** | Señala el mínimo local donde el algoritmo quedó atrapado. |
++---------------------------------------------+-----------------------------------------------------------+
 
-|  |
-|----|
++-----------------------------------------------------------------------------------------------------------------+
 | ▶️⏸️ **Controles Play/Pause + slider** \| Permiten navegar interactivamente por las iteraciones. \| \| \| \| \| |
++-----------------------------------------------------------------------------------------------------------------+
 
 ##### Comportamiento de GD en 3D
 
@@ -825,4 +840,299 @@ matriz_costo_salario <- 5416*matriz_tiempos
 
 ```{r}
 matriz_costo_total <- matriz_peajes + matriz_costo_gasolina + matriz_costo_salario
+matriz_costo_total <- as.matrix(matriz_costo_total)
+
+```
+
+```{r}
+# Fijar semilla para reproducibilidad
+set.seed(42)
+
+# Definición de parámetros
+cities_count <- 13              # Número total de ciudades
+eroso_influence <- 1            # Influencia de la feromona (antes gamma)
+visibility_influence <- 2       # Influencia de la visibilidad (antes beta)
+evap_rate <- 0.5               # Tasa de evaporación de feromonas
+pheromone_strength <- 100       # Constante para depósito de feromonas
+ants_count <- cities_count      # Una hormiga por estado
+cities_names <- as.list(rownames(matriz_costo_total))
+
+# Datos de entrada: matriz_costo_total (cities_count x cities_count) y state_names (vector de nombres)
+
+# Inicialización de matrices
+tau_matrix <- matrix(1, nrow = cities_count, ncol = cities_count)  # Feromonas
+eta_matrix <- 1 / matriz_costo_total                               # Visibilidad
+eta_matrix[!is.finite(eta_matrix)] <- 0                             # Evitar Inf/NaN
+
+# Variables para la mejor solución
+best_path <- integer(0)
+best_path_cost <- Inf
+
+# Bucle principal: 100 iteraciones
+for (iter_idx in seq_len(100)) {
+  all_paths <- vector("list", ants_count)
+  all_costs <- numeric(ants_count)
+
+  for (ant_idx in seq_len(ants_count)) {
+    current_node <- sample(seq_len(cities_count), 1)
+    visited_nodes <- current_node
+    path_cost <- 0
+
+    # Construcción de la ruta
+    for (step_idx in seq_len(cities_count - 1)) {
+      candidates <- setdiff(seq_len(cities_count), visited_nodes)
+      trans_probs <- (
+        tau_matrix[current_node, candidates]^eroso_influence *
+        eta_matrix[current_node, candidates]^visibility_influence
+      )
+      if (all(trans_probs == 0)) trans_probs <- rep(1, length(candidates))
+      if (length(candidates) == 1) {
+        next_node <- candidates
+        } else {
+          next_node <- sample(candidates, 1, prob = trans_probs)
+          }
+
+      path_cost <- path_cost + matriz_costo_total[current_node, next_node]
+      current_node <- next_node
+      visited_nodes <- c(visited_nodes, current_node)
+    }
+
+    # Regreso al inicio
+    dir_cost <- matriz_costo_total[current_node, visited_nodes[1]]
+    path_cost <- path_cost + dir_cost
+
+    all_paths[[ant_idx]] <- visited_nodes
+    all_costs[ant_idx] <- path_cost
+
+    # Actualizar mejor ruta
+    if (path_cost < best_path_cost) {
+      best_path_cost <- path_cost
+      best_path <- visited_nodes
+    }
+  }
+
+  # Evaporación de feromonas
+  tau_matrix <- tau_matrix * (1 - evap_rate)
+
+  # Depósito de feromonas
+  for (i in seq_along(all_paths)) {
+    path_nodes <- all_paths[[i]]
+    cost_val <- all_costs[i]
+    for (j in seq_len(length(path_nodes) - 1)) {
+      tau_matrix[path_nodes[j], path_nodes[j+1]] <-
+        tau_matrix[path_nodes[j], path_nodes[j+1]] + pheromone_strength / cost_val
+    }
+    # Feromona por retorno al inicio
+    tau_matrix[path_nodes[length(path_nodes)], path_nodes[1]] <-
+      tau_matrix[path_nodes[length(path_nodes)], path_nodes[1]] + pheromone_strength / cost_val
+  }
+}
+
+# Convertir mejor ruta a nombres y agregar retorno al inicio
+best_path_names <- cities_names[best_path]
+best_path_names <- c(best_path_names, best_path_names[1])
+
+# Impresión de resultados
+cat("\nMejor ruta encontrada:\n")
+cat(paste(best_path_names, collapse = " → "), "\n")
+
+cat("\nDetalle de costos por tramo:\n")
+cat(sprintf("%-30s %-30s %10s\n", "Origen", "Destino", "Costo"))
+cat(strrep("-", 70), "\n")
+
+total_cost <- 0
+for (idx in seq_along(best_path)) {
+  origin <- best_path[idx]
+  dest <- if (idx == length(best_path)) best_path[1] else best_path[idx+1]
+  seg_cost <- matriz_costo_total[origin, dest]
+  total_cost <- total_cost + seg_cost
+  cat(sprintf("%-30s %-30s $%9.2f\n",
+              cities_names[origin], cities_names[dest], seg_cost))
+}
+
+cat("\nEstadísticas:\n")
+cat(sprintf("Ciudades (incluye retorno): %d\n", length(best_path_names)))
+cat(sprintf("Costo total: $%0.2f\n", total_cost))
+cat(sprintf("Costo promedio por tramo: $%0.2f\n", total_cost / length(best_path)))
+
+```
+
+```{r}
+# Data.frame de ciudades con coordenadas
+coords_df <- data.frame(
+  city = c("Bogotá", "Medellín", "Cali", "Barranquilla", "Cartagena",
+           "Bucaramanga", "Cúcuta", "Pereira", "Manizales", "Ibagué",
+           "Santa Marta", "Villavicencio", "Neiva"),
+  lon  = c(-74.0721, -75.5812, -76.5320, -74.7813, -75.4794,
+           -73.1227, -72.4965, -75.6961, -75.5174, -75.2322,
+           -74.1990, -73.6260, -75.2803),
+  lat  = c(4.7110,   6.2442,   3.4516,   10.9685,  10.3910,
+           7.1193,   7.8891,   4.8133,   5.0672,   4.4389,
+           11.2408,  4.1420,   2.9273),
+  stringsAsFactors = FALSE
+)
+
+# Para comprobar
+print(coords_df)
+
+```
+
+```{r}
+library(osrm)
+library(sf)
+library(leaflet)
+
+# Función de petición con reintentos
+get_route <- function(src, dst, retries = 3, pause = 1) {
+  for (i in seq_len(retries)) {
+    attempt <- try(
+      osrmRoute(src = src, dst = dst, overview = "full"),
+      silent = TRUE
+    )
+    if (!inherits(attempt, "try-error")) return(attempt)
+    Sys.sleep(pause)  # esperamos antes de reintentar
+  }
+  # Si sigue fallando, devolvemos un sf LINESTRING directo
+  sf::st_linestring(matrix(c(src[1], dst[1], src[2], dst[2]), 
+                           ncol = 2, byrow = TRUE)) %>%
+    sf::st_sfc(crs = 4326) %>%
+    sf::st_sf() 
+}
+
+# Prepara coords y orden
+route_coords <- coords_df[match(best_path_names, coords_df$city), ]
+
+# Construye la lista de segmentos con reintentos
+route_segments <- lapply(seq_len(nrow(route_coords) - 1), function(i) {
+  src <- as.numeric(route_coords[i,   c("lon","lat")])
+  dst <- as.numeric(route_coords[i+1, c("lon","lat")])
+  get_route(src, dst)
+})
+
+# Une todo en un solo sf
+routes_sf <- do.call(rbind, route_segments)
+
+# Dibuja en leaflet
+leaflet() %>%
+  addTiles() %>%
+  addPolylines(data    = routes_sf,
+               color   = "darkred",
+               weight  = 4,
+               opacity = 0.8) %>%
+  addCircleMarkers(data       = route_coords,
+                   ~lon, ~lat,
+                   radius     = 5,
+                   color      = "white",
+                   fillColor  = "blue",
+                   fillOpacity= 0.9,
+                   label      = ~city) %>%
+  setView(lng = mean(route_coords$lon),
+          lat = mean(route_coords$lat),
+          zoom = 6)
+
+```
+
+```{r}
+# 1. Instala y carga
+install.packages("leaflet")
+library(leaflet)
+
+# 2. Usa el mismo coords_df en orden de ruta
+route_coords <- coords_df[match(best_path_names, coords_df$city), ]
+
+# 3. Crea el mapa
+leaflet(route_coords) %>%
+  addTiles() %>%
+  addPolylines(~lon, ~lat, color = "red", weight = 3, opacity = 0.7,
+               label = best_path_names) %>%
+  addCircleMarkers(~lon, ~lat, radius = 5,
+                   color = "blue", fill = TRUE,
+                   label = ~city)
+
+```
+
+```{r}
+library(shiny)
+library(leaflet)
+
+
+route_coords <- coords_df[match(best_path_names, coords_df$city), ]
+
+ui <- fluidPage(
+  titlePanel("Hormiguita ACO en movimiento"),
+  leafletOutput("map", height = 600)
+)
+
+server <- function(input, output, session) {
+  # 1) Mapa base con marcadores estáticos
+  output$map <- renderLeaflet({
+    leaflet(route_coords) %>%
+      addTiles() %>%
+      addCircleMarkers(
+        ~lon, ~lat, label = ~city,
+        radius = 5, color = "navy", fillOpacity = 0.8
+      )
+  })
+  
+  proxy <- leafletProxy("map")
+  idx <- reactiveVal(1)
+  
+  observe({
+    invalidateLater(800, session)
+    i <- idx()
+    sub <- route_coords[1:i, ]
+    
+    # 2) Borramos cualquier polilínea anterior
+    proxy %>% clearShapes()
+    
+    # 3) Si tenemos al menos 2 puntos, dibujamos la ruta
+    if (nrow(sub) > 1) {
+      proxy %>% addPolylines(
+        lng   = sub$lon,
+        lat   = sub$lat,
+        color = "red",
+        weight= 3,
+        layerId = "routeLine"
+      )
+    }
+    
+    # 4) Movemos el marcador “hormiguita”
+    proxy %>%
+      removeMarker("movingMarker") %>%
+      addCircleMarkers(
+        lng     = sub$lon[i],
+        lat     = sub$lat[i],
+        layerId = "movingMarker",
+        radius  = 8,
+        color   = "orange",
+        fillOpacity = 1
+      )
+    
+    # 5) Incrementamos (o reiniciamos) el índice
+    idx(if (i < nrow(route_coords)) i + 1 else 1)
+  })
+}
+
+shinyApp(ui, server)
+
+
+```
+
+```{r}
+# 1. Instala y carga
+
+library(leaflet)
+
+# 2. Usa el mismo coords_df en orden de ruta
+route_coords <- coords_df[match(best_path_names, coords_df$city), ]
+
+# 3. Crea el mapa
+leaflet(route_coords) %>%
+  addTiles() %>%
+  addPolylines(~lon, ~lat, color = "red", weight = 3, opacity = 0.7,
+               label = best_path_names) %>%
+  addCircleMarkers(~lon, ~lat, radius = 5,
+                   color = "blue", fill = TRUE,
+                   label = ~city)
+
 ```
