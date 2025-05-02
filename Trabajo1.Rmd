@@ -1,23 +1,37 @@
 ---
 title: "trabajo1"
-author: "Jonatan Sanchez, Carlos Calle, Natalia Remolina & Juan Camilo Valencia"
+author: "Jonatan Sanchez, Carlos Calle, Natalia Remolina, Juan Camilo Valencia & David Castro"
 date: "2025-04-23"
 output: html_document
 ---
+
+```{r rm, include=FALSE}
+#Borrar variables de ambiente en caso de ser necesario 
+rm(list = ls())
+```
 
 ```{r setup, include=FALSE}
 knitr::opts_chunk$set(echo = TRUE)
 ```
 
-library(GA)
 
-```{r}
-
+```{r librerias}
+library(GA) #Algoritmos Evolutivos
+library(pso) #Optimización de Particulas
+library(DEoptim)  #Evolución Diferencial
+library(dplyr)
+library(ggplot2)
+library(plotly)
+library(gganimate)
+library(knitr)
+library(gifski)
 ```
 
-# Optimización numérica
+# ***1.Optimización numérica***
 
-## Función de Rastrigin
+En este primer punto se estudian y comparan distintos métodos de optimización aplicados a funciones no lineales. El objetivo es analizar el desempeño de algoritmos clásicos como el descenso por gradiente frente a métodos heurísticos inspirados en procesos evolutivos y naturales. Para ello, se seleccionaron dos funciones de prueba con características distintas que permiten evaluar la eficacia y eficiencia de cada enfoque. Se realizarán optimizaciones en espacios de dos y tres dimensiones, partiendo de condiciones iniciales aleatorias. Además, se visualizará el proceso de búsqueda de soluciones mediante animaciones.Para finalmente comparar como fue el comportamiento de los métodos y como el tipo de función impacta en la elección del método.
+
+## 1.1 Función de Rastrigin
 
 La función de Rastrigin se define como:
 
@@ -74,19 +88,13 @@ points(
 
 #### Análisis del gráfico “Rastrigin 1-D — campo de pozos periódicos”
 
-+---------------------------------------------+---------------------------------------------------------------+--------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------+
-| Elemento visual                             | Observación                                                   | Interpretación                                                                                                                                                                                         |
-+=============================================+===============================================================+========================================================================================================================================================================================================+
-| **Línea negra dentada**                     | Ondas regulares de amplitud creciente al alejarse del centro. | Resultado de la combinación *cuadrado* (x2x\^{2}x2) + *coseno* (cos⁡2πx\cos 2\\pi xcos2πx). El término cuadrático empuja hacia arriba (crece como cuenco), el coseno introduce la ondulación periódica. |
-+---------------------------------------------+---------------------------------------------------------------+--------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------+
-| **Puntos rojos (11)**                       | Un punto rojo en cada entero desde −5 hasta 5.                | Representan los **mínimos locales**: los pozos donde un optimizador basado solo en gradientes podría quedar atrapado.                                                                                  |
-+---------------------------------------------+---------------------------------------------------------------+--------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------+
-| **Valle más profundo en** x=0x = 0x=0       | Punto rojo más bajo (f(x)=0).                                 | **Mínimo global** de la función.                                                                                                                                                                       |
-+---------------------------------------------+---------------------------------------------------------------+--------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------+
-| **Simetría izquierda-derecha**              | La curva es espejo respecto a x=0.                            | Tanto x2 como cos⁡(2πx) son funciones pares → la función es simétrica.                                                                                                                                  |
-+---------------------------------------------+---------------------------------------------------------------+--------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------+
-| **Incremento de altura hacia los extremos** | Las puntas laterales alcanzan f(x)≈40f(x) .                   | Dominio del término x2. Cuanto más lejos del centro, más alto el coste.                                                                                                                                |
-+---------------------------------------------+---------------------------------------------------------------+--------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------+
+| Elemento visual | Observación | Interpretación |
+|----|----|----|
+| **Línea negra dentada** | Ondas regulares de amplitud creciente al alejarse del centro. | Resultado de la combinación *cuadrado* (x2x\^{2}x2) + *coseno* (cos⁡2πx\cos 2\\pi xcos2πx). El término cuadrático empuja hacia arriba (crece como cuenco), el coseno introduce la ondulación periódica. |
+| **Puntos rojos (11)** | Un punto rojo en cada entero desde −5 hasta 5. | Representan los **mínimos locales**: los pozos donde un optimizador basado solo en gradientes podría quedar atrapado. |
+| **Valle más profundo en** x=0x = 0x=0 | Punto rojo más bajo (f(x)=0). | **Mínimo global** de la función. |
+| **Simetría izquierda-derecha** | La curva es espejo respecto a x=0. | Tanto x2 como cos⁡(2πx) son funciones pares → la función es simétrica. |
+| **Incremento de altura hacia los extremos** | Las puntas laterales alcanzan f(x)≈40f(x) . | Dominio del término x2. Cuanto más lejos del centro, más alto el coste. |
 
 1.  **Alta multimodalidad**\
     Once pozos en un intervalo de solo 10 unidades indican que la función está plagada de óptimos locales.
@@ -421,29 +429,20 @@ ggplot() +
 
 -   
 
-    +----------------------------------+------------------------------------------------------------------------------------+
-    | Elemento                         | Significado                                                                        |
-    +==================================+====================================================================================+
-    | 🔵 **Trayectoria azul**          | Secuencia de pasos que toma Gradient Descent desde el punto inicial.               |
-    +----------------------------------+------------------------------------------------------------------------------------+
-    | ⚫ **Círculo negro (Inicio)**    | Posición de partida (3,3) del algoritmo.                                           |
-    +----------------------------------+------------------------------------------------------------------------------------+
-    | 🔺 **Triángulo rojo (Fin)**      | Mínimo local donde GD queda atrapado tras 200 iteraciones.                         |
-    +----------------------------------+------------------------------------------------------------------------------------+
-    | **Mapa de colores (f(x))**       | Valor de la función Rastrigin; violeta oscuro ≃ 0 (valles), amarillo ≃ 80 (picos). |
-    +----------------------------------+------------------------------------------------------------------------------------+
+    | Elemento | Significado |
+    |----|----|
+    | 🔵 **Trayectoria azul** | Secuencia de pasos que toma Gradient Descent desde el punto inicial. |
+    | ⚫ **Círculo negro (Inicio)** | Posición de partida (3,3) del algoritmo. |
+    | 🔺 **Triángulo rojo (Fin)** | Mínimo local donde GD queda atrapado tras 200 iteraciones. |
+    | **Mapa de colores (f(x))** | Valor de la función Rastrigin; violeta oscuro ≃ 0 (valles), amarillo ≃ 80 (picos). |
 
 ##### Análisis del comportamiento del algoritmo
 
-+------------------------------------------------------------------------+-------------------------------------------------------------------------------------------------------------------------------------------------------------+
-| Observación                                                            | Interpretación                                                                                                                                              |
-+========================================================================+=============================================================================================================================================================+
-| El recorrido es **muy corto** y se queda en la parte superior-derecha. | GD se vio atraído por el **valle local más próximo** y no dispuso de mecanismos para “saltar” la siguiente cresta.                                          |
-+------------------------------------------------------------------------+-------------------------------------------------------------------------------------------------------------------------------------------------------------+
-| Valor final f≈17 frente al mínimo global f\*=0.                        | Confirma el **estancamiento prematuro** en un óptimo local.                                                                                                 |
-+------------------------------------------------------------------------+-------------------------------------------------------------------------------------------------------------------------------------------------------------+
-| Trayectoria casi rectilínea hacia un solo pozo.                        | El gradiente inicial apunta con fuerza a la depresión más cercana; tras llegar al fondo la norma del gradiente se vuelve pequeña y el algoritmo se detiene. |
-+------------------------------------------------------------------------+-------------------------------------------------------------------------------------------------------------------------------------------------------------+
+| Observación | Interpretación |
+|----|----|
+| El recorrido es **muy corto** y se queda en la parte superior-derecha. | GD se vio atraído por el **valle local más próximo** y no dispuso de mecanismos para “saltar” la siguiente cresta. |
+| Valor final f≈17 frente al mínimo global f\*=0. | Confirma el **estancamiento prematuro** en un óptimo local. |
+| Trayectoria casi rectilínea hacia un solo pozo. | El gradiente inicial apunta con fuerza a la depresión más cercana; tras llegar al fondo la norma del gradiente se vuelve pequeña y el algoritmo se detiene. |
 
 En funciones **altamente multimodales** como Rastrigin, el número de valles hace muy improbable que GD, partiendo lejos del origen, alcance el **mínimo global**.
 
@@ -715,25 +714,25 @@ fig
 | Elemento | Significado |
 |----------|-------------|
 
-+--------------------------------------+-----------------------------------------------------------------------------------------------------------+
+|  |  |
+|----|----|
 | **Superficie translúcida (Viridis)** | Muestra el paisaje completo de la función Rastrigin: valles profundos (violeta) y picos altos (amarillo). |
-+--------------------------------------+-----------------------------------------------------------------------------------------------------------+
 
-+-----------------------------------------+---------------------------------------------------------------------------------------+
+|  |  |
+|----|----|
 | 🟠 **Línea multicolor (“Trayectoria”)** | Cada tonalidad marca un paso de GD: del azul al naranja conforme avanza la iteración. |
-+-----------------------------------------+---------------------------------------------------------------------------------------+
 
-+-------------------------------------+----------------------------------------------------+
+|  |  |
+|----|----|
 | ⚫ **Punto negro (“Punto actual”)** | Indica la posición de GD en la iteración mostrada. |
-+-------------------------------------+----------------------------------------------------+
 
-+---------------------------------------------+-----------------------------------------------------------+
+|  |  |
+|----|----|
 | **Diamante amarillo (“Óptimo encontrado”)** | Señala el mínimo local donde el algoritmo quedó atrapado. |
-+---------------------------------------------+-----------------------------------------------------------+
 
-+-----------------------------------------------------------------------------------------------------------------+
+|  |
+|----|
 | ▶️⏸️ **Controles Play/Pause + slider** \| Permiten navegar interactivamente por las iteraciones. \| \| \| \| \| |
-+-----------------------------------------------------------------------------------------------------------------+
 
 ##### Comportamiento de GD en 3D
 
@@ -823,6 +822,497 @@ pso_rastrigin_2d <- psoptim(
 ```
 
 ## Evolución diferencial
+
+
+## ***1.2 Función de Rosenbrock***
+
+La función de Rosenbrock de forma generalizada para para n variables se define como:
+
+$$
+f(\mathbf{x}) = \sum_{i=1}^{n-1} \left[ a - x_i \right]^2 + b \left( x_{i+1} - x_i^2 \right)^2
+$$
+Donde, $\mathbf{x} = (x_1, x_2, \ldots, x_n) \in \mathbb{R}^n$
+
+$a$ y $b$ son parámetros que controlan la forma de la función. Típicamente, $a = 1$ y $b=100$, para estos parámetros comunes el mínimo global se va encontrar en el conjunto de coordenadas $(x_1, x_2, \ldots, x_n) = (1, 1, \ldots, 1)$ donde $f(\mathbf{x^*}) = 0$ 
+
+```{r rosenbrock}
+#Definimos la función general
+rosenbrock_n <- function(x, a = 1, b = 100) {
+  n <- length(x)
+  sum_value <- 0
+  for(i in 1:(n-1)) {
+    sum_value <- sum_value + (a - x[i])^2 + b * (x[i+1] - x[i]^2)^2
+  }
+  return(sum_value)
+}
+```
+
+Probamos los minimos globales, para distintos números de variables:
+
+```{r pruebafuncion}
+rosenbrock_n(c(1,1)) 
+rosenbrock_n(c(1,1,1)) 
+rosenbrock_n(c(1,1,1,1))
+```
+Procedemos a visualizar la función para los casos de dos y tres variables, ya que con una sola variable esta se reduce a una parábola convexa simple. Esta forma trivial no representa un reto significativo para los métodos de optimización, por lo que no resulta adecuada para los fines de este análisis.
+
+**Visualización en 3d para dos variables (x1,x2)**
+
+```{r fig.cap="**Fig X.** Visualización de la función Rosenbrock f(x1,x2) (3D)", fig.align="center", out.width="70%", layout.align="center",echo=FALSE}
+
+plot_function_3d <- function(func,
+                           x_range = c(-3, 3),
+                           y_range = c(-3, 3),
+                           resolution = 100,
+                           optimal_points = NULL,
+                           colorscale = "Viridis",
+                           title = "Visualización 3D de función",
+                           x_label = "x1",
+                           y_label = "x2",
+                           z_label = "f(x1,x2)") {
+ 
+  # Crear grid de puntos
+  x <- seq(x_range[1], x_range[2], length.out = resolution)
+  y <- seq(y_range[1], y_range[2], length.out = resolution)
+ 
+  # Evaluar la función en toda la cuadrícula
+  z <- outer(x, y, Vectorize(function(x, y) func(c(x, y))))
+ 
+  # Crear el gráfico 3D interactivo
+  p <- plot_ly(x = ~x, y = ~y, z = ~z) %>%
+    add_surface(colorscale = colorscale)
+ 
+  # Agregar puntos óptimos si se especifican
+  if (!is.null(optimal_points)) {
+    for (i in 1:nrow(optimal_points)) {
+      point <- optimal_points[i, ]
+      p <- p %>% add_markers(
+        x = point$x,
+        y = point$y,
+        z = func(c(point$x, point$y)),
+        marker = list(color = point$color, size = point$size),
+        name = point$name
+      )
+    }
+  }
+ 
+  # Configurar el diseño del gráfico
+  p <- p %>% layout(
+    title = title,
+    scene = list(
+      xaxis = list(title = x_label),
+      yaxis = list(title = y_label),
+      zaxis = list(title = z_label)
+    )
+  )
+ 
+  return(p)
+}
+
+optimal_points_rosenbrock <- data.frame(
+  x = c(1),
+  y = c(1),
+  name = c("Óptimo global"),
+  color = c("red"),
+  size = c(5)
+)
+
+# Graficar Rosenbrock
+plot_function_3d(
+  func = rosenbrock_n,
+  x_range = c(-2, 2),
+  y_range = c(-2, 2),
+  resolution = 100,
+  optimal_points = optimal_points_rosenbrock,
+  title = "Función de Rosenbrock (2D -> 3D)",
+  z_label = "Rosenbrock(x1, x2)"
+)
+```
+
+En la visualización 3D de la función de Rosenbrock en dos dimensiones, con variables (x1,x2), se observa un paisaje caracterizado por un valle estrecho, curvado y alargado. El mínimo global se encuentra en el punto (x1,x2)=(1,1), pero el camino hacia este mínimo no es directo.
+
+La superficie tiene una pendiente suave que desciende hacia el fondo del valle, mientras que los bordes laterales presentan pendientes pronunciadas, formando una especie de "canal en forma de U" que se curva a lo largo del plano. Esta topografía hace que, aunque el gradiente siempre apunte hacia el mínimo, los métodos de optimización puedan desviarse, oscilar o converger lentamente si no están bien ajustados.También da la sensación de que la función es simétrica alrededor de x2=0, teniendo así dos mínimos globales, lo cual en verdad no es cierto. 
+
+**Visualización en 2d del mapa de calor, vista superior para dos variables (x1,x2)**
+
+```{r fig.cap="**Fig X.** _Mapa de Calor Función Rosenbrock_", fig.align="center", out.width="70%",echo=FALSE, message=FALSE}
+x_vals <- seq(-2, 2, length.out = 200)
+y_vals <- seq(-2, 2, length.out = 200)
+
+grid <- expand.grid(x = x_vals, y = y_vals) %>%
+  rowwise() %>%
+  mutate(z = rosenbrock_n(c(x, y))) %>%
+  ungroup()
+
+opt_x <- 1
+opt_y <- 1
+opt_z <- rosenbrock_n(c(opt_x, opt_y))
+
+z_min <- min(grid$z)
+z_max <- max(grid$z)
+
+# Graficar
+ggplot(grid, aes(x = x, y = y, fill = z)) +
+  geom_raster() +
+  geom_contour(aes(z = z), color = "black", alpha = 0.3) +
+  geom_point(aes(x = opt_x, y = opt_y), color = "red", size = 3) +
+  annotate("text", x = opt_x, y = opt_y + 0.2, label = "Óptimo", color = "red") +
+  theme_minimal() +
+  scale_fill_viridis_c(
+    breaks = c(z_min, z_max/10, z_max/2, z_max),
+    labels = function(x) round(x, 2)
+  ) +
+  labs(
+    title = "Mapa de calor y curvas de nivel para la función Rosenbrock",
+    x = "Valor de x1",
+    y = "Valor de x2",
+    fill = "f(x)"
+  ) +
+  theme(
+    legend.position = "right",
+    legend.title.position = "top",
+    legend.key.height = unit(0.1, "npc"),
+    legend.key.width = unit(0.5, "cm"),
+    legend.margin = margin(0, 0, 0, 0),
+    legend.box.margin = margin(0, 0, 0, 10)
+  )
+```
+
+### ***1.2.1 Optimización de la Función de Rosenbrock***
+
+#### ***1.2.1.1 Optimización de la Función de Rosenbrock para dos $(x_1, x_2)$ y tres dimensiones $(x_1,x_2,x_3)$***
+
+##### **Optimización por descenso del gradiente**
+
+Se utiliza un punto inicial aleatorio dentro del rango [−3,3] y [3,-3,3] y a partir de allí el algoritmo busca aproximarse al mínimo global de la función, se utiliza el método BFGS (Broyden–Fletcher–Goldfarb–Shanno) ya que es un algoritmo de optimización mucho eficiente y robusto para funciones suaves y no lineales, como es el caso de la función Rosenbrock. 
+
+```{r DG, message=FALSE}
+set.seed(1986)
+x02 <- runif(2, -3, 3)  
+
+res_gradiente_2d <- optim(
+  par = x02,
+  fn = rosenbrock_n,
+  method = "BFGS"
+)
+
+x03 <- runif(3, -3, 3)  
+
+res_gradiente_3d <- optim(
+  par = x03,
+  fn = rosenbrock_n,
+  method = "BFGS"
+)
+```
+
+##### **Optimización con Algorimos Genéticos (GA)**
+
+En este caso se define un espacio de búsqueda continuo en el rango [−3,3] para x1,x2 y x3  y se configura una población inicial de 50 individuos. El algoritmo evoluciona durante un máximo de 100 iteraciones o hasta que no se observe mejora en 50 generaciones consecutivas.
+
+```{r GA, message=FALSE}
+set.seed(1986)
+# Optimizamos con GA
+ga_evolutivo_2d <- ga(
+  type = "real-valued",
+  fitness = function(x) -rosenbrock_n(x), 
+  lower = c(-3, -3),
+  upper = c(3, 3),
+  popSize = 50,
+  maxiter = 50,
+  run = 50,
+  monitor=FALSE
+)
+
+nro_evaluaciones_ga_2d <- ga_evolutivo_2d@popSize * ga_evolutivo_2d@iter
+
+ga_evolutivo_3d <- ga(
+  type = "real-valued",
+  fitness = function(x) -rosenbrock_n(x),  
+  lower = c(-3, -3, -3),
+  upper = c(3, 3, 3),
+  popSize = 50,
+  maxiter = 50,
+  run=50,
+  monitor=FALSE
+)
+
+nro_evaluaciones_ga_3d <- ga_evolutivo_3d@popSize * ga_evolutivo_3d@iter
+
+```
+
+##### **Optimización por enjambre de partículas (PSO)**
+
+De nuevo comenzamos con una posición aleatoria en el rango [−3,3] para cada una de las variables variables y se realiza hasta 100 iteraciones para encontrar el mínimo.
+
+```{r PSO, message=FALSE}
+#2D
+evaluaciones_pso <- 0
+rosenbrock_n_evaluaciones_pso <- function(x) {
+  evaluaciones_pso <<- evaluaciones_pso + 1
+  rosenbrock_n(x)
+}
+
+# Ejecutar PSO con función evaluaciones_psoa
+set.seed(1986)
+res_pso_2d <- psoptim(
+  par = runif(2, -3, 3),
+  fn = rosenbrock_n_evaluaciones_pso,
+  lower = c(-3, -3),
+  upper = c(3, 3),
+  control = list(maxit = 100)
+)
+
+#3D
+evaluaciones_pso_3d <- 0
+rosenbrock_n_evaluaciones_pso_3d <- function(x) {
+  evaluaciones_pso_3d <<- evaluaciones_pso_3d + 1
+  rosenbrock_n(x)
+}
+
+res_pso_3d <- psoptim(
+  par = runif(3, -3, 3),
+  fn = rosenbrock_n_evaluaciones_pso_3d,
+  lower = c(-3, -3, -3),
+  upper = c(3, 3, 3),
+  control = list(maxit = 100)
+)
+
+```
+
+##### **Evolución Diferencial (DE)**
+
+En este caso establecemos una población inicial de 50 individuos (NP = 50) y se permiten hasta 100 iteraciones (itermax = 100) para la optimización. En este caso también se busca el mínimo de la función dentro del rango [−3,3] para todas las variables. 
+
+```{r DE, message=FALSE}
+# Optimizamos con DE
+set.seed(1986)
+control_params <- DEoptim.control(NP = 50, itermax = 70,trace=FALSE)
+res_de_2d <- DEoptim(
+  fn = rosenbrock_n,
+  lower = c(-3, -3),
+  upper = c(3, 3),
+  control = control_params
+)
+evaluaciones_de <- control_params$NP *  res_de_2d$optim$iter
+
+res_de_3d <- DEoptim(
+  fn = rosenbrock_n,
+  lower = c(-3, -3, -3),
+  upper = c(3, 3, 3),
+  control = control_params
+)
+
+evaluaciones_de_3d <- control_params$NP *  res_de_2d$optim$iter
+```
+
+A continuación observamos los resultados obtenidos, de la optimización de la función de Rosenbrock para dos variables, con los cuatro métodos. 
+
+```{r resultado_optimizacion_2d,fig.cap="**Tabla X.** _Resultados de la Optimizació de Rosenbrock f(x1,x2) _", fig.align="center", out.width="70%", echo=FALSE}
+tabla_optimizacion_2D <- data.frame(
+  "Método" = c("Descenso por gradiente",
+               "Algoritmos evolutivos",
+               "Optimización de partículas",
+               "Evolución Diferencial"),
+  "Valor de x1" = c(res_gradiente_2d$par[1], ga_evolutivo_2d@solution[1], res_pso_2d$par[1], as.numeric(res_de_2d$optim$bestmem["par1"])),
+  "Valor de x2" = c(res_gradiente_2d$par[2], ga_evolutivo_2d@solution[2], res_pso_2d$par[2], as.numeric(res_de_2d$optim$bestmem["par2"])),
+  "Valor Función Objetivo" = c(res_gradiente_2d$value, ga_evolutivo_2d@fitnessValue, res_pso_2d$value, res_de_2d$optim$bestval),
+  "Número de Evaluaciones" = c(as.numeric(res_gradiente_2d$counts[1]), nro_evaluaciones_ga_2d, evaluaciones_pso, evaluaciones_de),
+  check.names = FALSE
+)
+
+kable(tabla_optimizacion_2D, caption = "Resultados Optimización de Rosenbrock para dos dimensiones (x1,x2)")
+```
+
+Para dos dimensiones los resultados nos muestran que todos los métodos lograron aproximarse al mínimo global de la función de Rosenbrock, aunque con diferencias significativas en eficiencia y precisión. El método de descenso por gradiente (BFGS) fue el más eficiente, alcanzando un valor prácticamente óptimo con solo 53 evaluaciones. En contraste, los métodos heurísticos requirieron muchas más evaluaciones: evolución diferencial logró un valor casi perfecto con 3500 evaluaciones, mientras que PSO alcanzó un resultado muy cercano al óptimo con 1200 evaluaciones. Por su parte, el algoritmo evolutivo fue el menos preciso, con un valor ligeramente más alejado del óptimo y un costo computacional alto (2500 evaluaciones). En resumen, los métodos tradicionales como el gradiente descendente son más eficientes cuando la función es suave y bien comportada, mientras que los métodos heurísticos ofrecen robustez frente a funciones complejas, aunque con mayor costo computacional. Es importante recordar que en el caso de métodos basados en gradiente as condiciones iniciales juegan un papel crucial en la optimización, ya que pueden determinar si el algoritmo converge rápidamente o queda atrapado en regiones poco prometedoras.
+
+
+```{r resultado_optimizacion_3d,fig.cap="**Tabla X.** _Resultados de la Optimizació de Rosenbrock f(x1,x2,x3) _", fig.align="center", out.width="70%", echo=FALSE}
+tabla_optimizacion_3D <- data.frame(
+  "Método" = c("Descenso por gradiente",
+               "Algoritmos evolutivos",
+               "Optimización de partículas",
+               "Evolución Diferencial"),
+  "Valor de x1*" = c(res_gradiente_3d$par[1], ga_evolutivo_3d@solution[1], res_pso_3d$par[1], as.numeric(res_de_3d$optim$bestmem["par1"])),
+  "Valor de x2*" = c(res_gradiente_3d$par[2], ga_evolutivo_3d@solution[2], res_pso_3d$par[2], as.numeric(res_de_3d$optim$bestmem["par2"])),
+  "Valor de x3*" = c(res_gradiente_3d$par[3], ga_evolutivo_3d@solution[3], res_pso_3d$par[2], as.numeric(res_de_3d$optim$bestmem["par2"])),
+  "Valor Óptimo de la Función Objetivo" = c(res_gradiente_3d$value, ga_evolutivo_3d@fitnessValue, res_pso_3d$value, res_de_3d$optim$bestval),
+  "Número de Evaluaciones" = c(as.numeric(res_gradiente_3d$counts[1]), nro_evaluaciones_ga_3d, evaluaciones_pso_3d, evaluaciones_de_3d),
+  check.names = FALSE
+)
+
+kable(tabla_optimizacion_3D, caption = "Resultados Optimización de Rosenbrock en tres dimensiones (x1,x2,x3)")
+```
+
+El descenso por gradiente (BFGS) es el método más eficiente, logrando el valor óptimo con solo 143 evaluaciones. Los algoritmos evolutivos requieren 2500 evaluaciones, pero terminan con un valor de función objetivo significativamente más alejado del mínimo. La optimización por partículas (PSO) logra un valor positivo con 1300 evaluaciones, pero no se aproxima tanto al óptimo como el descenso por gradiente. Finalmente, la evolución diferencial con 3500 evaluaciones también se queda cerca del óptimo, pero no supera al gradiente. En general, los métodos heurísticos necesitan más evaluaciones y no alcanzan la precisión del descenso por gradiente.
+
+### Animación del Descenso del Gradiente. 
+
+```{r animacion_gd, eval=FALSE,include=FALSE}
+rosenbrock_3d_history <- list()
+
+rosenbrock_with_history_3d <- function(x) {
+  val <- rosenbrock_n(x)
+  rosenbrock_3d_history <<- c(rosenbrock_3d_history, list(list(x = x, value = val)))
+  return(val)
+}
+# Optimización 2D
+
+set.seed(1986)
+
+x0_3r <- runif(2, -3, 3)
+
+# Optimización
+res_3d <- optim(
+  par = x0_3r,
+  fn = rosenbrock_with_history_3d,
+  method = "BFGS",
+  control = list(trace = 1, REPORT = 1, maxit = 100)
+)
+
+rosenbrock_df_3d <- data.frame(
+  step = 1:length(rosenbrock_3d_history),
+  x = sapply(rosenbrock_3d_history, function(p) p$x[1]),
+  y = sapply(rosenbrock_3d_history, function(p) p$x[2]),
+  z = sapply(rosenbrock_3d_history, function(p) p$value)
+)
+
+# Crear cuadrícula para visualización de la función
+x_vals <- seq(-3, 3, length.out = 200)
+y_vals <- seq(-3, 3, length.out = 200)
+grid <- expand.grid(x = x_vals, y = y_vals) %>%
+  rowwise() %>%
+  mutate(z = rosenbrock_n(c(x, y))) %>%
+  ungroup()
+
+# Crear gráfico animado
+p <- ggplot() +
+  # Capa BASE de relleno para el mapa de calor
+  geom_raster(data = grid, aes(x = x, y = y, fill = z), alpha = 0.5) +
+  scale_fill_viridis_c(option = "viridis", name = "Valor de Rosenbrock") +
+  
+  # Curvas de nivel
+  geom_contour(data = grid, aes(x = x, y = y, z = z), 
+               color = "black", alpha = 0.4, bins = 15) +
+  
+  # Trayectoria del optimizador
+  geom_path(data = rosenbrock_df_3d, aes(x = x, y = y), 
+            color = "darkgrey", alpha = 0.5, linewidth = 0.8) +
+  
+  # Puntos animados (nuevo esquema de colores)
+  geom_point(data = rosenbrock_df_3d, aes(x = x, y = y, color = step), 
+             size = 3, show.legend = FALSE) +
+  scale_color_gradient(low = "orange", high = "red") +  # Naranja a rojo
+  
+  # Punto óptimo
+  geom_point(aes(x = 1, y = 1), shape = 5, color = "red", size = 4) +
+  annotate("text", x = 1, y = 1.5, label = "Óptimo Global", 
+           color = "red", fontface = "bold") +
+  
+  # Estilo y animación
+  theme_minimal() +
+  labs(
+    title = "Optimización de la Función Rosenbrock\nIteración: {frame_time}",
+    x = "x1",
+    y = "x2"
+  ) +
+  transition_time(step) +
+  shadow_wake(wake_length = 0.1, alpha = 0.3) +
+  
+  # Limitar los ejes x y y entre -2 y 2
+  xlim(-3, 3) +
+  ylim(-3, 3) +
+  
+  theme(plot.margin = margin(t = 30, r = 10, b = 10, l = 10, unit = "pt"))
+
+# Renderizar la animación
+#animate(p, fps = 3, width = 700, height = 470, renderer = av_renderer("Trabajo1_files/rosenbrock_3d_path.mp4"))
+#renderer <- gifski_renderer(tempfile(fileext = ".gif"))
+#gganimate::animate(p, fps = 3, width = 700, height = 470, renderer = renderer)
+#animate(p, fps = 3, width = 700, height = 470, renderer = gifski_renderer("rosenbrock_3d_gifanimado.gif"))
+gganimate::animate(p, fps = 3, width = 700, height = 470,
+                   renderer = gifski_renderer("Trabajo1_files/rosenbrock_gd_2d.gif"))
+```
+
+```{r fig_dg_2d, fig.cap="**Fig X.** Animación Descenso del gradiente 2D", fig.align="center", out.width="70%"}
+knitr::include_graphics("Trabajo1_files/rosenbrock_gd_2d.gif")
+```
+
+## Animación Evolución Diferencial 
+
+```{r, eval=FALSE,include=FALSE}
+# Función objetivo con almacenamiento de la historia
+rosenbrock_de_history <- list()
+
+rosenbrock_with_history_de <- function(x) {
+  val <- rosenbrock_n(x)
+  rosenbrock_de_history <<- c(rosenbrock_de_history, list(list(x = x, value = val)))
+  return(val)
+}
+
+# Ejecutar DEoptim
+set.seed(1986)
+control_params <- DEoptim.control(NP = 50, itermax = 100, trace = FALSE)
+
+res_de_2d <- DEoptim(
+  fn = rosenbrock_with_history_de,
+  lower = c(-3, -3),
+  upper = c(3, 3),
+  control = control_params
+)
+
+# Extraer solo el mejor individuo por generación
+evals <- split(rosenbrock_de_history, rep(1:101, each = 50))  # 101 = 1 inicial + 100 iteraciones
+
+best_by_gen <- lapply(evals, function(gen) {
+  gen[[which.min(sapply(gen, function(p) p$value))]]
+})
+
+rosenbrock_df_de <- data.frame(
+  step = 1:length(best_by_gen),
+  x = sapply(best_by_gen, function(p) p$x[1]),
+  y = sapply(best_by_gen, function(p) p$x[2]),
+  z = sapply(best_by_gen, function(p) p$value)
+)
+
+# Crear el grid para el fondo de la animación
+x_vals <- seq(-3, 3, length.out = 200)
+y_vals <- seq(-3, 3, length.out = 200)
+grid <- expand.grid(x = x_vals, y = y_vals) %>%
+  rowwise() %>%
+  mutate(z = rosenbrock_n(c(x, y))) %>%
+  ungroup()
+
+# Crear el gráfico animado
+p_de <- ggplot() +
+  geom_raster(data = grid, aes(x = x, y = y, fill = z), alpha = 0.5) +
+  scale_fill_viridis_c(option = "viridis") +
+  geom_contour(data = grid, aes(x = x, y = y, z = z), color = "black", alpha = 0.4) +
+  geom_path(data = rosenbrock_df_de, aes(x = x, y = y), color = "darkgrey", alpha = 0.5) +
+  geom_point(data = rosenbrock_df_de, aes(x = x, y = y, color = step), size = 3, show.legend = FALSE) +
+  scale_color_gradient(low = "blue", high = "green") +
+  geom_point(aes(x = 1, y = 1), shape = 5, color = "red", size = 4) +
+  annotate("text", x = 1, y = 1.5, label = "Óptimo Global", color = "red", fontface = "bold") +
+  theme_minimal() +
+  labs(
+    title = "Optimización con DE - Función Rosenbrock\nIteración: {frame_time}",
+    x = "x1", y = "x2"
+  ) +
+  transition_time(step) +
+  shadow_wake(wake_length = 0.1, alpha = 0.3) +
+  xlim(-3, 3) +
+  ylim(-3, 3)
+
+# Renderizar y guardar el GIF
+gganimate::animate(p_de, fps = 3, width = 700, height = 470,
+                   renderer = gifski_renderer("Trabajo1_files/rosenbrock_de_2d.gif"))
+```
+
+
+```{r fig_ed_2d, fig.cap="**Fig X.** Animación Evolución Diferencial 2D", fig.align="center", out.width="70%"}
+knitr::include_graphics("Trabajo1_files/rosenbrock_de_2d.gif")
+```
+
+
 
 $CT_{ij} = PrecioPeajes_{ij} + Distancia_{ij}(km) * PrecioGasolina/km + Salario(Horas) * Tiempo_{ij}(Horas)$
 
