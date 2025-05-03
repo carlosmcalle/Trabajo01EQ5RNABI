@@ -5,19 +5,19 @@ import numpy as np
 
 # Vector de 13 ciudades principales
 ciudades = [
-    "Bogotá",
-    "Medellín",
-    "Cali",
-    "Barranquilla",
-    "Cartagena",
-    "Bucaramanga",
-    "Cúcuta",
-    "Pereira",
-    "Manizales",
-    "Ibagué",
-    "Santa Marta",
-    "Villavicencio",
-    "Neiva"
+    "Bogotá, Distrito Capital",
+    "Medellín, Antioquia",
+    "Cali, Valle del Cauca",
+    "Barranquilla, Atlantico",
+    "Cartagena de Indias, Bolívar",
+    "Bucaramanga, Santander",
+    "Cúcuta, Norte de Santander",
+    "Pereira, Risaralda",
+    "Manizales, Caldas",
+    "Ibagué, Tolima",
+    "Santa Marta, Magdalena",
+    "Villavicencio, Meta",
+    "Neiva, Huila"
 ]
 
 # Crea las rutas
