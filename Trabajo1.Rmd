@@ -408,17 +408,17 @@ ggplot() +
 
 ##### Descripción del gráfico
 
-+-----------------------------------+-------------------------------------------------------------------------------------------------------+
-| Elemento                          | Significado                                                                                           |
-+===================================+=======================================================================================================+
-| 🔵 **Trayectoria azul**           | Secuencia de pasos que toma Gradient Descent desde el punto inicial.                                  |
-+-----------------------------------+-------------------------------------------------------------------------------------------------------+
-| ⚫ **Círculo negro (Inicio)**     | Posición de partida $(3,\ 3)$ del algoritmo.                                                          |
-+-----------------------------------+-------------------------------------------------------------------------------------------------------+
-| 🔺 **Triángulo rojo (Fin)**       | Mínimo local donde GD queda atrapado tras 200 iteraciones.                                            |
-+-----------------------------------+-------------------------------------------------------------------------------------------------------+
-| **Mapa de colores (f(x))**        | Valor de la función Rastrigin; violeta oscuro ($\approx0$) (valles), amarillo ($\approx 80$) (picos). |
-+-----------------------------------+-------------------------------------------------------------------------------------------------------+
++-------------------------------+-------------------------------------------------------------------------------------------------------+
+| Elemento                      | Significado                                                                                           |
++===============================+=======================================================================================================+
+| 🔵 **Trayectoria azul**       | Secuencia de pasos que toma Gradient Descent desde el punto inicial.                                  |
++-------------------------------+-------------------------------------------------------------------------------------------------------+
+| ⚫ **Círculo negro (Inicio)** | Posición de partida $(3,\ 3)$ del algoritmo.                                                          |
++-------------------------------+-------------------------------------------------------------------------------------------------------+
+| 🔺 **Triángulo rojo (Fin)**   | Mínimo local donde GD queda atrapado tras 200 iteraciones.                                            |
++-------------------------------+-------------------------------------------------------------------------------------------------------+
+| **Mapa de colores (f(x))**    | Valor de la función Rastrigin; violeta oscuro ($\approx0$) (valles), amarillo ($\approx 80$) (picos). |
++-------------------------------+-------------------------------------------------------------------------------------------------------+
 
 ##### Análisis del comportamiento del algoritmo
 
@@ -678,9 +678,9 @@ fig
 | **Diamante amarillo (“Óptimo encontrado”)** | Señala el mínimo local donde el algoritmo quedó atrapado. |
 +---------------------------------------------+-----------------------------------------------------------+
 
-+-----------------------------------------------------------------------------------------------------------------------+
-| ▶️⏸️ **Controles Play/Pause + slider** \| Permiten navegar interactivamente por las iteraciones. \| \| \| \| \| \| \| |
-+-----------------------------------------------------------------------------------------------------------------------+
++--------------------------------------------------------------------------------------------------------------------+
+| ▶️⏸️ **Controles Play/Pause + slider** \| Permiten navegar interactivamente por las iteraciones. \| \| \| \| \| \| |
++--------------------------------------------------------------------------------------------------------------------+
 
 ##### Comportamiento de GD en 3D
 
@@ -719,6 +719,60 @@ GA_rastrigin_2d <- ga(
 summary(GA_rastrigin_2d)
 
 ```
+```{r}
+library(GA)
+library(magick)
+
+# Crear una carpeta temporal para guardar las imágenes
+dir_temp <- tempdir()
+files <- character(0)
+
+# Monitor que guarda cada frame como una imagen PNG
+monitor_magick <- function(obj) {
+  iter <- obj@iter
+  pop <- obj@population
+  
+  png_filename <- file.path(dir_temp, sprintf("frame_%03d.png", iter))
+  png(png_filename, width=600, height=600)
+  plot(pop, xlim=c(-5.12, 5.12), ylim=c(-5.12, 5.12),
+       main=paste("Iteración", iter),
+       xlab="x", ylab="y", pch=19, col=rgb(0,0,1,0.5))
+  dev.off()
+  
+  files <<- c(files, png_filename)
+}
+set.seed(420)
+GA_rastrigin_2d <- ga(
+  type = "real-valued",
+  fitness = function(x) -rastrigin(x),
+  lower = c(-5.12, -5.12),
+  upper = c(5.12, 5.12),
+  popSize = 50,
+  maxiter = 100,
+  run = 50,
+  monitor = monitor_magick
+)
+# Leer las imágenes y combinarlas en un GIF animado en memoria
+img_list <- image_read(files)
+animation <- image_animate(img_list, fps = 10)
+
+
+# Crear carpeta de salida si no existe
+output_dir <- "Trabajo1_files"
+if (!dir.exists(output_dir)) dir.create(output_dir)
+
+# Ruta del archivo GIF de salida
+gifga_path <- file.path(output_dir, "rastrigin_ga_animation.gif")
+
+# Guardar el GIF en disco
+image_write(animation, gifga_path)
+
+```
+
+```{r fig_ga_2d, fig.cap="**Fig X.** Animación Algoritmos evolutivos 2D", fig.align="center", out.width="70%"}
+knitr::include_graphics(gifga_path)
+```
+
 
 #### Tres dimensiones
 
@@ -739,6 +793,75 @@ GA_rastrigin_3d <- ga(
 summary(GA_rastrigin_3d)
 ```
 
+```{r}
+library(GA)
+library(magick)
+library(scatterplot3d)
+library(rgl)
+
+# Crear carpeta temporal para imágenes
+dir_temp <- tempdir()
+files <- character(0)
+
+# Monitor para GA en 3D que guarda imágenes
+monitor_magick_3d <- function(obj) {
+  iter <- obj@iter
+  pop <- obj@population
+  
+  png_filename <- file.path(dir_temp, sprintf("frame_%03d.png", iter))
+  png(png_filename, width = 600, height = 600)
+  
+  # Graficar la población en 3D
+  scatterplot3d(
+    pop[,1], pop[,2], pop[,3],
+    xlim = c(-5.12, 5.12),
+    ylim = c(-5.12, 5.12),
+    zlim = c(-5.12, 5.12),
+    pch = 19, color = rgb(0, 0, 1, 0.5),
+    xlab = "x", ylab = "y", zlab = "z",
+    main = paste("Iteración", iter)
+  )
+  points3d(0, 0, 0, col = "red", pch = 8)  # Óptimo global
+  
+  dev.off()
+  
+  files <<- c(files, png_filename)
+}
+
+# Ejecutar el GA en 3D con el monitor modificado
+set.seed(420)
+GA_rastrigin_3d <- ga(
+  type = "real-valued",
+  fitness = function(x) -rastrigin(x),
+  lower = c(-5.12, -5.12, -5.12),
+  upper = c(5.12, 5.12, 5.12),
+  popSize = 50,
+  maxiter = 100,
+  run = 50,
+  monitor = monitor_magick_3d
+)
+
+# Crear GIF animado desde imágenes
+img_list <- image_read(files)
+animation <- image_animate(img_list, fps = 10)
+
+# Guardar el GIF
+output_dir <- "Trabajo1_files"
+if (!dir.exists(output_dir)) dir.create(output_dir)
+
+gifga3d_path <- file.path(output_dir, "rastrigin_ga_3d.gif")
+image_write(animation, gifga3d_path)
+
+```
+
+
+
+
+```{r fig_ga_3d, fig.cap="**Fig X.** Animación Algoritmos evolutivos 3D", fig.align="center", out.width="70%"}
+knitr::include_graphics(gifga3d_path)
+```
+
+
 ## Optimización de partículas
 
 ```{r}
@@ -753,6 +876,85 @@ pso_rastrigin_2d <- psoptim(
     trace = 1                        # Mostrar progreso
   )
 )
+```
+```{r}
+library(pso)
+library(magick)
+
+# Lista para guardar la historia del enjambre
+pso_history <- list()
+
+# Función wrapper con historial
+rastrigin_with_history <- function(x) {
+  # Solo registrar si estamos dentro de PSO
+  if (exists(".current_iter", envir = .GlobalEnv)) {
+    i <- get(".current_iter", envir = .GlobalEnv)
+    assign(".pso_particles", rbind(get(".pso_particles", envir = .GlobalEnv), x), envir = .GlobalEnv)
+  }
+  rastrigin(x)
+}
+
+# Monitor manual en bucle
+maxit <- 200
+s <- 40
+
+# Inicialización
+assign(".pso_particles", matrix(, nrow = 0, ncol = 2), envir = .GlobalEnv)
+
+# Ejecutar PSO y registrar enjambre por iteración
+set.seed(42)
+for (iter in 1:maxit) {
+  assign(".current_iter", iter, envir = .GlobalEnv)
+  assign(".pso_particles", matrix(, nrow = 0, ncol = 2), envir = .GlobalEnv)
+  
+  psoptim(
+    par = c(NA, NA),
+    fn = rastrigin_with_history,
+    lower = c(-5.12, -5.12),
+    upper = c(5.12, 5.12),
+    control = list(
+      maxit = 1,
+      s = s,
+      maxfn = 0,     # No queremos que evolucione, solo un paso por iteración
+      trace = FALSE
+    )
+  )
+  
+  pso_history[[iter]] <- get(".pso_particles", envir = .GlobalEnv)
+}
+
+# Generar gráficos por iteración
+dir_temp <- tempdir()
+files <- character(0)
+
+for (i in seq_along(pso_history)) {
+  png_filename <- file.path(dir_temp, sprintf("pso_frame_%03d.png", i))
+  png(png_filename, width = 600, height = 600)
+  plot(pso_history[[i]], xlim = c(-5.12, 5.12), ylim = c(-5.12, 5.12),
+       pch = 19, col = rgb(0, 0, 1, 0.5),
+       xlab = "x", ylab = "y", main = paste("PSO Iteración", i))
+  points(0, 0, pch = 8, col = "red", cex = 1.5)  # Óptimo global
+  dev.off()
+  files <- c(files, png_filename)
+}
+
+# Crear animación
+img_list <- image_read(files)
+animation <- image_animate(img_list, fps = 10)
+
+# Guardar GIF
+output_dir <- "Trabajo1_files"
+if (!dir.exists(output_dir)) dir.create(output_dir)
+
+gifpso_path <- file.path(output_dir, "rastrigin_pso_2d.gif")
+image_write(animation, gifpso_path)
+
+
+
+```
+
+```{r fig_pso_2d, fig.cap="**Fig X.** Animación Optimización de particulas 2D", fig.align="center", out.width="70%"}
+knitr::include_graphics(gifpso_path)
 ```
 
 ```{r}
@@ -770,6 +972,93 @@ pso_rastrigin_3d <- psoptim(
 ```
 
 ## Evolución diferencial
+```{r}
+
+
+
+# Almacenar historial
+rastrigin_de_history <- list()
+
+rastrigin_with_history_de <- function(x) {
+  val <- rastrigin(x)
+  rastrigin_de_history <<- c(rastrigin_de_history, list(list(x = x, value = val)))
+  return(val)
+}
+
+# Ejecutar DEoptim
+set.seed(123)
+control_params <- DEoptim.control(NP = 50, itermax = 100, trace = FALSE)
+
+res_de <- DEoptim(
+  fn = rastrigin_with_history_de,
+  lower = c(-5.12, -5.12),
+  upper = c(5.12, 5.12),
+  control = control_params
+)
+
+# Extraer el mejor individuo por generación
+evals <- split(rastrigin_de_history, rep(1:101, each = 50))  # 1 inicial + 100 iteraciones
+
+best_by_gen <- lapply(evals, function(gen) {
+  gen[[which.min(sapply(gen, function(p) p$value))]]
+})
+
+rastrigin_df_de <- data.frame(
+  step = 1:length(best_by_gen),
+  x = sapply(best_by_gen, function(p) p$x[1]),
+  y = sapply(best_by_gen, function(p) p$x[2]),
+  z = sapply(best_by_gen, function(p) p$value)
+)
+
+# Crear grid para el fondo
+x_vals <- seq(-5.12, 5.12, length.out = 200)
+y_vals <- seq(-5.12, 5.12, length.out = 200)
+grid <- expand.grid(x = x_vals, y = y_vals) %>%
+  rowwise() %>%
+  mutate(z = rastrigin(c(x, y))) %>%
+  ungroup()
+
+
+```
+
+```{r}
+# Procesar historial
+evals <- split(rastrigin_de_history, rep(1:101, each = 50))  # 1 inicial + 100 iteraciones
+
+# Preparar carpeta temporal para imágenes
+dir_temp <- tempdir()
+files <- character(0)
+
+# Generar una imagen por iteración
+for (i in seq_along(evals)) {
+  gen <- evals[[i]]
+  coords <- t(sapply(gen, function(p) p$x))
+  
+  png_filename <- file.path(dir_temp, sprintf("frame_%03d.png", i))
+  png(png_filename, width = 600, height = 600)
+  plot(coords, xlim = c(-5.12, 5.12), ylim = c(-5.12, 5.12),
+       main = paste("Iteración", i - 1),
+       xlab = "x", ylab = "y", pch = 19, col = rgb(0.2, 0.6, 0.9, 0.5))
+  dev.off()
+  
+  files <- c(files, png_filename)
+}
+
+# Crear GIF
+img_list <- image_read(files)
+animation <- image_animate(img_list, fps = 10)
+
+# Guardar GIF
+output_dir <- "Trabajo1_files"
+if (!dir.exists(output_dir)) dir.create(output_dir)
+
+gifed_path <- file.path(output_dir, "rastrigin_de_animation.gif")
+image_write(animation, gifed_path)
+```
+
+```{r fig_pso_2d, fig.cap="**Fig X.** Animación Optimización de particulas 2D", fig.align="center", out.width="70%"}
+knitr::include_graphics(gifed_path)
+```
 
 ## ***1.2 Función de Rosenbrock***
 
@@ -1255,6 +1544,180 @@ gganimate::animate(p_de, fps = 3, width = 700, height = 470,
 
 ```{r fig_ed_2d, fig.cap="**Fig X.** Animación Evolución Diferencial 2D", fig.align="center", out.width="70%"}
 knitr::include_graphics("Trabajo1_files/rosenbrock_de_2d.gif")
+```
+
+## Animación Algoritmos Evolutivos
+
+```{r, eval=FALSE,include=FALSE}
+# Contador para las generaciones (esto va antes de correr el GA)
+rosenbrock_ga_history <- list()
+generation_counter <- 0
+individual_counter <- 0
+gen_sizes <- c()  # Para guardar el número de individuos por generación
+
+# Función de evaluación
+rosenbrock_with_history_ga <- function(x) {
+  val <- -rosenbrock_n(x)
+  rosenbrock_ga_history <<- c(rosenbrock_ga_history, list(list(x = x, value = -val, gen = generation_counter)))
+  individual_counter <<- individual_counter + 1
+  return(val)
+}
+
+# Callback para marcar el inicio de cada generación
+my_monitor <- function(obj) {
+  generation_counter <<- generation_counter + 1
+  gen_sizes <<- c(gen_sizes, individual_counter)
+  individual_counter <<- 0
+}
+
+# Ejecutar el algoritmo genético
+set.seed(1986)
+res_ga <- ga(
+  type = "real-valued",
+  fitness = rosenbrock_with_history_ga,
+  lower = c(-3, -3),
+  upper = c(3, 3),
+  popSize = 50,
+  maxiter = 50,
+  run = 50,
+  monitor = my_monitor
+)
+
+# Asegurarnos de guardar la última generación
+gen_sizes <- c(gen_sizes, individual_counter)
+
+# Agrupar por generación
+evals <- split(rosenbrock_ga_history, sapply(rosenbrock_ga_history, function(p) p$gen))
+
+# Extraer el mejor de cada generación
+best_by_gen <- lapply(evals, function(gen) {
+  gen[[which.min(sapply(gen, function(p) p$value))]]
+})
+
+# Dataframe para la animación
+rosenbrock_df_ga <- data.frame(
+  step = 1:length(best_by_gen),
+  x = sapply(best_by_gen, function(p) p$x[1]),
+  y = sapply(best_by_gen, function(p) p$x[2]),
+  z = sapply(best_by_gen, function(p) p$value)
+)
+
+# Crear el grid para la animación
+x_vals <- seq(-3, 3, length.out = 200)
+y_vals <- seq(-3, 3, length.out = 200)
+grid <- expand.grid(x = x_vals, y = y_vals) %>%
+  rowwise() %>%
+  mutate(z = rosenbrock_n(c(x, y))) %>%
+  ungroup()
+
+# Crear el gráfico animado
+p_ga <- ggplot() +
+  geom_raster(data = grid, aes(x = x, y = y, fill = z), alpha = 0.5) +
+  scale_fill_viridis_c(option = "viridis") +
+  geom_contour(data = grid, aes(x = x, y = y, z = z), color = "black", alpha = 0.4) +
+  geom_path(data = rosenbrock_df_ga, aes(x = x, y = y), color = "darkgrey", alpha = 0.5) +
+  geom_point(data = rosenbrock_df_ga, aes(x = x, y = y, color = step), size = 3, show.legend = FALSE) +
+  scale_color_gradient(low = "blue", high = "green") +
+  geom_point(aes(x = 1, y = 1), shape = 5, color = "red", size = 4) +
+  annotate("text", x = 1, y = 1.5, label = "Óptimo Global", color = "red", fontface = "bold") +
+  theme_minimal() +
+  labs(
+    title = "Optimización con GA - Función Rosenbrock\nIteración: {frame_time}",
+    x = "x1", y = "x2"
+  ) +
+  transition_time(step) +
+  shadow_wake(wake_length = 0.1, alpha = 0.3) +
+  xlim(-3, 3) +
+  ylim(-3, 3)
+
+# Renderizar y guardar el GIF
+gganimate::animate(p_ga, fps = 3, width = 700, height = 470,
+                   renderer = gifski_renderer("Trabajo1_files/rosenbrock_ga_2d.gif"))
+```
+
+```{r gifrosenga, fig.cap="**Fig X.** Animación Algoritmos Evolutivos 2D", fig.align="center", out.width="70%"}
+knitr::include_graphics("Trabajo1_files/rosenbrock_ga_2d.gif")
+```
+
+## Animación Optimización por enjambre de Particulas 
+
+```{r, eval=FALSE,include=FALSE}
+# Historial global
+rosenbrock_pso_history <- list()
+current_pso_iter <- 0
+
+# Función para registrar posiciones y evaluar
+rosenbrock_with_history_pso <- function(x) {
+  val <- rosenbrock_n(x)
+  rosenbrock_pso_history[[current_pso_iter]] <<- append(rosenbrock_pso_history[[current_pso_iter]], list(list(x = x, value = val)))
+  return(val)
+}
+
+# Función adaptativa para población (matriz) o individuo (vector)
+fitness_wrapper <- function(pop) {
+  current_pso_iter <<- current_pso_iter + 1
+  rosenbrock_pso_history[[current_pso_iter]] <<- list()
+  
+  if (is.null(dim(pop))) {
+    # Caso: vector
+    return(rosenbrock_with_history_pso(pop))
+  } else {
+    # Caso: matriz
+    return(apply(pop, 1, rosenbrock_with_history_pso))
+  }
+}
+
+# Ejecutar PSO
+set.seed(1986)
+res_pso <- psoptim(
+  par = c(0, 0),
+  fn = fitness_wrapper,
+  lower = c(-3, -3),
+  upper = c(3, 3),
+  control = list(maxit = 100, trace = 0,s=20)  
+)
+
+# Procesar historial
+frames_pso <- do.call(rbind, lapply(seq_along(rosenbrock_pso_history), function(i) {
+  do.call(rbind, lapply(rosenbrock_pso_history[[i]], function(p) {
+    data.frame(step = i, x = p$x[1], y = p$x[2], z = p$value)
+  }))
+}))
+
+# Crear grid de fondo
+x_vals <- seq(-3, 3, length.out = 200)
+y_vals <- seq(-3, 3, length.out = 200)
+grid <- expand.grid(x = x_vals, y = y_vals) %>%
+  rowwise() %>%
+  mutate(z = rosenbrock_n(c(x, y))) %>%
+  ungroup()
+
+# Crear animación
+p_pso <- ggplot() +
+  geom_raster(data = grid, aes(x = x, y = y, fill = z), alpha = 0.5) +
+  scale_fill_viridis_c(option = "viridis") +
+  geom_contour(data = grid, aes(x = x, y = y, z = z), color = "black", alpha = 0.4) +
+  geom_point(data = frames_pso, aes(x = x, y = y, color = step), size = 2, show.legend = FALSE) +
+  scale_color_gradient(low = "blue", high = "green") +
+  geom_point(aes(x = 1, y = 1), shape = 5, color = "red", size = 4) +
+  annotate("text", x = 1, y = 1.5, label = "Óptimo Global", color = "red", fontface = "bold") +
+  theme_minimal() +
+  labs(
+    title = "Optimización con PSO - Función Rosenbrock\nIteración: {frame_time}",
+    x = "x1", y = "x2"
+  ) +
+  transition_time(step) +
+  shadow_wake(wake_length = 0.1, alpha = 0.3) +
+  xlim(-3, 3) +
+  ylim(-3, 3)
+
+# Renderizar
+gganimate::animate(p_pso, fps = 4, width = 700, height = 470,
+                   renderer = gifski_renderer("Trabajo1_files/rosenbrock_pso_2d.gif"))
+```
+
+```{r gifrosenga, fig.cap="**Fig X.** Animación Optimización PSO 2D", fig.align="center", out.width="70%"}
+knitr::include_graphics("Trabajo1_files/rosenbrock_pso_2d.gif")
 ```
 
 # Optimización combinatoria
