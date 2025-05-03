@@ -1546,3 +1546,15 @@ leaflet(route_coords) %>%
                                                   )))
 
 ```
+
+# Reporte contribución individual
+
+-   Natalia Remolina: análisis de resultados descenso del gradiente en Rastrigin, ejecución del Web Scraping, optimización combinatoria colonia de hormigas (algoritmo y gráficos).
+
+-   Jonatan Sanchez: creación del repositorio GitHub, optimización por descenso del gradiente para Rastrigin (función, gráficos y animaciones) y análisis de resultados, ejecución del Web Scraping, optimización combinatoria colonia de hormigas (algoritmo y gráficos).
+
+-   Carlos Calle: creación del repositorio GitHub, creación y ejecución del Web Scraping para obtener información de distancia, tiempo y costo de peajes desde el aplicativo Hermes de Invias, definición de los optimizadores para Rastrigin en algoritmos evolutivos y optimización de párticulas, optimización combinatoria colonia de hormigas (algoritmo y gráficos).
+
+-   Juan Camilo Valencia: optimización combinatoria colonia de hormigas (algoritmo y gráficos)
+
+-   David Castro: optimización por descenso del gradiente y algoritmos evolutivos de Rosenbrock
