@@ -2020,4 +2020,4 @@ leaflet(route_coords) %>%
 
 -   Juan Camilo Valencia: optimización combinatoria colonia de hormigas (algoritmo y gráficos)
 
--   David Castro: optimización por descenso del gradiente y algoritmos evolutivos de Rosenbrock
+-   David Castro: Optimización de la Función Rosenbrock, en 2d,3d con Descenso por gradiente y Metodos heuristicos, graficas. 
