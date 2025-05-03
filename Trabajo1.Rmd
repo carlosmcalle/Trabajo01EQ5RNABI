@@ -2018,6 +2018,6 @@ leaflet(route_coords) %>%
 
 -   Carlos Calle: creación del repositorio GitHub, creación y ejecución del Web Scraping para obtener información de distancia, tiempo y costo de peajes desde el aplicativo Hermes de Invias, definición de los optimizadores para Rastrigin en algoritmos evolutivos y optimización de párticulas, optimización combinatoria colonia de hormigas (algoritmo y gráficos).
 
--   Juan Camilo Valencia: optimización combinatoria colonia de hormigas (algoritmo y gráficos)
+-   Juan Camilo Valencia: optimización combinatoria colonia de hormigas (algoritmo y gráficos). Graficos de algortimos evolutivos, optimización de particulas y evolución diferencial.
 
 -   David Castro: Optimización de la Función Rosenbrock, en 2d,3d con Descenso por gradiente y Metodos heuristicos, graficas. 
