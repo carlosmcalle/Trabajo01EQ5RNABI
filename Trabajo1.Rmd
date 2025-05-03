@@ -1312,7 +1312,7 @@ gganimate::animate(p_de, fps = 3, width = 700, height = 470,
 knitr::include_graphics("Trabajo1_files/rosenbrock_de_2d.gif")
 ```
 
-
+# ***2.Optimización combinatoria***
 
 $CT_{ij} = PrecioPeajes_{ij} + Distancia_{ij}(km) * PrecioGasolina/km + Salario(Horas) * Tiempo_{ij}(Horas)$
 
