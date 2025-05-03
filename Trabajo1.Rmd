@@ -408,17 +408,17 @@ ggplot() +
 
 ##### Descripción del gráfico
 
-+-------------------------------+-------------------------------------------------------------------------------------------------------+
-| Elemento                      | Significado                                                                                           |
-+===============================+=======================================================================================================+
-| 🔵 **Trayectoria azul**       | Secuencia de pasos que toma Gradient Descent desde el punto inicial.                                  |
-+-------------------------------+-------------------------------------------------------------------------------------------------------+
-| ⚫ **Círculo negro (Inicio)** | Posición de partida $(3,\ 3)$ del algoritmo.                                                          |
-+-------------------------------+-------------------------------------------------------------------------------------------------------+
-| 🔺 **Triángulo rojo (Fin)**   | Mínimo local donde GD queda atrapado tras 200 iteraciones.                                            |
-+-------------------------------+-------------------------------------------------------------------------------------------------------+
-| **Mapa de colores (f(x))**    | Valor de la función Rastrigin; violeta oscuro ($\approx0$) (valles), amarillo ($\approx 80$) (picos). |
-+-------------------------------+-------------------------------------------------------------------------------------------------------+
++-----------------------------------+-------------------------------------------------------------------------------------------------------+
+| Elemento                          | Significado                                                                                           |
++===================================+=======================================================================================================+
+| 🔵 **Trayectoria azul**           | Secuencia de pasos que toma Gradient Descent desde el punto inicial.                                  |
++-----------------------------------+-------------------------------------------------------------------------------------------------------+
+| ⚫ **Círculo negro (Inicio)**     | Posición de partida $(3,\ 3)$ del algoritmo.                                                          |
++-----------------------------------+-------------------------------------------------------------------------------------------------------+
+| 🔺 **Triángulo rojo (Fin)**       | Mínimo local donde GD queda atrapado tras 200 iteraciones.                                            |
++-----------------------------------+-------------------------------------------------------------------------------------------------------+
+| **Mapa de colores (f(x))**        | Valor de la función Rastrigin; violeta oscuro ($\approx0$) (valles), amarillo ($\approx 80$) (picos). |
++-----------------------------------+-------------------------------------------------------------------------------------------------------+
 
 ##### Análisis del comportamiento del algoritmo
 
@@ -678,9 +678,9 @@ fig
 | **Diamante amarillo (“Óptimo encontrado”)** | Señala el mínimo local donde el algoritmo quedó atrapado. |
 +---------------------------------------------+-----------------------------------------------------------+
 
-+--------------------------------------------------------------------------------------------------------------------+
-| ▶️⏸️ **Controles Play/Pause + slider** \| Permiten navegar interactivamente por las iteraciones. \| \| \| \| \| \| |
-+--------------------------------------------------------------------------------------------------------------------+
++-----------------------------------------------------------------------------------------------------------------------+
+| ▶️⏸️ **Controles Play/Pause + slider** \| Permiten navegar interactivamente por las iteraciones. \| \| \| \| \| \| \| |
++-----------------------------------------------------------------------------------------------------------------------+
 
 ##### Comportamiento de GD en 3D
 
@@ -1262,9 +1262,37 @@ knitr::include_graphics("Trabajo1_files/rosenbrock_de_2d.gif")
 $CT_{ij} = PrecioPeajes_{ij} + Distancia_{ij}(km) * PrecioGasolina/km + Salario(Horas) * Tiempo_{ij}(Horas)$
 
 ```{r}
+ciudades = c(
+    "Bogotá",
+    "Medellín",
+    "Cali",
+    "Barranquilla",
+    "Cartagena",
+    "Bucaramanga",
+    "Cúcuta",
+    "Pereira",
+    "Manizales",
+    "Ibagué",
+    "Santa Marta",
+    "Villavicencio",
+    "Neiva"
+)
+```
+
+```{r}
 matriz_distancia <- read.csv("matriz_distancia.csv", row.names = 1)
 matriz_tiempos <- read.csv("matriz_tiempos.csv", row.names = 1)
 matriz_peajes <- read.csv("matriz_peajes.csv", row.names = 1)
+```
+
+```{r}
+colnames(matriz_distancia) <- ciudades
+colnames(matriz_tiempos) <- ciudades
+colnames(matriz_peajes) <- ciudades
+
+rownames(matriz_distancia) <- ciudades
+rownames(matriz_tiempos) <- ciudades
+rownames(matriz_peajes) <- ciudades
 ```
 
 ```{r}
@@ -1292,8 +1320,6 @@ pheromone_strength <- 100       # Constante para depósito de feromonas
 ants_count <- cities_count      # Una hormiga por estado
 cities_names <- as.list(rownames(matriz_costo_total))
 
-# Datos de entrada: matriz_costo_total (cities_count x cities_count) y state_names (vector de nombres)
-
 # Inicialización de matrices
 tau_matrix <- matrix(1, nrow = cities_count, ncol = cities_count)  # Feromonas
 eta_matrix <- 1 / matriz_costo_total                               # Visibilidad
@@ -1302,6 +1328,7 @@ eta_matrix[!is.finite(eta_matrix)] <- 0                             # Evitar Inf
 # Variables para la mejor solución
 best_path <- integer(0)
 best_path_cost <- Inf
+best_iteration <- NA
 
 # Bucle principal: 100 iteraciones
 for (iter_idx in seq_len(100)) {
@@ -1323,9 +1350,9 @@ for (iter_idx in seq_len(100)) {
       if (all(trans_probs == 0)) trans_probs <- rep(1, length(candidates))
       if (length(candidates) == 1) {
         next_node <- candidates
-        } else {
-          next_node <- sample(candidates, 1, prob = trans_probs)
-          }
+      } else {
+        next_node <- sample(candidates, 1, prob = trans_probs)
+      }
 
       path_cost <- path_cost + matriz_costo_total[current_node, next_node]
       current_node <- next_node
@@ -1343,8 +1370,12 @@ for (iter_idx in seq_len(100)) {
     if (path_cost < best_path_cost) {
       best_path_cost <- path_cost
       best_path <- visited_nodes
+      best_iteration <- iter_idx
     }
   }
+
+  # Mostrar el costo mínimo encontrado en esta iteración
+  cat(sprintf("Iteración %3d | Costo mínimo: $%0.2f\n", iter_idx, min(all_costs)))
 
   # Evaporación de feromonas
   tau_matrix <- tau_matrix * (1 - evap_rate)
@@ -1382,13 +1413,14 @@ for (idx in seq_along(best_path)) {
   seg_cost <- matriz_costo_total[origin, dest]
   total_cost <- total_cost + seg_cost
   cat(sprintf("%-30s %-30s $%9.2f\n",
-              cities_names[origin], cities_names[dest], seg_cost))
+              cities_names[[origin]], cities_names[[dest]], seg_cost))
 }
 
 cat("\nEstadísticas:\n")
 cat(sprintf("Ciudades (incluye retorno): %d\n", length(best_path_names)))
 cat(sprintf("Costo total: $%0.2f\n", total_cost))
 cat(sprintf("Costo promedio por tramo: $%0.2f\n", total_cost / length(best_path)))
+cat(sprintf("Mejor costo encontrado en la iteración: %d\n", best_iteration))
 
 ```
 
@@ -1416,6 +1448,7 @@ print(coords_df)
 library(osrm)
 library(sf)
 library(leaflet)
+library(htmltools)
 
 # Función de petición con reintentos
 get_route <- function(src, dst, retries = 3, pause = 1) {
@@ -1425,42 +1458,56 @@ get_route <- function(src, dst, retries = 3, pause = 1) {
       silent = TRUE
     )
     if (!inherits(attempt, "try-error")) return(attempt)
-    Sys.sleep(pause)  # esperamos antes de reintentar
+    Sys.sleep(pause)
   }
-  # Si sigue fallando, devolvemos un sf LINESTRING directo
   sf::st_linestring(matrix(c(src[1], dst[1], src[2], dst[2]), 
                            ncol = 2, byrow = TRUE)) %>%
     sf::st_sfc(crs = 4326) %>%
-    sf::st_sf() 
+    sf::st_sf()
 }
 
-# Prepara coords y orden
+# Ordenar coordenadas según la ruta
 route_coords <- coords_df[match(best_path_names, coords_df$city), ]
 
-# Construye la lista de segmentos con reintentos
+# Quitar la última ciudad (repetida para cerrar el ciclo)
+route_coords_labeled <- route_coords[-nrow(route_coords), ]
+route_coords_labeled$order <- seq_len(nrow(route_coords_labeled))  # Orden de visita
+
+# Obtener los segmentos de la ruta (incluye el regreso al origen)
 route_segments <- lapply(seq_len(nrow(route_coords) - 1), function(i) {
-  src <- as.numeric(route_coords[i,   c("lon","lat")])
-  dst <- as.numeric(route_coords[i+1, c("lon","lat")])
+  src <- as.numeric(route_coords[i,   c("lon", "lat")])
+  dst <- as.numeric(route_coords[i+1, c("lon", "lat")])
   get_route(src, dst)
 })
 
-# Une todo en un solo sf
+# Unir todos los segmentos en un solo objeto sf
 routes_sf <- do.call(rbind, route_segments)
 
-# Dibuja en leaflet
+# Crear el mapa
 leaflet() %>%
   addTiles() %>%
-  addPolylines(data    = routes_sf,
-               color   = "darkred",
-               weight  = 4,
+  addPolylines(data = routes_sf,
+               color = "darkred",
+               weight = 4,
                opacity = 0.8) %>%
-  addCircleMarkers(data       = route_coords,
+  addCircleMarkers(data = route_coords,
                    ~lon, ~lat,
-                   radius     = 5,
-                   color      = "white",
-                   fillColor  = "blue",
-                   fillOpacity= 0.9,
-                   label      = ~city) %>%
+                   radius = 5,
+                   color = "white",
+                   fillColor = "blue",
+                   fillOpacity = 0.9,
+                   label = ~city) %>%
+  addLabelOnlyMarkers(data = route_coords_labeled,
+                      ~lon, ~lat,
+                      label = ~as.character(order),
+                      labelOptions = labelOptions(noHide = TRUE,
+                                                  direction = 'top',
+                                                  textOnly = TRUE,
+                                                  style = list(
+                                                    "color" = "black",
+                                                    "font-weight" = "bold",
+                                                    "font-size" = "12px"
+                                                  ))) %>%
   setView(lng = mean(route_coords$lon),
           lat = mean(route_coords$lat),
           zoom = 6)
@@ -1469,82 +1516,33 @@ leaflet() %>%
 
 ```{r}
 library(leaflet)
+library(htmltools)
 
-# 2. Usa el mismo coords_df en orden de ruta
+# 1. Obtener coordenadas ordenadas por la ruta
 route_coords <- coords_df[match(best_path_names, coords_df$city), ]
 
-# 3. Crea el mapa
+# 2. Crear una versión sin la última ciudad (que es repetición de la primera)
+route_coords_labeled <- route_coords[-nrow(route_coords), ]
+route_coords_labeled$order <- seq_len(nrow(route_coords_labeled))
+
+# 3. Crear el mapa con líneas, marcadores y etiquetas de orden
 leaflet(route_coords) %>%
   addTiles() %>%
   addPolylines(~lon, ~lat, color = "red", weight = 3, opacity = 0.7,
                label = best_path_names) %>%
   addCircleMarkers(~lon, ~lat, radius = 5,
                    color = "blue", fill = TRUE,
-                   label = ~city)
+                   label = ~city) %>%
+  addLabelOnlyMarkers(data = route_coords_labeled,
+                      ~lon, ~lat,
+                      label = ~as.character(order),
+                      labelOptions = labelOptions(noHide = TRUE,
+                                                  direction = 'top',
+                                                  textOnly = TRUE,
+                                                  style = list(
+                                                    "color" = "black",
+                                                    "font-weight" = "bold",
+                                                    "font-size" = "12px"
+                                                  )))
 
-```
-
-```{r}
-library(shiny)
-library(leaflet)
-
-
-route_coords <- coords_df[match(best_path_names, coords_df$city), ]
-
-ui <- fluidPage(
-  titlePanel("Hormiguita ACO en movimiento"),
-  leafletOutput("map", height = 600)
-)
-
-server <- function(input, output, session) {
-  # 1) Mapa base con marcadores estáticos
-  output$map <- renderLeaflet({
-    leaflet(route_coords) %>%
-      addTiles() %>%
-      addCircleMarkers(
-        ~lon, ~lat, label = ~city,
-        radius = 5, color = "navy", fillOpacity = 0.8
-      )
-  })
-  
-  proxy <- leafletProxy("map")
-  idx <- reactiveVal(1)
-  
-  observe({
-    invalidateLater(800, session)
-    i <- idx()
-    sub <- route_coords[1:i, ]
-    
-    # 2) Borramos cualquier polilínea anterior
-    proxy %>% clearShapes()
-    
-    # 3) Si tenemos al menos 2 puntos, dibujamos la ruta
-    if (nrow(sub) > 1) {
-      proxy %>% addPolylines(
-        lng   = sub$lon,
-        lat   = sub$lat,
-        color = "red",
-        weight= 3,
-        layerId = "routeLine"
-      )
-    }
-    
-    # 4) Movemos el marcador “hormiguita”
-    proxy %>%
-      removeMarker("movingMarker") %>%
-      addCircleMarkers(
-        lng     = sub$lon[i],
-        lat     = sub$lat[i],
-        layerId = "movingMarker",
-        radius  = 8,
-        color   = "orange",
-        fillOpacity = 1
-      )
-    
-    # 5) Incrementamos (o reiniciamos) el índice
-    idx(if (i < nrow(route_coords)) i + 1 else 1)
-  })
-}
-
-shinyApp(ui, server)
 ```
