@@ -1,5 +1,5 @@
 ---
-title: "trabajo1"
+title: "Trabajo 01: Optimización Heurística"
 author: "Jonatan Sanchez, Carlos Calle, Natalia Remolina, Juan Camilo Valencia & David Castro"
 date: "2025-04-23"
 output: html_document
@@ -14,7 +14,7 @@ rm(list = ls())
 knitr::opts_chunk$set(echo = TRUE)
 ```
 
-```{r librerias, warning=FALSE}
+```{r librerias, warning=FALSE,message=FALSE}
 library(GA) #Algoritmos Evolutivos
 library(pso) #Optimización de Particulas
 library(DEoptim)  #Evolución Diferencial
@@ -26,13 +26,20 @@ library(knitr)
 library(gifski)
 library(viridis)
 library(htmlwidgets)
+library(magick)
+library(scatterplot3d)
+library(rgl)
+library(osrm)
+library(sf)
+library(leaflet)
+library(htmltools)
 ```
 
-# ***Optimización numérica***
+# ***1. Optimización numérica***
 
 En este primer punto se estudian y comparan distintos métodos de optimización aplicados a funciones no lineales. El objetivo es analizar el desempeño de algoritmos clásicos como el descenso por gradiente frente a métodos heurísticos inspirados en procesos evolutivos y naturales. Para ello, se seleccionaron dos funciones de prueba con características distintas que permiten evaluar la eficacia y eficiencia de cada enfoque. Se realizarán optimizaciones en espacios de dos y tres dimensiones, partiendo de condiciones iniciales aleatorias. Además, se visualizará el proceso de búsqueda de soluciones mediante animaciones.Para finalmente comparar como fue el comportamiento de los métodos y como el tipo de función impacta en la elección del método.
 
-## Función de Rastrigin
+## 1.1 Función de Rastrigin
 
 La función de Rastrigin se define como:
 
@@ -687,7 +694,7 @@ fig
 
 #### Dos dimensiones
 
-```{r}
+```{r ,include=FALSE}
 set.seed(420)  # Semilla
 
 GA_rastrigin_2d <- ga(
@@ -705,10 +712,7 @@ summary(GA_rastrigin_2d)
 
 ```
 
-```{r}
-library(GA)
-library(magick)
-
+```{r, include=FALSE}
 # Crear una carpeta temporal para guardar las imágenes
 dir_temp <- tempdir()
 files <- character(0)
@@ -755,13 +759,13 @@ image_write(animation, gifga_path)
 
 ```
 
-```{r fig_ga_2d, fig.cap="**Fig X.** Animación Algoritmos evolutivos 2D", fig.align="center", out.width="70%"}
+```{r fig_ga_2d, fig.cap="**Fig 8.** Animación Algoritmos evolutivos 2D", fig.align="center", out.width="70%"}
 knitr::include_graphics(gifga_path)
 ```
 
 #### Tres dimensiones
 
-```{r}
+```{r,include=FALSE}
 set.seed(420)  # Semilla
 
 GA_rastrigin_3d <- ga(
@@ -778,12 +782,7 @@ GA_rastrigin_3d <- ga(
 summary(GA_rastrigin_3d)
 ```
 
-```{r}
-library(GA)
-library(magick)
-library(scatterplot3d)
-library(rgl)
-
+```{r, echo=FALSE}
 # Crear carpeta temporal para imágenes
 dir_temp <- tempdir()
 files <- character(0)
@@ -839,13 +838,13 @@ image_write(animation, gifga3d_path)
 
 ```
 
-```{r fig_ga_3d, fig.cap="**Fig X.** Animación Algoritmos evolutivos 3D", fig.align="center", out.width="70%"}
+```{r fig_ga_3d, fig.cap="**Fig 9.** Animación Algoritmos evolutivos 3D", fig.align="center", out.width="70%"}
 knitr::include_graphics(gifga3d_path)
 ```
 
 ## Optimización de partículas
 
-```{r}
+```{r , include=FALSE}
 pso_rastrigin_2d <- psoptim(
   par = c(NA, NA),                   # Inicialización (puede ser aleatoria)
   fn = rastrigin,                    # Función a minimizar
@@ -859,9 +858,7 @@ pso_rastrigin_2d <- psoptim(
 )
 ```
 
-```{r}
-library(pso)
-library(magick)
+```{r, include=FALSE}
 
 # Lista para guardar la historia del enjambre
 pso_history <- list()
@@ -935,11 +932,11 @@ image_write(animation, gifpso_path)
 
 ```
 
-```{r fig_pso_2d, fig.cap="**Fig X.** Animación Optimización de particulas 2D", fig.align="center", out.width="70%"}
+```{r fig_pso_2d_1, fig.cap="**Fig 10.** Animación Optimización de particulas 2D", fig.align="center", out.width="70%",echo=FALSE}
 knitr::include_graphics(gifpso_path)
 ```
 
-```{r}
+```{r, include=FALSE}
 pso_rastrigin_3d <- psoptim(
   par = c(NA, NA),                   # Inicialización (puede ser aleatoria)
   fn = rastrigin,                    # Función a minimizar
@@ -955,10 +952,7 @@ pso_rastrigin_3d <- psoptim(
 
 ## Evolución diferencial
 
-```{r}
-
-
-
+```{r, include=FALSE}
 # Almacenar historial
 rastrigin_de_history <- list()
 
@@ -1004,7 +998,7 @@ grid <- expand.grid(x = x_vals, y = y_vals) %>%
 
 ```
 
-```{r}
+```{r, include=FALSE}
 # Procesar historial
 evals <- split(rastrigin_de_history, rep(1:101, each = 50))  # 1 inicial + 100 iteraciones
 
@@ -1039,7 +1033,7 @@ gifed_path <- file.path(output_dir, "rastrigin_de_animation.gif")
 image_write(animation, gifed_path)
 ```
 
-```{r fig_pso_2d, fig.cap="**Fig X.** Animación Optimización de particulas 2D", fig.align="center", out.width="70%"}
+```{r fig_pso_2d_2, fig.cap="**Fig 11.** Animación Optimización de particulas 2D de la Función Rastrigin", fig.align="center", out.width="70%"}
 knitr::include_graphics(gifed_path)
 ```
 
@@ -1077,7 +1071,7 @@ Procedemos a visualizar la función para los casos de dos y tres variables, ya q
 
 **Visualización en 3d para dos variables (x1,x2)**
 
-```{r fig.cap="**Fig 8.** Visualización de la función Rosenbrock f(x1,x2) (3D)", fig.align="center", out.width="70%", layout.align="center",echo=FALSE}
+```{r fig.cap="**Fig 12.** Visualización de la función Rosenbrock f(x1,x2) (3D)", fig.align="center", out.width="70%", layout.align="center",echo=FALSE}
 
 plot_function_3d <- function(func,
                            x_range = c(-3, 3),
@@ -1154,7 +1148,7 @@ La superficie tiene una pendiente suave que desciende hacia el fondo del valle, 
 
 **Visualización en 2d del mapa de calor, vista superior para dos variables (x1,x2)**
 
-```{r fig.cap="**Fig 9.** _Mapa de Calor Función Rosenbrock_", fig.align="center", out.width="70%",echo=FALSE, message=FALSE, warning=FALSE}
+```{r fig.cap="**Fig 13.** Mapa de Calor de la Función Rosenbrock", fig.align="center", out.width="70%",echo=FALSE, message=FALSE, warning=FALSE}
 x_vals <- seq(-2, 2, length.out = 200)
 y_vals <- seq(-2, 2, length.out = 200)
 
@@ -1205,7 +1199,7 @@ ggplot(grid, aes(x = x, y = y, fill = z)) +
 
 Se utiliza un punto inicial aleatorio dentro del rango [−3,3] y [3,-3,3] y a partir de allí el algoritmo busca aproximarse al mínimo global de la función, se utiliza el método BFGS (Broyden–Fletcher–Goldfarb–Shanno) ya que es un algoritmo de optimización mucho eficiente y robusto para funciones suaves y no lineales, como es el caso de la función Rosenbrock.
 
-```{r DG, message=FALSE}
+```{r DG, message=FALSE, include=FALSE}
 set.seed(1986)
 x02 <- runif(2, -3, 3)  
 
@@ -1228,7 +1222,7 @@ res_gradiente_3d <- optim(
 
 En este caso se define un espacio de búsqueda continuo en el rango [−3,3] para x1,x2 y x3 y se configura una población inicial de 50 individuos. El algoritmo evoluciona durante un máximo de 100 iteraciones o hasta que no se observe mejora en 50 generaciones consecutivas.
 
-```{r GA, message=FALSE}
+```{r GA, message=FALSE, include=FALSE}
 set.seed(1986)
 # Optimizamos con GA
 ga_evolutivo_2d <- ga(
@@ -1263,7 +1257,7 @@ nro_evaluaciones_ga_3d <- ga_evolutivo_3d@popSize * ga_evolutivo_3d@iter
 
 De nuevo comenzamos con una posición aleatoria en el rango [−3,3] para cada una de las variables variables y se realiza hasta 100 iteraciones para encontrar el mínimo.
 
-```{r PSO, message=FALSE}
+```{r PSO, message=FALSE , include=FALSE}
 #2D
 evaluaciones_pso <- 0
 rosenbrock_n_evaluaciones_pso <- function(x) {
@@ -1302,7 +1296,7 @@ res_pso_3d <- psoptim(
 
 En este caso establecemos una población inicial de 50 individuos (NP = 50) y se permiten hasta 100 iteraciones (itermax = 100) para la optimización. En este caso también se busca el mínimo de la función dentro del rango [−3,3] para todas las variables.
 
-```{r DE, message=FALSE}
+```{r DE, message=FALSE, include=FALSE}
 # Optimizamos con DE
 set.seed(1986)
 control_params <- DEoptim.control(NP = 50, itermax = 70,trace=FALSE)
@@ -1326,7 +1320,7 @@ evaluaciones_de_3d <- control_params$NP *  res_de_2d$optim$iter
 
 A continuación observamos los resultados obtenidos, de la optimización de la función de Rosenbrock para dos variables, con los cuatro métodos.
 
-```{r resultado_optimizacion_2d,fig.cap="**Tabla X.** _Resultados de la Optimizació de Rosenbrock f(x1,x2) _", fig.align="center", out.width="70%", echo=FALSE}
+```{r resultado_optimizacion_2d,fig.cap="**Tabla 1.** _Resultados de la Optimizació de Rosenbrock f(x1,x2) _", fig.align="center", out.width="70%", echo=FALSE}
 tabla_optimizacion_2D <- data.frame(
   "Método" = c("Descenso por gradiente",
                "Algoritmos evolutivos",
@@ -1344,7 +1338,7 @@ kable(tabla_optimizacion_2D, caption = "Resultados Optimización de Rosenbrock p
 
 Para dos dimensiones los resultados nos muestran que todos los métodos lograron aproximarse al mínimo global de la función de Rosenbrock, aunque con diferencias significativas en eficiencia y precisión. El método de descenso por gradiente (BFGS) fue el más eficiente, alcanzando un valor prácticamente óptimo con solo 53 evaluaciones. En contraste, los métodos heurísticos requirieron muchas más evaluaciones: evolución diferencial logró un valor casi perfecto con 3500 evaluaciones, mientras que PSO alcanzó un resultado muy cercano al óptimo con 1200 evaluaciones. Por su parte, el algoritmo evolutivo fue el menos preciso, con un valor ligeramente más alejado del óptimo y un costo computacional alto (2500 evaluaciones). En resumen, los métodos tradicionales como el gradiente descendente son más eficientes cuando la función es suave y bien comportada, mientras que los métodos heurísticos ofrecen robustez frente a funciones complejas, aunque con mayor costo computacional. Es importante recordar que en el caso de métodos basados en gradiente as condiciones iniciales juegan un papel crucial en la optimización, ya que pueden determinar si el algoritmo converge rápidamente o queda atrapado en regiones poco prometedoras.
 
-```{r resultado_optimizacion_3d,fig.cap="**Tabla X.** _Resultados de la Optimizació de Rosenbrock f(x1,x2,x3) _", fig.align="center", out.width="70%", echo=FALSE}
+```{r resultado_optimizacion_3d,fig.cap="**Tabla 3.** Resultados de la Optimizació de Rosenbrock f(x1,x2,x3)", fig.align="center", out.width="70%", echo=FALSE}
 tabla_optimizacion_3D <- data.frame(
   "Método" = c("Descenso por gradiente",
                "Algoritmos evolutivos",
@@ -1451,7 +1445,7 @@ gganimate::animate(p, fps = 3, width = 700, height = 470,
                    renderer = gifski_renderer("Trabajo1_files/rosenbrock_gd_2d.gif"))
 ```
 
-```{r fig_dg_2d, fig.cap="**Fig X.** Animación Descenso del gradiente 2D", fig.align="center", out.width="70%"}
+```{r fig_dg_2d, fig.cap="**Fig 14.** Animación Descenso del gradiente 2D", fig.align="center", out.width="70%",echo=FALSE}
 knitr::include_graphics("Trabajo1_files/rosenbrock_gd_2d.gif")
 ```
 
@@ -1525,7 +1519,7 @@ gganimate::animate(p_de, fps = 3, width = 700, height = 470,
                    renderer = gifski_renderer("Trabajo1_files/rosenbrock_de_2d.gif"))
 ```
 
-```{r fig_ed_2d, fig.cap="**Fig X.** Animación Evolución Diferencial 2D", fig.align="center", out.width="70%"}
+```{r fig_ed_2d, fig.cap="**Fig 15.** Animación Evolución Diferencial 2D", fig.align="center", out.width="70%",echo=FALSE}
 knitr::include_graphics("Trabajo1_files/rosenbrock_de_2d.gif")
 ```
 
@@ -1618,7 +1612,7 @@ gganimate::animate(p_ga, fps = 3, width = 700, height = 470,
                    renderer = gifski_renderer("Trabajo1_files/rosenbrock_ga_2d.gif"))
 ```
 
-```{r gifrosenga, fig.cap="**Fig X.** Animación Algoritmos Evolutivos 2D", fig.align="center", out.width="70%"}
+```{r gifrosen_ga, fig.cap="**Fig 16.** Animación Algoritmos Evolutivos 2D", fig.align="center", out.width="70%",echo=FALSE}
 knitr::include_graphics("Trabajo1_files/rosenbrock_ga_2d.gif")
 ```
 
@@ -1699,7 +1693,7 @@ gganimate::animate(p_pso, fps = 4, width = 700, height = 470,
                    renderer = gifski_renderer("Trabajo1_files/rosenbrock_pso_2d.gif"))
 ```
 
-```{r gifrosenga, fig.cap="**Fig X.** Animación Optimización PSO 2D", fig.align="center", out.width="70%"}
+```{r gifrosen_pso, fig.cap="**Fig 17.** Animación Optimización PSO 2D", fig.align="center", out.width="70%",echo=FALSE}
 knitr::include_graphics("Trabajo1_files/rosenbrock_pso_2d.gif")
 ```
 
@@ -1753,7 +1747,7 @@ matriz_costo_total <- as.matrix(matriz_costo_total)
 
 ```
 
-```{r}
+```{r, echo=FALSE}
 # Fijar semilla para reproducibilidad
 set.seed(42)
 
@@ -1890,11 +1884,7 @@ print(coords_df)
 
 ```
 
-```{r, warning=FALSE, message=FALSE}
-library(osrm)
-library(sf)
-library(leaflet)
-library(htmltools)
+```{r, fig.cap="**Fig 18.** Ruta Óptima", fig.align="center", out.width="70%", warning=FALSE, message=FALSE}
 
 # Función de petición con reintentos
 get_route <- function(src, dst, retries = 3, pause = 1) {
@@ -1960,10 +1950,7 @@ leaflet() %>%
 
 ```
 
-```{r}
-library(leaflet)
-library(htmltools)
-
+```{r, fig.cap="**Fig 19.** Ruta óptima con distancias ecuclidianas", fig.align="center", out.width="70%"}
 # 1. Obtener coordenadas ordenadas por la ruta
 route_coords <- coords_df[match(best_path_names, coords_df$city), ]
 
@@ -2003,4 +1990,4 @@ leaflet(route_coords) %>%
 
 -   Juan Camilo Valencia: optimización combinatoria colonia de hormigas (algoritmo y gráficos). Graficos de algortimos evolutivos, optimización de particulas y evolución diferencial.
 
--   David Castro: Optimización de la Función Rosenbrock, en 2d,3d con Descenso por gradiente y Metodos heuristicos, graficas.
+-   David Castro: Optimización de la Función Rosenbrock, en 2d,3d con Descenso por gradiente y Metodos heuristicos, gráficas y gifs animados para Rosenbrock, rotulación de gráficas. 
