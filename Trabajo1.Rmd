@@ -56,6 +56,16 @@ rastrigin <- function(x, A = 10) {
 }
 ```
 
+**Propiedades de la Función Rastrigin:**
+
+- Por convención A toma el valor de 10. 
+- Mínimo Global en $\mathbf{x} = (0, 0, \ldots, 0)$ valor mínimo $f(\mathbf{x}) = 0$
+- Multimodalidad: Tiene múltiples mínimos locales.
+- Dominio típico $x_i \in [-5.12,\ 5.12],\quad \text{para } i = 1, 2, \ldots, n$
+- Continuidad:  Es continua y suave (diferenciable).
+- Separabilidad: Es separable, porque puede expresarse como la suma de funciones de una sola variable.
+
+
 ### Grafico de la función de Rastrigin (1D)
 
 ```{r fig.cap="**Fig 1.** Visualización de la función Rastrigin f(x1) (1D)", fig.align="center", out.width="70%", layout.align="center"}
@@ -1045,7 +1055,15 @@ $$
 f(\mathbf{x}) = \sum_{i=1}^{n-1} \left[ a - x_i \right]^2 + b \left( x_{i+1} - x_i^2 \right)^2
 $$ Donde, $\mathbf{x} = (x_1, x_2, \ldots, x_n) \in \mathbb{R}^n$
 
-$a$ y $b$ son parámetros que controlan la forma de la función. Típicamente, $a = 1$ y $b=100$, para estos parámetros comunes el mínimo global se va encontrar en el conjunto de coordenadas $(x_1, x_2, \ldots, x_n) = (1, 1, \ldots, 1)$ donde $f(\mathbf{x^*}) = 0$
+**Propiedades de la Función Rosenbrock:**
+
+- $a$ y $b$ son parámetros que controlan la forma de la función. Típicamente, $a = 1$ y $b=100$. 
+- Para estos parámetros comunes el mínimo global se va encontrar en el conjunto de coordenadas $(x_1, x_2, \ldots, x_n) = (1, 1, \ldots, 1)$ donde $f(\mathbf{x^*}) = 0$
+- Tipo de función: No convexa, suave (diferenciable) y unimodal.
+- Dominio típico $x_i \in (-\infty, \infty), \quad \text{para } i = 1, 2, \ldots, n$
+- Tiene una forma de valle largo, estrecho y curvado.El gradiente es pequeño en muchas partes, lo que hace difícil que métodos de gradiente converjan rápidamente.
+- Separabilidad: Es separable, porque puede expresarse como la suma de funciones de una sola variable.
+
 
 ```{r rosenbrock}
 #Definimos la función general
@@ -1697,7 +1715,16 @@ gganimate::animate(p_pso, fps = 4, width = 700, height = 470,
 knitr::include_graphics("Trabajo1_files/rosenbrock_pso_2d.gif")
 ```
 
-# Optimización combinatoria
+**Conclusión Final**
+
+Los métodos de descenso por gradiente, como BFGS, mostraron una gran eficiencia y precisión al optimizar funciones suaves y bien comportadas como Rosenbrock, alcanzando el mínimo global con un número muy reducido de evaluaciones. Su capacidad para aprovechar la derivada y la curvatura de la función les permite converger rápidamente cuando se parte de condiciones iniciales razonables. No obstante, su principal desventaja es la dependencia del punto de inicio: si se inicia en una región poco favorable, el algoritmo puede no converger al mínimo global o hacerlo muy lentamente.
+
+Por otro lado, los métodos heurísticos —como algoritmos genéticos, enjambre de partículas y evolución diferencial— aportan robustez frente a funciones no convexas y multimodales, como la función Rastrigin, donde los métodos de gradiente frecuentemente quedan atrapados en mínimos locales. En este contexto, los heurísticos son capaces de explorar mejor el espacio de búsqueda, gracias a su componente estocástico y su capacidad para escapar de óptimos locales. Sin embargo, su mayor fortaleza —la exploración— implica también un mayor costo computacional y, en muchos casos, una menor precisión final comparada con los métodos basados en gradiente.
+
+En resumen, los métodos de gradiente son ideales cuando se conoce que la función es suave y tiene una topografía favorable, mientras que los métodos heurísticos resultan más apropiados para problemas con múltiples óptimos locales o funciones no diferenciables, aunque a un mayor costo computacional. El uso conjunto o híbrido de ambos enfoques puede ofrecer lo mejor de ambos mundos: eficiencia local y exploración global.
+
+
+# 2. Optimización combinatoria
 
 $CT_{ij} = PrecioPeajes_{ij} + Distancia_{ij}(km) * PrecioGasolina/km + Salario(Horas) * Tiempo_{ij}(Horas)$
 
