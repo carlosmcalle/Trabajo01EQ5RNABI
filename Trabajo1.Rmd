@@ -2,7 +2,9 @@
 title: "Trabajo 01: Optimización Heurística"
 author: "Jonatan Sanchez, Carlos Calle, Natalia Remolina, Juan Camilo Valencia & David Castro"
 date: "2025-04-23"
-output: html_document
+output: 
+  html_document:
+    toc: true
 ---
 
 ```{r rm, include=FALSE}
@@ -14,7 +16,7 @@ rm(list = ls())
 knitr::opts_chunk$set(echo = TRUE)
 ```
 
-```{r librerias, warning=FALSE,message=FALSE}
+```{r librerias, warning=FALSE,message=FALSE, include=FALSE}
 library(GA) #Algoritmos Evolutivos
 library(pso) #Optimización de Particulas
 library(DEoptim)  #Evolución Diferencial
@@ -35,7 +37,7 @@ library(leaflet)
 library(htmltools)
 ```
 
-# ***1. Optimización numérica***
+# 1. Optimización numérica
 
 En este primer punto se estudian y comparan distintos métodos de optimización aplicados a funciones no lineales. El objetivo es analizar el desempeño de algoritmos clásicos como el descenso por gradiente frente a métodos heurísticos inspirados en procesos evolutivos y naturales. Para ello, se seleccionaron dos funciones de prueba con características distintas que permiten evaluar la eficacia y eficiencia de cada enfoque. Se realizarán optimizaciones en espacios de dos y tres dimensiones, partiendo de condiciones iniciales aleatorias. Además, se visualizará el proceso de búsqueda de soluciones mediante animaciones.Para finalmente comparar como fue el comportamiento de los métodos y como el tipo de función impacta en la elección del método.
 
@@ -49,7 +51,7 @@ $$
 
 Donde, $\mathbf{x} = (x_1, x_2, \ldots, x_n) \in \mathbb{R}^n$
 
-```{r}
+```{r, include=FALSE}
 rastrigin <- function(x, A = 10) {
   n <- length(x)
   A * n + sum(x^2 - A * cos(2 * pi * x))
@@ -66,9 +68,9 @@ rastrigin <- function(x, A = 10) {
 - Separabilidad: Es separable, porque puede expresarse como la suma de funciones de una sola variable.
 
 
-### Grafico de la función de Rastrigin (1D)
+**Grafico de la función de Rastrigin (1D)**
 
-```{r fig.cap="**Fig 1.** Visualización de la función Rastrigin f(x1) (1D)", fig.align="center", out.width="70%", layout.align="center"}
+```{r fig.cap="**Fig 1.** Visualización de la función Rastrigin f(x1) (1D)", fig.align="center", out.width="70%", layout.align="center", echo=FALSE}
 # RASTRIGIN 1-D
 # Este bloque dibuja la función Rastrigin en una sola variable
 # y marca con puntos rojos los mínimos locales situados
@@ -104,7 +106,7 @@ points(
 
 ```
 
-#### Análisis del gráfico “Rastrigin 1-D — campo de pozos periódicos”
+ **Análisis del gráfico “Rastrigin 1-D — campo de pozos periódicos”**
 
 | Elemento visual | Observación | Interpretación |
 |----|----|----|
@@ -120,9 +122,9 @@ points(
 2.  **Periodocidad**\
     La distancia constante entre picos ($\approx 1$) viene del $cos(2\pi x)$; cada ciclo completo genera un pozo.
 
-### Grafico de la función de Rastrigin (2D)
+**Grafico de la función de Rastrigin (2D)**
 
-```{r fig.cap="**Fig 2.** Visualización de la función Rastrigin f(x1, x2) (2D)", fig.align="center", out.width="70%", layout.align="center"}
+```{r fig.cap="**Fig 2.** Visualización de la función Rastrigin f(x1, x2) (2D)", fig.align="center", out.width="70%", layout.align="center", echo=FALSE}
 
 # RASTRIGIN 2-D 
 # Objetivo: dibujar un “mapa de calor” que muestre los pozos locales
@@ -168,7 +170,7 @@ filled.contour(
 
 ```
 
-#### Análisis del gráfico “Rastrigin 2-D — campo de minas”
+**Análisis del gráfico “Rastrigin 2-D — campo de minas”**
 
 +---------------------------------------------+----------------------------------------------------+-----------------------------------------------------------------------------------------------------------------+
 | # Elemento visual                           | # Qué se observa                                   | # Qué significa                                                                                                 |
@@ -196,9 +198,9 @@ filled.contour(
 4.  **“Campo de minas”**\
     Optimizar aquí es como cruzar un terreno lleno de cráteres: cada cuadrícula contiene un pozo que puede atrapar al algoritmo.
 
-## Grafico de la función de Rastrigin (3D)
+**Grafico de la función de Rastrigin (3D)**
 
-```{r fig.cap="**Fig 3.** Visualización de la función Rastrigin f(x1, x2, x3) (3D)", fig.align="center", out.width="70%", layout.align="center"}
+```{r fig.cap="**Fig 3.** Visualización de la función Rastrigin f(x1, x2, x3) (3D)", fig.align="center", out.width="70%", layout.align="center", echo=FALSE}
 # -----------------------------------------------
 # Dibujar superficie 3D de Rastrigin y mínimo global
 # -----------------------------------------------
@@ -232,7 +234,7 @@ points(punto, col = "salmon", pch = 16, cex = 2)  # pch 16 = círculo lleno
 
 ```
 
-#### Superficie 3-D de la función Rastrigin en dos dimensiones.
+**Superficie 3-D de la función Rastrigin en dos dimensiones.**
 
 Se aprecia un cuenco global con un mosaico de mínimos locales periódicos.\
 
@@ -250,19 +252,17 @@ El mínimo global está en (0,0) y las crestas alcanzan valores de $f(\mathbf{x}
 
     -   Estrategias **bioinspiradas** (PSO, hormigas) o **cuasi-Newton** (L-BFGS-B) suelen rendir mejor, porque pueden escapar de pozos.
 
-## Descenso del gradiente (GD)
+### 1.1.1 Descenso del gradiente (GD)
 
-### Gradiente
-
-```{r}
+```{r, include=FALSE}
+# Gradiente
 grad_rastrigin <- function(x, A = 10) {
   2 * x + 2 * pi * A * sin(2 * pi * x)
 }
 ```
 
-### Función GD
 
-```{r}
+```{r, include=FALSE}
 # Función GD simple con historial
 gd_once <- function(x0, lr = 0.01, iters = 200) {
   x <- x0
@@ -280,13 +280,9 @@ gd_once <- function(x0, lr = 0.01, iters = 200) {
 
 ```
 
-### Rastringin
-
-### Implementación de GD en Rastrigin 1D
-
 #### Trayectoria de GD puro sobre Rastringin (1D)
 
-```{r fig.cap="**Fig 4.** Visualización de la función Rastrigin óptimo en f(x1) (1D)", fig.align="center", out.width="70%", layout.align="center"}
+```{r fig.cap="**Fig 4.** Visualización de la función Rastrigin óptimo en f(x1) (1D)", fig.align="center", out.width="70%", layout.align="center", echo=FALSE}
 
 # GRÁFICO 1-D CON GD_PURO  
 
@@ -326,7 +322,7 @@ points(tail(traj1d$x1, 1), tail(traj1d$f, 1),
 | **Zona azul**     | Todos los pasos intermedios; muestra cómo GD oscila dentro del mismo valle hasta estabilizarse en el punto rojo.                |
 +-------------------+---------------------------------------------------------------------------------------------------------------------------------+
 
-#### Análisis
+**Análisis**
 
 1.  **Descenso rápido**\
     El algoritmo parte del punto **negro** (valor f≈27) y se desliza cuesta abajo siguiendo el gradiente.
@@ -344,11 +340,11 @@ points(tail(traj1d$x1, 1), tail(traj1d$f, 1),
 
 6.  **Necesidad de estrategias complementarias**: para alcanzar el óptimo global en Rastrigin se requieren técnicas que permitan “saltar” valles (momentum, tasa de aprendizaje adaptativa, meta-heurísticas globales).
 
-### Implementación de GD en Rastrigin 2D
+### 1.1.2Implementación de GD en Rastrigin 2D
 
-#### Trayectoria de GD puro sobre Rastringin (2D)
+**Trayectoria de GD puro sobre Rastringin (2D)**
 
-```{r fig.cap="**Fig 5.** Visualización de la función Rastrigin óptimo f(x1, x2) (2D)", fig.align="center", out.width="70%", layout.align="center"}
+```{r fig.cap="**Fig 5.** Visualización de la función Rastrigin óptimo f(x1, x2) (2D)", fig.align="center", out.width="70%", layout.align="center", echo=FALSE}
 
 # Malla (superficie de referencia) --------------------------
 x_vals <- y_vals <- seq(-5.12, 5.12, length.out = 200)
@@ -417,7 +413,7 @@ ggplot() +
 
 ```
 
-##### Descripción del gráfico
+**Descripción del gráfico**
 
 | Elemento | Significado |
 |----|----|
@@ -426,7 +422,7 @@ ggplot() +
 | 🔺 **Triángulo rojo (Fin)** | Mínimo local donde GD queda atrapado tras 200 iteraciones. |
 | **Mapa de colores (f(x))** | Valor de la función Rastrigin; violeta oscuro ($\approx0$) (valles), amarillo ($\approx 80$) (picos). |
 
-##### Análisis del comportamiento del algoritmo
+**Análisis del comportamiento del algoritmo**
 
 | Observación | Interpretación |
 |----|----|
@@ -438,7 +434,7 @@ En funciones **altamente multimodales** como Rastrigin, el número de valles hac
 
 #### Animacion de la trayectoria de GD puro sobre Rastringin (2D)
 
-```{r fig.cap="**Fig 6.** Animación de la función Rastrigin óptimo f(x1, x2) (2D)", fig.align="center", out.width="70%", layout.align="center", warning=FALSE, message=FALSE}
+```{r fig.cap="**Fig 6.** Animación de la función Rastrigin óptimo f(x1, x2) (2D)", fig.align="center", out.width="70%", layout.align="center", warning=FALSE, message=FALSE, echo=FALSE}
 
 # GRÁFICO Y ANIMACIÓN 2-D DE UNA ÚNICA TRAYECTORIA GD (sin   
 # reinicios) SOBRE LA FUNCIÓN RASTRIGIN.                     
@@ -501,7 +497,7 @@ animate(p_anim,
 
 ![](images/clipboard-1677513745.gif)
 
-##### Dinámica observada
+**Dinámica observada**
 
 1.  **Inicio en un pico elevado**\
     Al “play”, el punto negro parte en una zona amarilla (valor alto de $f(\mathbf{x})$), indicando un punto inicial lejos del mínimo.
@@ -515,11 +511,11 @@ animate(p_anim,
 4.  **Sin escape del mínimo local**\
     A pesar de varias decenas de iteraciones, el punto nunca atraviesa la cresta que llevaría al valle central
 
-### Implementación de GD en Rastrigin 3D
+### 1.1.3 Implementación de GD en Rastrigin 3D
 
 #### Animacion de la trayectoria de GD puro sobre Rastringin (3D)
 
-```{r fig.cap="**Fig 7.** Visualización de la función Rastrigin óptimo f(x1, x2, x3) (3D)", fig.align="center", out.width="70%", layout.align="center"}
+```{r fig.cap="**Fig 7.** Visualización de la función Rastrigin óptimo f(x1, x2, x3) (3D)", fig.align="center", out.width="70%", layout.align="center", echo=FALSE}
 
 
 # — 1) Superficie de Rastrigin —
@@ -684,7 +680,7 @@ fig
 |----|
 | ▶️⏸️ **Controles Play/Pause + slider** \| Permiten navegar interactivamente por las iteraciones. \| \| \| \| \| \| \| |
 
-##### Comportamiento de GD en 3D
+**Comportamiento de GD en 3D**
 
 1.  **Descenso inicial:**\
     Desde el punto $(3,\ 3)$, GD baja rápidamente por la “pared” del valle, capturado por el gradiente pronunciado.
@@ -698,13 +694,12 @@ fig
 4.  **No alcanza el mínimo global:**\
     El diamante amarillo permanece alejado del valle central de la superficie, confirmando la captura en un mínimo local.
 
-## Algoritmos evolutivos
+### 1.1.4 Algoritmos evolutivos
 
-### Rastrigin
 
-#### Dos dimensiones
+**Dos dimensiones**
 
-```{r ,include=FALSE}
+```{r ,echo=FALSE}
 set.seed(420)  # Semilla
 
 GA_rastrigin_2d <- ga(
@@ -769,11 +764,11 @@ image_write(animation, gifga_path)
 
 ```
 
-```{r fig_ga_2d, fig.cap="**Fig 8.** Animación Algoritmos evolutivos 2D", fig.align="center", out.width="70%"}
+```{r fig_ga_2d, fig.cap="**Fig 8.** Animación Algoritmos evolutivos 2D", fig.align="center", out.width="70%", echo=FALSE}
 knitr::include_graphics(gifga_path)
 ```
 
-#### Tres dimensiones
+**Tres dimensiones**
 
 ```{r,include=FALSE}
 set.seed(420)  # Semilla
@@ -848,11 +843,11 @@ image_write(animation, gifga3d_path)
 
 ```
 
-```{r fig_ga_3d, fig.cap="**Fig 9.** Animación Algoritmos evolutivos 3D", fig.align="center", out.width="70%"}
+```{r fig_ga_3d, fig.cap="**Fig 9.** Animación Algoritmos evolutivos 3D", fig.align="center", out.width="70%", echo=FALSE}
 knitr::include_graphics(gifga3d_path)
 ```
 
-## Optimización de partículas
+### 1.1.5 Optimización de partículas
 
 ```{r , include=FALSE}
 pso_rastrigin_2d <- psoptim(
@@ -960,7 +955,7 @@ pso_rastrigin_3d <- psoptim(
 )
 ```
 
-## Evolución diferencial
+### 1.1.6 Evolución diferencial
 
 ```{r, include=FALSE}
 # Almacenar historial
@@ -1043,11 +1038,11 @@ gifed_path <- file.path(output_dir, "rastrigin_de_animation.gif")
 image_write(animation, gifed_path)
 ```
 
-```{r fig_pso_2d_2, fig.cap="**Fig 11.** Animación Optimización de particulas 2D de la Función Rastrigin", fig.align="center", out.width="70%"}
+```{r fig_pso_2d_2, fig.cap="**Fig 11.** Animación Optimización de particulas 2D de la Función Rastrigin", fig.align="center", out.width="70%", echo=FALSE}
 knitr::include_graphics(gifed_path)
 ```
 
-## ***1.2 Función de Rosenbrock***
+## 1.2 Función de Rosenbrock
 
 La función de Rosenbrock de forma generalizada para para n variables se define como:
 
@@ -1065,7 +1060,7 @@ $$ Donde, $\mathbf{x} = (x_1, x_2, \ldots, x_n) \in \mathbb{R}^n$
 - Separabilidad: Es separable, porque puede expresarse como la suma de funciones de una sola variable.
 
 
-```{r rosenbrock}
+```{r rosenbrock, include=FALSE}
 #Definimos la función general
 rosenbrock_n <- function(x, a = 1, b = 100) {
   n <- length(x)
@@ -1209,11 +1204,11 @@ ggplot(grid, aes(x = x, y = y, fill = z)) +
   )
 ```
 
-### ***1.2.1 Optimización de la Función de Rosenbrock***
 
-#### ***1.2.1.1 Optimización de la Función de Rosenbrock para dos*** $(x_1, x_2)$ y tres dimensiones $(x_1,x_2,x_3)$
 
-##### **Optimización por descenso del gradiente**
+ ***Optimización de la Función de Rosenbrock para dos y tres dimensiones***
+
+### 1.2.1 Optimización por descenso del gradiente
 
 Se utiliza un punto inicial aleatorio dentro del rango [−3,3] y [3,-3,3] y a partir de allí el algoritmo busca aproximarse al mínimo global de la función, se utiliza el método BFGS (Broyden–Fletcher–Goldfarb–Shanno) ya que es un algoritmo de optimización mucho eficiente y robusto para funciones suaves y no lineales, como es el caso de la función Rosenbrock.
 
@@ -1236,7 +1231,7 @@ res_gradiente_3d <- optim(
 )
 ```
 
-##### **Optimización con Algorimos Genéticos (GA)**
+### 1.2.2 Optimización con Algorimos Genéticos (GA)
 
 En este caso se define un espacio de búsqueda continuo en el rango [−3,3] para x1,x2 y x3 y se configura una población inicial de 50 individuos. El algoritmo evoluciona durante un máximo de 100 iteraciones o hasta que no se observe mejora en 50 generaciones consecutivas.
 
@@ -1271,7 +1266,7 @@ nro_evaluaciones_ga_3d <- ga_evolutivo_3d@popSize * ga_evolutivo_3d@iter
 
 ```
 
-##### **Optimización por enjambre de partículas (PSO)**
+### 1.2.3 Optimización por enjambre de partículas (PSO)
 
 De nuevo comenzamos con una posición aleatoria en el rango [−3,3] para cada una de las variables variables y se realiza hasta 100 iteraciones para encontrar el mínimo.
 
@@ -1310,7 +1305,7 @@ res_pso_3d <- psoptim(
 
 ```
 
-##### **Evolución Diferencial (DE)**
+### 1.2.4 Evolución Diferencial (DE)
 
 En este caso establecemos una población inicial de 50 individuos (NP = 50) y se permiten hasta 100 iteraciones (itermax = 100) para la optimización. En este caso también se busca el mínimo de la función dentro del rango [−3,3] para todas las variables.
 
@@ -1375,7 +1370,7 @@ kable(tabla_optimizacion_3D, caption = "Resultados Optimización de Rosenbrock e
 
 El descenso por gradiente (BFGS) es el método más eficiente, logrando el valor óptimo con solo 143 evaluaciones. Los algoritmos evolutivos requieren 2500 evaluaciones, pero terminan con un valor de función objetivo significativamente más alejado del mínimo. La optimización por partículas (PSO) logra un valor positivo con 1300 evaluaciones, pero no se aproxima tanto al óptimo como el descenso por gradiente. Finalmente, la evolución diferencial con 3500 evaluaciones también se queda cerca del óptimo, pero no supera al gradiente. En general, los métodos heurísticos necesitan más evaluaciones y no alcanzan la precisión del descenso por gradiente.
 
-### Animación del Descenso del Gradiente.
+### 1.2.5 Animación del Descenso del Gradiente.
 
 ```{r animacion_gd, eval=FALSE,include=FALSE}
 rosenbrock_3d_history <- list()
@@ -1467,7 +1462,7 @@ gganimate::animate(p, fps = 3, width = 700, height = 470,
 knitr::include_graphics("Trabajo1_files/rosenbrock_gd_2d.gif")
 ```
 
-## Animación Evolución Diferencial
+### 1.2.6 Animación Evolución Diferencial
 
 ```{r, eval=FALSE,include=FALSE}
 # Función objetivo con almacenamiento de la historia
@@ -1541,7 +1536,7 @@ gganimate::animate(p_de, fps = 3, width = 700, height = 470,
 knitr::include_graphics("Trabajo1_files/rosenbrock_de_2d.gif")
 ```
 
-## Animación Algoritmos Evolutivos
+### 1.2.7 Animación Algoritmos Evolutivos
 
 ```{r, eval=FALSE,include=FALSE}
 # Contador para las generaciones (esto va antes de correr el GA)
@@ -1634,7 +1629,7 @@ gganimate::animate(p_ga, fps = 3, width = 700, height = 470,
 knitr::include_graphics("Trabajo1_files/rosenbrock_ga_2d.gif")
 ```
 
-## Animación Optimización por enjambre de Particulas
+### 1.2.8 Animación Optimización por enjambre de Particulas
 
 ```{r, eval=FALSE,include=FALSE}
 # Historial global
@@ -1728,7 +1723,7 @@ En resumen, los métodos de gradiente son ideales cuando se conoce que la funci�
 
 $CT_{ij} = PrecioPeajes_{ij} + Distancia_{ij}(km) * PrecioGasolina/km + Salario(Horas) * Tiempo_{ij}(Horas)$
 
-```{r}
+```{r, include=FALSE}
 ciudades = c(
     "Bogotá",
     "Medellín",
@@ -1746,13 +1741,13 @@ ciudades = c(
 )
 ```
 
-```{r}
+```{r, include=FALSE}
 matriz_distancia <- read.csv("matriz_distancia.csv", row.names = 1)
 matriz_tiempos <- read.csv("matriz_tiempos.csv", row.names = 1)
 matriz_peajes <- read.csv("matriz_peajes.csv", row.names = 1)
 ```
 
-```{r}
+```{r, include=FALSE}
 colnames(matriz_distancia) <- ciudades
 colnames(matriz_tiempos) <- ciudades
 colnames(matriz_peajes) <- ciudades
@@ -1762,19 +1757,19 @@ rownames(matriz_tiempos) <- ciudades
 rownames(matriz_peajes) <- ciudades
 ```
 
-```{r}
+```{r, include=FALSE}
 matriz_costo_gasolina <-  191*matriz_distancia
 matriz_costo_salario <- 5416*matriz_tiempos
 
 ```
 
-```{r}
+```{r, include=FALSE}
 matriz_costo_total <- matriz_peajes + matriz_costo_gasolina + matriz_costo_salario
 matriz_costo_total <- as.matrix(matriz_costo_total)
 
 ```
 
-```{r, echo=FALSE}
+```{r, include=FALSE}
 # Fijar semilla para reproducibilidad
 set.seed(42)
 
@@ -1865,6 +1860,11 @@ for (iter_idx in seq_len(100)) {
 best_path_names <- cities_names[best_path]
 best_path_names <- c(best_path_names, best_path_names[1])
 
+
+```
+
+```{r, echo=FALSE}
+
 # Impresión de resultados
 cat("\nMejor ruta encontrada:\n")
 cat(paste(best_path_names, collapse = " → "), "\n")
@@ -1888,10 +1888,9 @@ cat(sprintf("Ciudades (incluye retorno): %d\n", length(best_path_names)))
 cat(sprintf("Costo total: $%0.2f\n", total_cost))
 cat(sprintf("Costo promedio por tramo: $%0.2f\n", total_cost / length(best_path)))
 cat(sprintf("Mejor costo encontrado en la iteración: %d\n", best_iteration))
-
 ```
 
-```{r}
+```{r, include=FALSE}
 # Data.frame de ciudades con coordenadas
 coords_df <- data.frame(
   city = c("Bogotá", "Medellín", "Cali", "Barranquilla", "Cartagena",
@@ -1911,7 +1910,7 @@ print(coords_df)
 
 ```
 
-```{r, fig.cap="**Fig 18.** Ruta Óptima", fig.align="center", out.width="70%", warning=FALSE, message=FALSE}
+```{r, fig.cap="**Fig 18.** Ruta Óptima", fig.align="center", out.width="70%", warning=FALSE, message=FALSE, echo=FALSE}
 
 # Función de petición con reintentos
 get_route <- function(src, dst, retries = 3, pause = 1) {
@@ -1977,7 +1976,7 @@ leaflet() %>%
 
 ```
 
-```{r, fig.cap="**Fig 19.** Ruta óptima con distancias ecuclidianas", fig.align="center", out.width="70%"}
+```{r, fig.cap="**Fig 19.** Ruta óptima con distancias ecuclidianas", fig.align="center", out.width="70%", echo=FALSE}
 # 1. Obtener coordenadas ordenadas por la ruta
 route_coords <- coords_df[match(best_path_names, coords_df$city), ]
 
@@ -2007,14 +2006,14 @@ leaflet(route_coords) %>%
 
 ```
 
-# Reporte contribución individual
+# 3. Reporte contribución individual
 
--   Natalia Remolina: análisis de resultados descenso del gradiente en Rastrigin, ejecución del Web Scraping, optimización combinatoria colonia de hormigas (algoritmo y gráficos).
+-   **Natalia Remolina:** análisis de resultados descenso del gradiente en Rastrigin, ejecución del Web Scraping, optimización combinatoria colonia de hormigas (algoritmo y gráficos).
 
--   Jonatan Sanchez: creación del repositorio GitHub, optimización por descenso del gradiente para Rastrigin (función, gráficos y animaciones) y análisis de resultados, ejecución del Web Scraping, optimización combinatoria colonia de hormigas (algoritmo y gráficos).
+-   **Jonatan Sanchez:** creación del repositorio GitHub, optimización por descenso del gradiente para Rastrigin (función, gráficos y animaciones) y análisis de resultados, ejecución del Web Scraping, optimización combinatoria colonia de hormigas (algoritmo y gráficos).
 
--   Carlos Calle: creación del repositorio GitHub, creación y ejecución del Web Scraping para obtener información de distancia, tiempo y costo de peajes desde el aplicativo Hermes de Invias, definición de los optimizadores para Rastrigin en algoritmos evolutivos y optimización de párticulas, optimización combinatoria colonia de hormigas (algoritmo y gráficos).
+-   **Carlos Calle:** creación del repositorio GitHub, creación y ejecución del Web Scraping para obtener información de distancia, tiempo y costo de peajes desde el aplicativo Hermes de Invias, definición de los optimizadores para Rastrigin en algoritmos evolutivos y optimización de párticulas, optimización combinatoria colonia de hormigas (algoritmo y gráficos).
 
--   Juan Camilo Valencia: optimización combinatoria colonia de hormigas (algoritmo y gráficos). Graficos de algortimos evolutivos, optimización de particulas y evolución diferencial.
+-   **Juan Camilo Valencia Garcia:** optimización combinatoria colonia de hormigas (algoritmo y gráficos). Graficos de algortimos evolutivos, optimización de particulas y evolución diferencial.
 
--   David Castro: Optimización de la Función Rosenbrock, en 2d,3d con Descenso por gradiente y Metodos heuristicos, gráficas y gifs animados para Rosenbrock, rotulación de gráficas. 
+-   **David Castro:** Optimización de la Función Rosenbrock, en 2d,3d con Descenso por gradiente y Metodos heuristicos, gráficas y gifs animados para Rosenbrock, rotulación de gráficas. 
