@@ -1,0 +1,614 @@
+<!DOCTYPE html>
+<!-- saved from url=(0132)blob:https://47n207nsa27w1iqej81z08196plzcudp2lhj10nu7dm0azu286-h769614562.scf.usercontent.goog/0f701992-9147-4368-a248-68e161f3e58f -->
+<html lang="es"><head><meta http-equiv="Content-Type" content="text/html; charset=UTF-8"><script>(function(firebaseConfig, initialAuthToken, appId) {
+        window.__firebase_config = firebaseConfig;
+        window.__initial_auth_token = initialAuthToken;
+        window.__app_id = appId;
+            })("\n{\n  \"apiKey\": \"AIzaSyCqyCcs2R2e7AegGjvFAwG98wlamtbHvZY\",\n  \"authDomain\": \"bard-frontend.firebaseapp.com\",\n  \"projectId\": \"bard-frontend\",\n  \"storageBucket\": \"bard-frontend.firebasestorage.app\",\n  \"messagingSenderId\": \"175205271074\",\n  \"appId\": \"1:175205271074:web:2b7bd4d34d33bf38e6ec7b\"\n}\n","eyJhbGciOiJSUzI1NiIsImtpZCI6IjhkZDUxMTBhMGIwYjdkNDJhNDM2ODg4MzdmODg5M2M2OTNhM2RhNDMiLCJ0eXAiOiJKV1QifQ.eyJzdWIiOiJmaXJlYmFzZS1hZG1pbnNkay1mYnN2Y0BiYXJkLWZyb250ZW5kLmlhbS5nc2VydmljZWFjY291bnQuY29tIiwiYXVkIjoiaHR0cHM6XC9cL2lkZW50aXR5dG9vbGtpdC5nb29nbGVhcGlzLmNvbVwvZ29vZ2xlLmlkZW50aXR5LmlkZW50aXR5dG9vbGtpdC52MS5JZGVudGl0eVRvb2xraXQiLCJ1aWQiOiIxMjE5NDc0NjYwNTI4MDI2NDE2MCIsImFwcElkIjoiZTk3ZTA0MWMyZTBlLTE3MTkxMDAwODUxNDEtNTIiLCJpc3MiOiJmaXJlYmFzZS1hZG1pbnNkay1mYnN2Y0BiYXJkLWZyb250ZW5kLmlhbS5nc2VydmljZWFjY291bnQuY29tIiwiZXhwIjoxNzUwNjM3NDE4LCJpYXQiOjE3NTA2MzM4MTgsImFsZyI6IlJTMjU2In0.yolEiklMZNvRXwyr2roPTxsz6HUjkUB_6ED4VWWgpuY40h68i20aj9sEWTT7deXkzOCzj_ZJ-UT_jL9cFu2td5AsTMKgC9N39a5m8a6IJFTPtKmXDokLSTPr1wdoEQLQO8TqGk6ZYpk8ZZvNU7S7x6sDiTsVdwAw6d5FTaHLU2Z-9Zx6_5xM4gzms0ljIBuxUTLb_HXp0gWjF6CYC20VwhRhvAhZ35icOp5A68wZkmkra3p6z9-FCURbXh4ABBByiSnZdeoi22DndQ_J7Kt5UTaBJ8NdJh4OPnl3eqQ0kcY37opt5qH3YJiUI1vusZzR6XzpSHWQQssuo6gQ9orQSg","e97e041c2e0e-1719100085141-52")</script><script>(function() {
+  // Ensure this script is executed only once
+  if (window.firebaseAuthBridgeScriptLoaded) {
+    return;
+  }
+  window.firebaseAuthBridgeScriptLoaded = true;
+
+  let nextTokenPromiseId = 0;
+
+  // Stores { resolve, reject } for ongoing token requests
+  const pendingTokenPromises = {};
+
+  // Listen for messages from the Host Application
+  window.addEventListener('message', function(event) {
+
+    const messageData = event.data;
+
+  if (messageData && messageData.type === 'RESOLVE_NEW_FIREBASE_TOKEN') {
+      const { success, token, error, promiseId } = messageData ?? {};
+      if (pendingTokenPromises[promiseId]) {
+        if (success) {
+          pendingTokenPromises[promiseId].resolve(token);
+        } else {
+          pendingTokenPromises[promiseId].reject(new Error(error || 'Token refresh failed from host.'));
+        }
+        delete pendingTokenPromises[promiseId];
+      }
+    }
+  });
+
+  // Expose a function for the Generated App to request a new Firebase token
+  window.requestNewFirebaseToken = function() {
+    const currentPromiseId = nextTokenPromiseId++;
+    const promise = new Promise((resolve, reject) => {
+      pendingTokenPromises[currentPromiseId] = { resolve, reject };
+    });
+    if (window.parent && window.parent !== window) {
+      window.parent.postMessage({
+        type: 'REQUEST_NEW_FIREBASE_TOKEN',
+        promiseId: currentPromiseId
+      }, '*');
+    } else {
+      pendingTokenPromises[currentPromiseId].reject(new Error('No parent window to request token from.'));
+      delete pendingTokenPromises[currentPromiseId];
+    }
+    return promise;
+  };
+})();</script><script>let realOriginalGetUserMedia = null;
+if (navigator.mediaDevices && navigator.mediaDevices.getUserMedia) {
+  realOriginalGetUserMedia = navigator.mediaDevices.getUserMedia.bind(navigator.mediaDevices);
+}
+
+(function() {
+  if (navigator.mediaDevices && navigator.mediaDevices.__proto__) {
+    try {
+      Object.defineProperty(navigator.mediaDevices.__proto__, 'getUserMedia', {
+        get: function() {
+          return undefined; // Or throw an error
+        },
+        configurable: false
+      });
+    } catch (error) {
+      console.error("Error defining prototype getter:", error);
+    }
+  }
+})();
+
+(function() {
+  let originalGetUserMedia = realOriginalGetUserMedia;
+
+  const pendingMediaResolvers = {};
+  let nextMediaPromiseId = 0;
+
+  function interceptGetUserMedia() {
+    if (navigator.mediaDevices) {
+      Object.defineProperty(navigator.mediaDevices, 'getUserMedia', {
+        value: function(constraints) {
+          const mediaPromiseId = nextMediaPromiseId++;
+          const promise = new Promise((resolve, reject) => {
+            pendingMediaResolvers[mediaPromiseId] = (granted) => {
+              delete pendingMediaResolvers[mediaPromiseId];
+              if (granted) {
+                if (originalGetUserMedia) {
+                  originalGetUserMedia(constraints).then(resolve).catch(reject);
+                } else {
+                  reject(new Error("Original getUserMedia not available."));
+                }
+              } else {
+              reject(new DOMException('Permission denied', 'NotAllowedError'));
+            }
+          };
+        });
+
+        window.parent.postMessage({
+          type: 'requestMediaPermission',
+          constraints: constraints,
+          promiseId: mediaPromiseId,
+        }, '*');
+
+        return promise;
+      },
+      writable: false,
+      configurable: false
+    });
+    }
+  }
+
+  interceptGetUserMedia();
+
+  const observer = new MutationObserver(function(mutationsList, observer) {
+    for (const mutation of mutationsList) {
+      if (mutation.type === 'reconfigured' && mutation.name === 'getUserMedia' && mutation.object === navigator.mediaDevices) {
+        interceptGetUserMedia();
+      } else if (mutation.type === 'attributes' && mutation.attributeName === 'getUserMedia' && mutation.target === navigator.mediaDevices) {
+        interceptGetUserMedia();
+      } else if (mutation.type === 'childList' && mutation.addedNodes) {
+        mutation.addedNodes.forEach(node => {
+          if (node === navigator.mediaDevices) {
+            interceptGetUserMedia();
+          }
+        });
+      }
+    }
+  });
+
+  window.addEventListener('message', function(event) {
+    if (event.data) {
+      if (event.data.type === 'resolveMediaPermission') {
+        const { promiseId, granted } = event.data;
+        if (pendingMediaResolvers[promiseId]) {
+          pendingMediaResolvers[promiseId](granted);
+        }
+      }
+    }
+  });
+
+})();</script><script>((function(modelInformation) {
+  const originalFetch = window.fetch;
+  // TODO: b/421908508 - Move these out of the script and match all generative AI model calls.
+  let googleLlmBaseApiUrls = [
+    'https://generativelanguage.googleapis.com/v1beta/models/' + modelInformation.textModelName + ':streamGenerateContent',
+    'https://generativelanguage.googleapis.com/v1beta/models/' + modelInformation.textModelName + ':generateContent',
+    'https://generativelanguage.googleapis.com/v1beta/models/' + modelInformation.imageModelName + ':predict',
+    'https://generativelanguage.googleapis.com/v1beta/models/' + modelInformation.imageModelName + ':predictLongRunning',
+    'https://generativelanguage.googleapis.com/v1beta/models/' + modelInformation.videoModelName + ':predict',
+    'https://generativelanguage.googleapis.com/v1beta/models/' + modelInformation.videoModelName + ':predictLongRunning',
+  ];
+  modelInformation.deprecatedTextModelNames.forEach((modelName) => {
+    googleLlmBaseApiUrls.push(
+      'https://generativelanguage.googleapis.com/v1beta/models/' + modelName + ':streamGenerateContent',
+      'https://generativelanguage.googleapis.com/v1beta/models/' + modelName + ':generateContent',
+    );
+  });
+
+  const pendingFetchResolvers = {};
+  let nextPromiseId = 0;
+
+  function handleStringInput(input, optionsArgument) {
+    const actualUrl = input;
+    const fetchCallArgs = [actualUrl, optionsArgument];
+    const effectiveOptions = optionsArgument || {};
+    const bodyForApiKeyCheck = effectiveOptions.body;
+    const bodyForPostMessage = effectiveOptions.body;
+    return { actualUrl, fetchCallArgs, effectiveOptions, bodyForApiKeyCheck, bodyForPostMessage };
+  }
+
+  function handleRequestInput(input, optionsArgument) {
+    const actualUrl = input.url;
+    const fetchCallArgs = [input, optionsArgument];
+    const effectiveOptions = { method: input.method, headers: new Headers(input.headers) };
+    let bodyForApiKeyCheck;
+    let bodyForPostMessage;
+
+    if (optionsArgument) {
+      if (optionsArgument.method) effectiveOptions.method = optionsArgument.method;
+      if (optionsArgument.headers) effectiveOptions.headers = new Headers(optionsArgument.headers);
+      if ('body' in optionsArgument) {
+        bodyForApiKeyCheck = optionsArgument.body;
+        bodyForPostMessage = optionsArgument.body;
+      } else {
+        bodyForApiKeyCheck = undefined;
+        bodyForPostMessage = input.body;
+      }
+    } else {
+      bodyForApiKeyCheck = undefined;
+      bodyForPostMessage = input.body;
+    }
+    return { actualUrl, fetchCallArgs, effectiveOptions, bodyForApiKeyCheck, bodyForPostMessage };
+  }
+
+  window.fetch = function(input, optionsArgument) {
+    let actualUrl;
+    let fetchCallArgs;
+    let effectiveOptions = {};
+    let bodyForApiKeyCheck;
+    let bodyForPostMessage;
+
+    if (typeof input === 'string') {
+      ({actualUrl, fetchCallArgs, effectiveOptions, bodyForApiKeyCheck, bodyForPostMessage} = handleStringInput(input, optionsArgument));
+    } else if (input instanceof Request) {
+      ({actualUrl, fetchCallArgs, effectiveOptions, bodyForApiKeyCheck, bodyForPostMessage} = handleRequestInput(input, optionsArgument));
+    } else {
+      return originalFetch.apply(window, [input, optionsArgument]);
+    }
+
+    effectiveOptions.method = effectiveOptions.method || 'GET';
+    if (!effectiveOptions.headers) {
+      effectiveOptions.headers = new Headers();
+    }
+
+
+    if (typeof actualUrl === 'string' && googleLlmBaseApiUrls.some((url) => actualUrl.startsWith(url))) {
+      let apiKeyIsNull = true;
+
+      const regex = new RegExp("models/([^:]+)");
+      const modelNameMatch = actualUrl.match(regex);
+      const modelName = modelNameMatch ? modelNameMatch[1] : 'unspecified';
+
+
+      try {
+        const urlObject = new URL(actualUrl);  // Use URL object for robust parsing
+        const apiKeyParam = urlObject.searchParams.get('key');
+        if (apiKeyParam) {
+          apiKeyIsNull = false;
+        }
+      } catch (e) {
+        // Continue checks even if URL parsing fails
+      }
+
+      if (apiKeyIsNull && effectiveOptions.headers) {
+        const h = new Headers(effectiveOptions.headers);
+        const apiKeyHeaderValue = h.get('X-API-Key') || h.get('x-api-key');
+        if (apiKeyHeaderValue) {
+          apiKeyIsNull = false;
+          return originalFetch.apply(window, fetchCallArgs);
+        }
+      }
+
+      if (apiKeyIsNull && effectiveOptions.method && ['POST', 'PUT', 'PATCH'].includes(effectiveOptions.method.toUpperCase()) && typeof bodyForApiKeyCheck === 'string') {
+        try {
+          const bodyData = JSON.parse(bodyForApiKeyCheck);
+          if (bodyData && bodyData.apiKey) {
+            apiKeyIsNull = false;
+            return originalFetch.apply(window, fetchCallArgs);
+          }
+        } catch (e) {
+          // Ignore JSON parsing errors
+        }
+      }
+
+      if(apiKeyIsNull) {
+        const promiseId = nextPromiseId++;
+        const promise = new Promise((resolve) => {
+          pendingFetchResolvers[promiseId] = (resolvedResponse) => {
+            delete pendingFetchResolvers[promiseId];
+            resolve(resolvedResponse);
+          };
+        });
+
+        let serializedBodyForPostMessage;
+        if (typeof bodyForPostMessage === 'string' || bodyForPostMessage == null) {
+            serializedBodyForPostMessage = bodyForPostMessage;
+        } else if (bodyForPostMessage instanceof ReadableStream) {
+            serializedBodyForPostMessage = null;
+        } else {
+            try {
+                serializedBodyForPostMessage = JSON.stringify(bodyForPostMessage);
+            } catch (e) {
+                serializedBodyForPostMessage = null;
+            }
+        }
+
+        const messageOptions = {
+            method: effectiveOptions.method,
+            headers: Object.fromEntries(new Headers(effectiveOptions.headers).entries()),
+            body: serializedBodyForPostMessage
+        };
+
+        window.parent.postMessage({
+          type: 'requestFetch',
+          url: actualUrl,
+          modelName: modelName,
+          options: messageOptions,
+          promiseId: promiseId,
+        }, '*');
+
+        return promise;
+      }
+      return originalFetch.apply(window, fetchCallArgs);
+    }
+    return originalFetch.apply(window, fetchCallArgs);
+  };
+
+  window.addEventListener('message', function(event) {
+    if (event.data && event.data.type === 'resolveFetch') {
+      const { promiseId, response } = event.data;
+      if (pendingFetchResolvers[promiseId]) {
+        try {
+          const reconstructedResponse = new Response(response.body, {
+            status: response.status,
+            statusText: response.statusText,
+            headers: new Headers(response.headers),
+          });
+          pendingFetchResolvers[promiseId](reconstructedResponse);
+        } catch (error) {
+          pendingFetchResolvers[promiseId](new Response(null, { status: 500, statusText: "Interceptor Response Reconstruction Error" }));
+        }
+      }
+    }
+  });
+
+}))({"textModelName":"gemini-2.5-flash-preview-04-17","imageModelName":"imagen-3.0-generate-002","videoModelName":"veo-2.0-generate-001","deprecatedTextModelNames":["gemini-2.0-flash"]})</script><script>(function() {
+  const originalConsoleLog = console.log;
+  const originalConsoleError = console.error;
+
+    /**
+   * Normalizes an error event or a promise rejection reason into a structured error object.
+   * @param {*} errorEventOrReason The error object or reason.
+   * @return {object} Structured error data { message, name, stack }.
+   */
+  function getErrorObject(errorEventOrReason) {
+    if (errorEventOrReason instanceof Error) {
+      return {
+        message: errorEventOrReason.message,
+        name: errorEventOrReason.name,
+        stack: errorEventOrReason.stack,
+      };
+    }
+    // Fallback for non-Error objects.
+    try {
+      return {
+        message: JSON.stringify(errorEventOrReason),
+        name: 'UnknownErrorType',
+        stack: null,
+      };
+    } catch (e) {
+      return {
+        message: String(errorEventOrReason),
+        name: 'UnknownErrorTypeNonStringifiable',
+        stack: null,
+      };
+    }
+  }
+
+  /**
+   * Converts an array of arguments (from log/error) into a single string.
+   * Handles Error objects specially to include their message and stack.
+   * @param {Array<*>} args - Arguments passed to console methods.
+   * @return {string} A string representation of the arguments.
+   */
+  function stringifyArgs(args) {
+    return args
+      .map((arg) => {
+        if (arg instanceof Error) {
+          const {message, stack} = arg;
+          return `Error: ${message}${stack ? ('\nStack: ' + stack) : ''}`;
+        }
+        if (typeof arg === 'object' && arg !== null) {
+          try {
+            return JSON.stringify(arg);
+          } catch (error) {
+            return '[Circular Object]';
+          }
+        } else {
+          return String(arg);
+        }
+      })
+      .join(' ');
+  }
+
+  console.log = function(...args) {
+    const logString = stringifyArgs(args);
+    window.parent.postMessage({ type: 'log', message: logString }, '*');
+    originalConsoleLog.apply(console, args);
+  };
+
+  console.error = function(...args) {
+    let errorData;
+    if (args.length > 0 && args[0] instanceof Error) {
+      const err = args[0];
+      // If the first arg is an Error, capture its details.
+      errorData = {
+        type: 'error',
+        source: 'CONSOLE_ERROR',
+        ...getErrorObject(err),
+        rawArgsString: stringifyArgs(args.slice(1)),
+        timestamp: new Date().toISOString(),
+      };
+    } else {
+      // If not an Error object, treat all args as a general error message.
+      errorData = {
+        type: 'error',
+        source: 'CONSOLE_ERROR',
+        message: stringifyArgs(args),
+        name: 'ConsoleLoggedError',
+        stack: null,
+        timestamp: new Date().toISOString(),
+      };
+    }
+    window.parent.postMessage(errorData, '*');
+    originalConsoleError.apply(console, args);
+  };
+
+  // Listen for global unhandled synchronous errors.
+  window.addEventListener('error', function(event) {
+    const errorDetails = event.error ? getErrorObject(event.error) : {
+      message: event.message,
+      name: 'GlobalError',
+      stack: null,
+      filename: event.filename,
+      lineno: event.lineno,
+      colno: event.colno,
+    };
+
+    window.parent.postMessage({
+      type: 'error',
+      source: 'global',
+      ...errorDetails,
+      message: errorDetails.message || event.message,
+      timestamp: new Date().toISOString(),
+    }, '*');
+  });
+
+  // Listen for unhandled promise rejections (asynchronous errors).
+  window.addEventListener('unhandledrejection', function(event) {
+    const errorDetails = getErrorObject(event.reason);
+
+    window.parent.postMessage({
+      type: 'error',
+      source: 'unhandledrejection',
+      ...errorDetails,
+      message: errorDetails.message || 'Unhandled Promise Rejection',
+      timestamp: new Date().toISOString(),
+    }, '*');
+  });
+
+})();</script>
+    
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Ruta Óptima del Viajero - Colombia</title>
+
+    <!-- 1. Dependencias de Leaflet (CSS y JS) -->
+    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css">
+    <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js" crossorigin="anonymous"></script>
+    <script src="https://unpkg.com/leaflet-polylinedecorator@1.6.0/dist/leaflet.polylineDecorator.js" crossorigin="anonymous"></script>
+    
+    <!-- 2. Estilos para el mapa y los marcadores -->
+    <style>
+        html, body {
+            height: 100%;
+            margin: 0;
+            padding: 0;
+            font-family: sans-serif;
+            background-color: #f0f2f5;
+        }
+        #map-container {
+            width: 100%;
+            height: 100vh; /* Ocupa toda la altura de la ventana */
+        }
+        .custom-icon-div {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            background: #fff;
+            border: 2px solid #1f78b4;
+            border-radius: 50%;
+            color: #1f78b4;
+            font-weight: bold;
+            font-size: 14px;
+            box-shadow: 0 1px 4px rgba(0,0,0,0.2);
+        }
+        .start-end-icon {
+            background-color: #d95f02;
+            color: white;
+            border-color: #a63603;
+            font-size: 16px;
+        }
+    </style>
+</head>
+<body>
+
+    <!-- 3. Contenedor donde se dibujará el mapa -->
+    <div id="map-container" class="leaflet-container leaflet-touch leaflet-retina leaflet-fade-anim leaflet-grab leaflet-touch-drag leaflet-touch-zoom" tabindex="0" style="position: relative; outline-style: none;"><div class="leaflet-pane leaflet-map-pane" style="transform: translate3d(0px, 2px, 0px);"><div class="leaflet-pane leaflet-tile-pane"><div class="leaflet-layer " style="z-index: 1; opacity: 1;"><div class="leaflet-tile-container leaflet-zoom-animated" style="z-index: 18; transform: translate3d(-836px, -258px, 0px) scale(1);"><img alt="" src="https://a.basemaps.cartocdn.com/rastertiles/voyager/6/18/30@2x.png" class="leaflet-tile leaflet-tile-loaded" style="width: 256px; height: 256px; transform: translate3d(1310px, 336px, 0px); opacity: 1;"><img alt="" src="https://c.basemaps.cartocdn.com/rastertiles/voyager/6/18/29@2x.png" class="leaflet-tile leaflet-tile-loaded" style="width: 256px; height: 256px; transform: translate3d(1310px, 80px, 0px); opacity: 1;"><img alt="" src="https://c.basemaps.cartocdn.com/rastertiles/voyager/6/17/30@2x.png" class="leaflet-tile leaflet-tile-loaded" style="width: 256px; height: 256px; transform: translate3d(1054px, 336px, 0px); opacity: 1;"><img alt="" src="https://b.basemaps.cartocdn.com/rastertiles/voyager/6/19/30@2x.png" class="leaflet-tile leaflet-tile-loaded" style="width: 256px; height: 256px; transform: translate3d(1566px, 336px, 0px); opacity: 1;"><img alt="" src="https://b.basemaps.cartocdn.com/rastertiles/voyager/6/18/31@2x.png" class="leaflet-tile leaflet-tile-loaded" style="width: 256px; height: 256px; transform: translate3d(1310px, 592px, 0px); opacity: 1;"><img alt="" src="https://b.basemaps.cartocdn.com/rastertiles/voyager/6/17/29@2x.png" class="leaflet-tile leaflet-tile-loaded" style="width: 256px; height: 256px; transform: translate3d(1054px, 80px, 0px); opacity: 1;"><img alt="" src="https://a.basemaps.cartocdn.com/rastertiles/voyager/6/19/29@2x.png" class="leaflet-tile leaflet-tile-loaded" style="width: 256px; height: 256px; transform: translate3d(1566px, 80px, 0px); opacity: 1;"><img alt="" src="https://a.basemaps.cartocdn.com/rastertiles/voyager/6/17/31@2x.png" class="leaflet-tile leaflet-tile-loaded" style="width: 256px; height: 256px; transform: translate3d(1054px, 592px, 0px); opacity: 1;"><img alt="" src="https://c.basemaps.cartocdn.com/rastertiles/voyager/6/19/31@2x.png" class="leaflet-tile leaflet-tile-loaded" style="width: 256px; height: 256px; transform: translate3d(1566px, 592px, 0px); opacity: 1;"><img alt="" src="https://b.basemaps.cartocdn.com/rastertiles/voyager/6/16/30@2x.png" class="leaflet-tile leaflet-tile-loaded" style="width: 256px; height: 256px; transform: translate3d(798px, 336px, 0px); opacity: 1;"><img alt="" src="https://c.basemaps.cartocdn.com/rastertiles/voyager/6/20/30@2x.png" class="leaflet-tile leaflet-tile-loaded" style="width: 256px; height: 256px; transform: translate3d(1822px, 336px, 0px); opacity: 1;"><img alt="" src="https://a.basemaps.cartocdn.com/rastertiles/voyager/6/16/29@2x.png" class="leaflet-tile leaflet-tile-loaded" style="width: 256px; height: 256px; transform: translate3d(798px, 80px, 0px); opacity: 1;"><img alt="" src="https://b.basemaps.cartocdn.com/rastertiles/voyager/6/20/29@2x.png" class="leaflet-tile leaflet-tile-loaded" style="width: 256px; height: 256px; transform: translate3d(1822px, 80px, 0px); opacity: 1;"><img alt="" src="https://c.basemaps.cartocdn.com/rastertiles/voyager/6/16/31@2x.png" class="leaflet-tile leaflet-tile-loaded" style="width: 256px; height: 256px; transform: translate3d(798px, 592px, 0px); opacity: 1;"><img alt="" src="https://a.basemaps.cartocdn.com/rastertiles/voyager/6/20/31@2x.png" class="leaflet-tile leaflet-tile-loaded" style="width: 256px; height: 256px; transform: translate3d(1822px, 592px, 0px); opacity: 1;"><img alt="" src="https://a.basemaps.cartocdn.com/rastertiles/voyager/6/15/30@2x.png" class="leaflet-tile leaflet-tile-loaded" style="width: 256px; height: 256px; transform: translate3d(542px, 336px, 0px); opacity: 1;"><img alt="" src="https://a.basemaps.cartocdn.com/rastertiles/voyager/6/21/30@2x.png" class="leaflet-tile leaflet-tile-loaded" style="width: 256px; height: 256px; transform: translate3d(2078px, 336px, 0px); opacity: 1;"><img alt="" src="https://c.basemaps.cartocdn.com/rastertiles/voyager/6/15/29@2x.png" class="leaflet-tile leaflet-tile-loaded" style="width: 256px; height: 256px; transform: translate3d(542px, 80px, 0px); opacity: 1;"><img alt="" src="https://c.basemaps.cartocdn.com/rastertiles/voyager/6/21/29@2x.png" class="leaflet-tile leaflet-tile-loaded" style="width: 256px; height: 256px; transform: translate3d(2078px, 80px, 0px); opacity: 1;"><img alt="" src="https://b.basemaps.cartocdn.com/rastertiles/voyager/6/15/31@2x.png" class="leaflet-tile leaflet-tile-loaded" style="width: 256px; height: 256px; transform: translate3d(542px, 592px, 0px); opacity: 1;"><img alt="" src="https://b.basemaps.cartocdn.com/rastertiles/voyager/6/21/31@2x.png" class="leaflet-tile leaflet-tile-loaded" style="width: 256px; height: 256px; transform: translate3d(2078px, 592px, 0px); opacity: 1;"><img alt="" src="https://b.basemaps.cartocdn.com/rastertiles/voyager/6/22/30@2x.png" class="leaflet-tile leaflet-tile-loaded" style="width: 256px; height: 256px; transform: translate3d(2334px, 336px, 0px); opacity: 1;"><img alt="" src="https://a.basemaps.cartocdn.com/rastertiles/voyager/6/22/29@2x.png" class="leaflet-tile leaflet-tile-loaded" style="width: 256px; height: 256px; transform: translate3d(2334px, 80px, 0px); opacity: 1;"><img alt="" src="https://c.basemaps.cartocdn.com/rastertiles/voyager/6/22/31@2x.png" class="leaflet-tile leaflet-tile-loaded" style="width: 256px; height: 256px; transform: translate3d(2334px, 592px, 0px); opacity: 1;"></div></div></div><div class="leaflet-pane leaflet-overlay-pane"><svg pointer-events="none" class="leaflet-zoom-animated" width="1805" height="684" viewBox="-150 -59 1805 684" style="transform: translate3d(-150px, -59px, 0px);"><g><path class="leaflet-interactive" stroke="#e31a1c" stroke-opacity="0.8" stroke-width="4" stroke-linecap="round" stroke-linejoin="round" fill="none" d="M759 230L730 265"></path><path class="leaflet-interactive" stroke="#FFFFFF" stroke-opacity="1" stroke-width="1" stroke-linecap="round" stroke-linejoin="round" fill="none" d="M760 218L759 230L770 225"></path><path class="leaflet-interactive" stroke="#e31a1c" stroke-opacity="0.8" stroke-width="4" stroke-linecap="round" stroke-linejoin="round" fill="none" d="M730 265L681 75"></path><path class="leaflet-interactive" stroke="#FFFFFF" stroke-opacity="1" stroke-width="1" stroke-linecap="round" stroke-linejoin="round" fill="none" d="M739 274L730 265L727 277"></path><path class="leaflet-interactive" stroke="#FFFFFF" stroke-opacity="1" stroke-width="1" stroke-linecap="round" stroke-linejoin="round" fill="none" d="M714 177L705 168L702 180"></path><path class="leaflet-interactive" stroke="#e31a1c" stroke-opacity="0.8" stroke-width="4" stroke-linecap="round" stroke-linejoin="round" fill="none" d="M681 75L655 88"></path><path class="leaflet-interactive" stroke="#FFFFFF" stroke-opacity="1" stroke-width="1" stroke-linecap="round" stroke-linejoin="round" fill="none" d="M688 65L681 75L693 76"></path><path class="leaflet-interactive" stroke="#e31a1c" stroke-opacity="0.8" stroke-width="4" stroke-linecap="round" stroke-linejoin="round" fill="none" d="M655 88L623 114"></path><path class="leaflet-interactive" stroke="#FFFFFF" stroke-opacity="1" stroke-width="1" stroke-linecap="round" stroke-linejoin="round" fill="none" d="M659 76L655 88L666 86"></path><path class="leaflet-interactive" stroke="#e31a1c" stroke-opacity="0.8" stroke-width="4" stroke-linecap="round" stroke-linejoin="round" fill="none" d="M623 114L618 305"></path><path class="leaflet-interactive" stroke="#FFFFFF" stroke-opacity="1" stroke-width="1" stroke-linecap="round" stroke-linejoin="round" fill="none" d="M617 104L623 114L629 104"></path><path class="leaflet-interactive" stroke="#FFFFFF" stroke-opacity="1" stroke-width="1" stroke-linecap="round" stroke-linejoin="round" fill="none" d="M615 204L620 214L627 204"></path><path class="leaflet-interactive" stroke="#e31a1c" stroke-opacity="0.8" stroke-width="4" stroke-linecap="round" stroke-linejoin="round" fill="none" d="M618 305L621 359"></path><path class="leaflet-interactive" stroke="#FFFFFF" stroke-opacity="1" stroke-width="1" stroke-linecap="round" stroke-linejoin="round" fill="none" d="M612 295L618 305L624 295"></path><path class="leaflet-interactive" stroke="#e31a1c" stroke-opacity="0.8" stroke-width="4" stroke-linecap="round" stroke-linejoin="round" fill="none" d="M621 359L613 371"></path><path class="leaflet-interactive" stroke="#FFFFFF" stroke-opacity="1" stroke-width="1" stroke-linecap="round" stroke-linejoin="round" fill="none" d="M622 347L621 359L632 354"></path><path class="leaflet-interactive" stroke="#e31a1c" stroke-opacity="0.8" stroke-width="4" stroke-linecap="round" stroke-linejoin="round" fill="none" d="M613 371L634 388"></path><path class="leaflet-interactive" stroke="#FFFFFF" stroke-opacity="1" stroke-width="1" stroke-linecap="round" stroke-linejoin="round" fill="none" d="M601 369L613 371L609 359"></path><path class="leaflet-interactive" stroke="#e31a1c" stroke-opacity="0.8" stroke-width="4" stroke-linecap="round" stroke-linejoin="round" fill="none" d="M634 388L575 433"></path><path class="leaflet-interactive" stroke="#FFFFFF" stroke-opacity="1" stroke-width="1" stroke-linecap="round" stroke-linejoin="round" fill="none" d="M639 377L634 388L646 386"></path><path class="leaflet-interactive" stroke="#e31a1c" stroke-opacity="0.8" stroke-width="4" stroke-linecap="round" stroke-linejoin="round" fill="none" d="M575 433L632 457"></path><path class="leaflet-interactive" stroke="#FFFFFF" stroke-opacity="1" stroke-width="1" stroke-linecap="round" stroke-linejoin="round" fill="none" d="M563 434L575 433L568 423"></path><path class="leaflet-interactive" stroke="#e31a1c" stroke-opacity="0.8" stroke-width="4" stroke-linecap="round" stroke-linejoin="round" fill="none" d="M632 457L687 375"></path><path class="leaflet-interactive" stroke="#FFFFFF" stroke-opacity="1" stroke-width="1" stroke-linecap="round" stroke-linejoin="round" fill="none" d="M631 469L632 457L621 462"></path><path class="leaflet-interactive" stroke="#e31a1c" stroke-opacity="0.8" stroke-width="4" stroke-linecap="round" stroke-linejoin="round" fill="none" d="M687 375L707 401"></path><path class="leaflet-interactive" stroke="#FFFFFF" stroke-opacity="1" stroke-width="1" stroke-linecap="round" stroke-linejoin="round" fill="none" d="M676 371L687 375L685 363"></path><path class="leaflet-interactive" stroke="#e31a1c" stroke-opacity="0.8" stroke-width="4" stroke-linecap="round" stroke-linejoin="round" fill="none" d="M707 401L759 230"></path><path class="leaflet-interactive" stroke="#FFFFFF" stroke-opacity="1" stroke-width="1" stroke-linecap="round" stroke-linejoin="round" fill="none" d="M710 413L707 401L698 410"></path><path class="leaflet-interactive" stroke="#FFFFFF" stroke-opacity="1" stroke-width="1" stroke-linecap="round" stroke-linejoin="round" fill="none" d="M739 317L736 306L727 314"></path></g></svg></div><div class="leaflet-pane leaflet-shadow-pane"></div><div class="leaflet-pane leaflet-marker-pane"><div class="leaflet-marker-icon leaflet-zoom-animated leaflet-interactive" tabindex="0" role="button" style="margin-left: -15px; margin-top: -30px; width: 30px; height: 30px; transform: translate3d(759px, 230px, 0px); z-index: 1230;"><div class="custom-icon-div start-end-icon">1</div></div><div class="leaflet-marker-icon leaflet-zoom-animated leaflet-interactive" tabindex="0" role="button" style="margin-left: -15px; margin-top: -30px; width: 30px; height: 30px; transform: translate3d(730px, 265px, 0px); z-index: 1265;"><div class="custom-icon-div ">2</div></div><div class="leaflet-marker-icon leaflet-zoom-animated leaflet-interactive" tabindex="0" role="button" style="margin-left: -15px; margin-top: -30px; width: 30px; height: 30px; transform: translate3d(681px, 75px, 0px); z-index: 1075;"><div class="custom-icon-div ">3</div></div><div class="leaflet-marker-icon leaflet-zoom-animated leaflet-interactive" tabindex="0" role="button" style="margin-left: -15px; margin-top: -30px; width: 30px; height: 30px; transform: translate3d(655px, 88px, 0px); z-index: 1088;"><div class="custom-icon-div ">4</div></div><div class="leaflet-marker-icon leaflet-zoom-animated leaflet-interactive" tabindex="0" role="button" style="margin-left: -15px; margin-top: -30px; width: 30px; height: 30px; transform: translate3d(623px, 114px, 0px); z-index: 1114;"><div class="custom-icon-div ">5</div></div><div class="leaflet-marker-icon leaflet-zoom-animated leaflet-interactive" tabindex="0" role="button" style="margin-left: -15px; margin-top: -30px; width: 30px; height: 30px; transform: translate3d(618px, 305px, 0px); z-index: 1305;"><div class="custom-icon-div ">6</div></div><div class="leaflet-marker-icon leaflet-zoom-animated leaflet-interactive" tabindex="0" role="button" style="margin-left: -15px; margin-top: -30px; width: 30px; height: 30px; transform: translate3d(621px, 359px, 0px); z-index: 1359;"><div class="custom-icon-div ">7</div></div><div class="leaflet-marker-icon leaflet-zoom-animated leaflet-interactive" tabindex="0" role="button" style="margin-left: -15px; margin-top: -30px; width: 30px; height: 30px; transform: translate3d(613px, 371px, 0px); z-index: 1371;"><div class="custom-icon-div ">8</div></div><div class="leaflet-marker-icon leaflet-zoom-animated leaflet-interactive" tabindex="0" role="button" style="margin-left: -15px; margin-top: -30px; width: 30px; height: 30px; transform: translate3d(634px, 388px, 0px); z-index: 1388;"><div class="custom-icon-div ">9</div></div><div class="leaflet-marker-icon leaflet-zoom-animated leaflet-interactive" tabindex="0" role="button" style="margin-left: -15px; margin-top: -30px; width: 30px; height: 30px; transform: translate3d(575px, 433px, 0px); z-index: 1433;"><div class="custom-icon-div ">10</div></div><div class="leaflet-marker-icon leaflet-zoom-animated leaflet-interactive" tabindex="0" role="button" style="margin-left: -15px; margin-top: -30px; width: 30px; height: 30px; transform: translate3d(632px, 457px, 0px); z-index: 1457;"><div class="custom-icon-div ">11</div></div><div class="leaflet-marker-icon leaflet-zoom-animated leaflet-interactive" tabindex="0" role="button" style="margin-left: -15px; margin-top: -30px; width: 30px; height: 30px; transform: translate3d(687px, 375px, 0px); z-index: 1375;"><div class="custom-icon-div ">12</div></div><div class="leaflet-marker-icon leaflet-zoom-animated leaflet-interactive" tabindex="0" role="button" style="margin-left: -15px; margin-top: -30px; width: 30px; height: 30px; transform: translate3d(707px, 401px, 0px); z-index: 1401;"><div class="custom-icon-div ">13</div></div></div><div class="leaflet-pane leaflet-tooltip-pane"></div><div class="leaflet-pane leaflet-popup-pane"></div><div class="leaflet-proxy leaflet-zoom-animated" style="transform: translate3d(4886px, 7885px, 0px) scale(32);"></div></div><div class="leaflet-control-container"><div class="leaflet-top leaflet-left"><div class="leaflet-control-zoom leaflet-bar leaflet-control"><a class="leaflet-control-zoom-in" href="blob:https://47n207nsa27w1iqej81z08196plzcudp2lhj10nu7dm0azu286-h769614562.scf.usercontent.goog/0f701992-9147-4368-a248-68e161f3e58f#" title="Zoom in" role="button" aria-label="Zoom in" aria-disabled="false"><span aria-hidden="true">+</span></a><a class="leaflet-control-zoom-out" href="blob:https://47n207nsa27w1iqej81z08196plzcudp2lhj10nu7dm0azu286-h769614562.scf.usercontent.goog/0f701992-9147-4368-a248-68e161f3e58f#" title="Zoom out" role="button" aria-label="Zoom out" aria-disabled="false"><span aria-hidden="true">−</span></a></div></div><div class="leaflet-top leaflet-right"></div><div class="leaflet-bottom leaflet-left"></div><div class="leaflet-bottom leaflet-right"><div class="leaflet-control-attribution leaflet-control"><a href="https://leafletjs.com/" title="A JavaScript library for interactive maps"><svg aria-hidden="true" xmlns="http://www.w3.org/2000/svg" width="12" height="8" viewBox="0 0 12 8" class="leaflet-attribution-flag"><path fill="#4C7BE1" d="M0 0h12v4H0z"></path><path fill="#FFD500" d="M0 4h12v3H0z"></path><path fill="#E0BC00" d="M0 7h12v1H0z"></path></svg> Leaflet</a> <span aria-hidden="true">|</span> © <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors © <a href="https://carto.com/attributions">CARTO</a></div></div></div></div>
+
+    <!-- 4. El script principal de la animación -->
+    <script>
+        // --- DATOS (Corregidos con la lista de 13 ciudades) ---
+
+        const cityData = {
+            "Bogotá": { lat: 4.7110, lon: -74.0721 },
+            "Medellín": { lat: 6.2442, lon: -75.5812 },
+            "Cali": { lat: 3.4516, lon: -76.5320 },
+            "Barranquilla": { lat: 10.9685, lon: -74.7813 },
+            "Cartagena": { lat: 10.3910, lon: -75.4794 },
+            "Bucaramanga": { lat: 7.1193, lon: -73.1227 },
+            "Cúcuta": { lat: 7.8891, lon: -72.4965 },
+            "Pereira": { lat: 4.8133, lon: -75.6961 },
+            "Manizales": { lat: 5.0672, lon: -75.5174 },
+            "Ibagué": { lat: 4.4389, lon: -75.2322 },
+            "Santa Marta": { lat: 11.2408, lon: -74.1990 },
+            "Villavicencio": { lat: 4.1420, lon: -73.6260 },
+            "Neiva": { lat: 2.9273, lon: -75.2803 }
+        };
+
+        // Ruta corregida para incluir solo las 13 ciudades en un orden lógico
+        const bestPathNames = [
+            "Cúcuta", "Bucaramanga", "Santa Marta", "Barranquilla", "Cartagena", 
+            "Medellín", "Manizales", "Pereira", "Ibagué", "Cali", "Neiva", 
+            "Bogotá", "Villavicencio", "Cúcuta" // Vuelve al inicio para cerrar el ciclo
+        ];
+        
+        // --- LÓGICA DEL MAPA Y LA ANIMACIÓN ---
+
+        const routeCoordinates = bestPathNames.map(name => [cityData[name].lat, cityData[name].lon]);
+        const map = L.map('map-container').setView([6.2, -74.5], 5);
+        
+        // Grupo de capas para controlar todos los elementos de la animación
+        const animationLayerGroup = L.layerGroup().addTo(map);
+
+        L.tileLayer('https://{s}.basemaps.cartocdn.com/rastertiles/voyager/{z}/{x}/{y}{r}.png', {
+            attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors &copy; <a href="https://carto.com/attributions">CARTO</a>'
+        }).addTo(map);
+        
+        // Ajusta el zoom para que toda la ruta sea visible
+        map.fitBounds(L.polyline(routeCoordinates).getBounds().pad(0.1));
+
+        /**
+         * Crea un marcador personalizado para una ciudad.
+         * @param {string} cityName - El nombre de la ciudad.
+         * @param {number} order - El número de orden en la ruta.
+         */
+        function createMarker(cityName, order) {
+            const city = cityData[cityName];
+            const isStart = (order === 1);
+            // El último marcador del ciclo no se muestra, así que no necesitamos una clase "end" especial
+            const iconHtml = `<div class="custom-icon-div ${isStart ? 'start-end-icon' : ''}">${order}</div>`;
+            const customIcon = L.divIcon({
+                html: iconHtml,
+                className: '', // Evita clases por defecto de Leaflet
+                iconSize: [30, 30],
+                iconAnchor: [15, 30]
+            });
+
+            L.marker([city.lat, city.lon], { icon: customIcon, zIndexOffset: 1000 })
+                .bindPopup(`<b>${order}. ${cityName}</b>`)
+                .addTo(animationLayerGroup); // Añadir al grupo de capas
+        }
+        
+        let currentSegment = 0;
+        const animationDelay = 1200; // Tiempo en milisegundos entre cada segmento
+
+        /**
+         * Dibuja el siguiente segmento de la ruta animada.
+         */
+        function drawNextSegment() {
+            // Si la animación terminó, programa el reinicio
+            if (currentSegment >= routeCoordinates.length - 1) {
+                setTimeout(startAnimation, 3000); // Espera 3 segundos antes de reiniciar
+                return;
+            }
+
+            const segmentCoords = [routeCoordinates[currentSegment], routeCoordinates[currentSegment + 1]];
+            const destinationCityName = bestPathNames[currentSegment + 1];
+
+            // Dibuja la línea del segmento
+            const polyline = L.polyline(segmentCoords, { color: "#e31a1c", weight: 4, opacity: 0.8 })
+                .addTo(animationLayerGroup); // Añadir al grupo de capas
+
+            // Añade una flecha animada a la línea
+            L.polylineDecorator(polyline, {
+                patterns: [{
+                    offset: '0%',
+                    repeat: 100,
+                    symbol: L.Symbol.arrowHead({
+                        pixelSize: 12,
+                        polygon: false,
+                        pathOptions: { stroke: true, weight: 1, color: "#FFFFFF" }
+                    })
+                }]
+            }).addTo(animationLayerGroup); // Añadir al grupo de capas
+
+            // Crea el marcador para la ciudad de destino, si no es el punto final que se repite
+            if (currentSegment < bestPathNames.length - 2) {
+                createMarker(destinationCityName, currentSegment + 2);
+            }
+
+            currentSegment++;
+            setTimeout(drawNextSegment, animationDelay);
+        }
+        
+        /**
+         * Inicia o reinicia la animación completa.
+         * Limpia el mapa y comienza desde el principio.
+         */
+        function startAnimation() {
+            animationLayerGroup.clearLayers(); // Limpia todos los elementos de la animación anterior
+            currentSegment = 0; // Reinicia el contador de segmentos
+            createMarker(bestPathNames[0], 1); // Pone el primer marcador
+            drawNextSegment(); // Comienza la secuencia de dibujo de nuevo
+        }
+
+        // Iniciar la animación por primera vez cuando la página carga
+        startAnimation();
+
+    </script>
+
+
+</body></html>
