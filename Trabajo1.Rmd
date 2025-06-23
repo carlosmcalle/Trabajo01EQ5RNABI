@@ -1976,37 +1976,25 @@ leaflet() %>%
 
 ```
 
-```{r, fig.cap="**Fig 19.** Ruta óptima con distancias ecuclidianas", fig.align="center", out.width="70%", echo=FALSE}
-# 1. Obtener coordenadas ordenadas por la ruta
-route_coords <- coords_df[match(best_path_names, coords_df$city), ]
+# 3. Visualización de la Ruta Óptima (Animación)
 
-# 2. Crear una versión sin la última ciudad (que es repetición de la primera)
-route_coords_labeled <- route_coords[-nrow(route_coords), ]
-route_coords_labeled$order <- seq_len(nrow(route_coords_labeled))
+A continuación, se muestra una animación de la ruta óptima.
 
-# 3. Crear el mapa con líneas, marcadores y etiquetas de orden
-leaflet(route_coords) %>%
-  addTiles() %>%
-  addPolylines(~lon, ~lat, color = "red", weight = 3, opacity = 0.7,
-               label = best_path_names) %>%
-  addCircleMarkers(~lon, ~lat, radius = 5,
-                   color = "blue", fill = TRUE,
-                   label = ~city) %>%
-  addLabelOnlyMarkers(data = route_coords_labeled,
-                      ~lon, ~lat,
-                      label = ~as.character(order),
-                      labelOptions = labelOptions(noHide = TRUE,
-                                                  direction = 'top',
-                                                  textOnly = TRUE,
-                                                  style = list(
-                                                    "color" = "black",
-                                                    "font-weight" = "bold",
-                                                    "font-size" = "12px"
-                                                  )))
+<!--
+  Usamos una etiqueta <iframe> de HTML para incrustar la animación.
+  - src="Gif_Mapa_Colombia.HTML": Especifica la ruta al archivo que quieres mostrar.
+  - width="100%": Hace que la animación ocupe todo el ancho disponible.
+  - height="600px": Define una altura fija para el contenedor de la animación.
+  - style="border:none;": Elimina el borde del iframe para una mejor integración visual.
+-->
+<iframe src="Gif_Mapa_Colombia.HTML" width="100%" height="600px" style="border:none;" title="Animación de la Ruta Óptima">
+</iframe>
 
-```
+<center>
+**Fig. 19.** Animación que ilustra la ruta óptima encontrada. El recorrido conecta las ciudades principales de manera eficiente, mostrando dinámicamente la secuencia de la visita.
+</center>
 
-# 3. Reporte contribución individual
+# 4. Reporte de Contribución Individual
 
 -   **Natalia Remolina:** análisis de resultados descenso del gradiente en Rastrigin, ejecución del Web Scraping, optimización combinatoria colonia de hormigas (algoritmo y gráficos).
 
