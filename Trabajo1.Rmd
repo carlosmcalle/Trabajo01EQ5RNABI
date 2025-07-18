@@ -37,6 +37,18 @@ library(leaflet)
 library(htmltools)
 ```
 
+# 0. Introduciión
+La optimización es un arquetipo en multitud de ramas científicas e ingenieriles que se muestra a la búsqueda de las “mejores” soluciones posibles dentro de un conjunto de respuestas alternativas. En términos más generales, es una atenuación o la maximización de una función objetivo cunado se fijan condiciones en unas y a otras variables. Este enfoque es imperativo para la toma de decisiones rentables, la planificación de sistemas y la administración de problemas consolidados en campos que van desde la economía y la logística hasta la IA y el sendo aprendizaje.
+
+Este proyecto consiste en estudiar y analizar distintas metodologías de optimización, ya sean numéricas o por combinatoria. En este caso, se comenzará explorando la optimización de funciones continuas y luego se avanzará a un problema clásico de optimización discreta.
+
+En la Parte 1: Optimización Numérica, se analizará el desempeño de los métodos que utilizan el descenso por gradiente frente a heurísticas y metaheurísticas, tales como algoritmos evolutivos, optimización por enjambre de partículas y evolución diferencial en el cálculo de mínimos globales en funciones de prueba. Dos funciones de prueba representativas, la Función de Rosenbrock y la Función de Rastrigin, serán seleccionadas debido a la presencia de mínimos locales y valles angostos, lo que constituye un rigoroso desafío para los algoritmos. La optimización se llevará a cabo en 2D y 3D, considerando distintos niveles de complejidad del espacio de búsqueda. La visualización de la trayectoria de búsqueda de cada método, así como el análisis de su efectividad, permitirá valorar estos métodos respecto al valor final de la función objetivo y el número de evaluaciones.
+
+En la Parte 2: Optimización Combinatoria, se verá el conocido Problema del Viajante de Comercio, que es un reto NP-hard en logística y planificación de rutas. El propósito es encontrar la ruta más eficiente que un vendedor use para visitar las 13 ciudades principales de Colombia, su costo debe ser el mínimo posible. Para este fin, se acudir propuesto seis sesiones que se relacionan con el uso de colonias artificiales de hormigas y algoritmos genéticos, dos técnicas metaheurísticas de resolución de problemas complejos a gran escala basadas en la naturaleza. Los costes a tener en cuenta incluyen tiempo del vendedor, peajes y combustible. Posteriormente, se mostrará la solución más óptima encontrada en un mapa de la República de Colombia.
+
+Con este estudio, se espera que el participante haya comprendido los aspectos positivos y negativos de cada uno de los métodos de optimización utilizados, así como conocer el orden en el que son más útiles para problemas reales. La investigación y propuesta brindan evaluación exhaustiva a los resultados y diferentes metodologías de optimización a partir de la visualización conseguirán expresar el alcance y convergencia del trabajo realizado.
+
+
 # 1. Optimización numérica
 
 En este primer punto se estudian y comparan distintos métodos de optimización aplicados a funciones no lineales. El objetivo es analizar el desempeño de algoritmos clásicos como el descenso por gradiente frente a métodos heurísticos inspirados en procesos evolutivos y naturales. Para ello, se seleccionaron dos funciones de prueba con características distintas que permiten evaluar la eficacia y eficiencia de cada enfoque. Se realizarán optimizaciones en espacios de dos y tres dimensiones, partiendo de condiciones iniciales aleatorias. Además, se visualizará el proceso de búsqueda de soluciones mediante animaciones.Para finalmente comparar como fue el comportamiento de los métodos y como el tipo de función impacta en la elección del método.
@@ -48,6 +60,7 @@ La función de Rastrigin se define como:
 $$
 f(\mathbf{x}) = A n + \sum_{i=1}^{n} \left[ x_i^2 - A \cos(2 \pi x_i) \right]
 $$
+                                        Fórmula 1 - Función de Rastrigin
 
 Donde, $\mathbf{x} = (x_1, x_2, \ldots, x_n) \in \mathbb{R}^n$
 
@@ -1048,7 +1061,9 @@ La función de Rosenbrock de forma generalizada para para n variables se define 
 
 $$
 f(\mathbf{x}) = \sum_{i=1}^{n-1} \left[ a - x_i \right]^2 + b \left( x_{i+1} - x_i^2 \right)^2
-$$ Donde, $\mathbf{x} = (x_1, x_2, \ldots, x_n) \in \mathbb{R}^n$
+$$ 
+                                        Fórmula 2 - Función de Rosenbrock
+Donde, $\mathbf{x} = (x_1, x_2, \ldots, x_n) \in \mathbb{R}^n$
 
 **Propiedades de la Función Rosenbrock:**
 
