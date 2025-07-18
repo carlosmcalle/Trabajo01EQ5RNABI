@@ -2009,6 +2009,14 @@ A continuación, se muestra una animación de la ruta óptima.
 **Fig. 19.** Animación que ilustra la ruta óptima encontrada. El recorrido conecta las ciudades principales de manera eficiente, mostrando dinámicamente la secuencia de la visita.
 </center>
 
+Los supuestos del problema del viajero son los siguientes:
+
+-   El vehículo en que realiza el viaje es en un Renault Kwid
+-   El [consumo de combustible](https://www.renaultsatelite.com.mx/autos-nuevos/nueva-renault-kwid#:~:text=El%20rendimiento%20de%20combustible%20es,ahorro%20de%20tiempo%20y%20dinero.) es de 22.1km/lt en un recorrido que combina ciudad y carretera, al convertir este valor a km/gal se obtiene que el consumo es 83.66 km/gal.
+-   Suponemos un [precio de la gasolina](https://creg.gov.co/publicaciones/15565/precios-de-combustibles-liquidos/) alrededor de los 16,000 pesos colombianos
+-   El costo por kilómetro de la gasolina sería entonces 191, que resulta de dividir el precio por galón y el consumo por kilómetro.
+-   El [salario diario](https://www.siigo.com/blog/salario-minimo-vigente/) en Colombia es de 54,116 pesos colombianos, por lo que por hora suponiendo que el vendedor trabaja 8 horas sería aproximadamente de 6,765 pesos colombianos.
+
 # 4. Reporte de Contribución Individual
 
 -   **Natalia Remolina:** análisis de resultados descenso del gradiente en Rastrigin, ejecución del Web Scraping, optimización combinatoria colonia de hormigas (algoritmo y gráficos).
