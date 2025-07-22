@@ -7,7 +7,7 @@ output:
     toc: true
 ---
 
-```{r rm, include=FALSE}
+```{r limpiar-entorno, include=FALSE}
 #Borrar variables de ambiente en caso de ser necesario 
 rm(list = ls())
 ```
@@ -16,10 +16,11 @@ rm(list = ls())
 knitr::opts_chunk$set(echo = TRUE)
 ```
 
-```{r librerias, warning=FALSE,message=FALSE, include=FALSE}
-library(GA) #Algoritmos Evolutivos
-library(pso) #Optimización de Particulas
-library(DEoptim)  #Evolución Diferencial
+```{r cargar-librerias, include=FALSE, warning=FALSE, message=FALSE}
+library(GA)          # Algoritmos Genéticos
+library(pso)         # Optimización por Enjambre de Partículas
+library(DEoptim)     # Algoritmo de Evolución Diferencial
+
 library(dplyr)
 library(ggplot2)
 library(plotly)
@@ -27,17 +28,21 @@ library(gganimate)
 library(knitr)
 library(gifski)
 library(viridis)
+
 library(htmlwidgets)
 library(magick)
 library(scatterplot3d)
 library(rgl)
-library(osrm)
-library(sf)
-library(leaflet)
+
+library(osrm)        # Rutas entre ciudades
+library(sf)          # Geometría espacial
+library(leaflet)     # Mapas interactivos
 library(htmltools)
+
 ```
 
 # 0. Introduciión
+
 La optimización es un arquetipo en multitud de ramas científicas e ingenieriles que se muestra a la búsqueda de las “mejores” soluciones posibles dentro de un conjunto de respuestas alternativas. En términos más generales, es una atenuación o la maximización de una función objetivo cunado se fijan condiciones en unas y a otras variables. Este enfoque es imperativo para la toma de decisiones rentables, la planificación de sistemas y la administración de problemas consolidados en campos que van desde la economía y la logística hasta la IA y el sendo aprendizaje.
 
 Este proyecto consiste en estudiar y analizar distintas metodologías de optimización, ya sean numéricas o por combinatoria. En este caso, se comenzará explorando la optimización de funciones continuas y luego se avanzará a un problema clásico de optimización discreta.
@@ -48,23 +53,27 @@ En la Parte 2: Optimización Combinatoria, se verá el conocido Problema del Via
 
 Con este estudio, se espera que el participante haya comprendido los aspectos positivos y negativos de cada uno de los métodos de optimización utilizados, así como conocer el orden en el que son más útiles para problemas reales. La investigación y propuesta brindan evaluación exhaustiva a los resultados y diferentes metodologías de optimización a partir de la visualización conseguirán expresar el alcance y convergencia del trabajo realizado.
 
-
 # 1. Optimización numérica
 
 En este primer punto se estudian y comparan distintos métodos de optimización aplicados a funciones no lineales. El objetivo es analizar el desempeño de algoritmos clásicos como el descenso por gradiente frente a métodos heurísticos inspirados en procesos evolutivos y naturales. Para ello, se seleccionaron dos funciones de prueba con características distintas que permiten evaluar la eficacia y eficiencia de cada enfoque. Se realizarán optimizaciones en espacios de dos y tres dimensiones, partiendo de condiciones iniciales aleatorias. Además, se visualizará el proceso de búsqueda de soluciones mediante animaciones.Para finalmente comparar como fue el comportamiento de los métodos y como el tipo de función impacta en la elección del método.
 
 ## 1.1 Función de Rastrigin
 
-La función de Rastrigin se define como:
+La función **Rastrigin** es una función comúnmente utilizada para evaluar algoritmos de optimización, ya que presenta múltiples mínimos locales. Se define matemáticamente como:
 
 $$
 f(\mathbf{x}) = A n + \sum_{i=1}^{n} \left[ x_i^2 - A \cos(2 \pi x_i) \right]
-$$
-                                        Fórmula 1 - Función de Rastrigin
+$$ Fórmula 1 - Función de Rastrigin
 
-Donde, $\mathbf{x} = (x_1, x_2, \ldots, x_n) \in \mathbb{R}^n$
+Donde:
 
-```{r, include=FALSE}
+-   **𝐴** es una constante (por lo general 10),
+-   **𝑛** es la dimensión del vector **𝑥**,
+-   **𝑥** es el vector de entrada.
+
+$\mathbf{x} = (x_1, x_2, \ldots, x_n) \in \mathbb{R}^n$
+
+```{r funcion-rastrigin, include=FALSE}
 rastrigin <- function(x, A = 10) {
   n <- length(x)
   A * n + sum(x^2 - A * cos(2 * pi * x))
@@ -73,17 +82,26 @@ rastrigin <- function(x, A = 10) {
 
 **Propiedades de la Función Rastrigin:**
 
-- Por convención A toma el valor de 10. 
-- Mínimo Global en $\mathbf{x} = (0, 0, \ldots, 0)$ valor mínimo $f(\mathbf{x}) = 0$
-- Multimodalidad: Tiene múltiples mínimos locales.
-- Dominio típico $x_i \in [-5.12,\ 5.12],\quad \text{para } i = 1, 2, \ldots, n$
-- Continuidad:  Es continua y suave (diferenciable).
-- Separabilidad: Es separable, porque puede expresarse como la suma de funciones de una sola variable.
+-   Por convención A toma el valor de 10.
+-   Mínimo Global en $\mathbf{x} = (0, 0, \ldots, 0)$ valor mínimo $f(\mathbf{x}) = 0$
+-   Multimodalidad: Tiene múltiples mínimos locales.
+-   Dominio típico $x_i \in [-5.12,\ 5.12],\quad \text{para } i = 1, 2, \ldots, n$
+-   Continuidad: Es continua y suave (diferenciable).
+-   Separabilidad: Es separable, porque puede expresarse como la suma de funciones de una sola variable.
 
+## Visualización de la función Rastrigin en 1D
 
-**Grafico de la función de Rastrigin (1D)**
+La función Rastrigin es ampliamente utilizada en la optimización heurística para evaluar algoritmos debido a su estructura multimodal: contiene un gran número de mínimos locales repartidos en todo el espacio de búsqueda. Esta gráfica representa la versión unidimensional de dicha función.
 
-```{r fig.cap="**Fig 1.** Visualización de la función Rastrigin f(x1) (1D)", fig.align="center", out.width="70%", layout.align="center", echo=FALSE}
+-   El eje **X** representa los valores de entrada `x`.
+-   El eje **Y** muestra los valores evaluados de la función `f(x)`.
+-   Los **puntos rojos** marcan los mínimos locales situados en cada número entero entre −5 y +5.
+-   El patrón de ondulación refleja la naturaleza periódica de la función, lo que la convierte en un reto ideal para técnicas como algoritmos genéticos, ACO, PSO, entre otros.
+
+Esta figura permite intuir el reto que supone encontrar el mínimo global, ya que un algoritmo puede quedar atrapado fácilmente en un mínimo local si no está bien diseñado.
+
+```{r rastrigin-1d-plot, fig.cap="**Fig 1.** Visualización de la función Rastrigin f(x1) (1D)", fig.align="center", out.width="70%", layout.align="center", echo=FALSE}
+
 # RASTRIGIN 1-D
 # Este bloque dibuja la función Rastrigin en una sola variable
 # y marca con puntos rojos los mínimos locales situados
@@ -119,7 +137,7 @@ points(
 
 ```
 
- **Análisis del gráfico “Rastrigin 1-D — campo de pozos periódicos”**
+**Análisis del gráfico “Rastrigin 1-D — campo de pozos periódicos”**
 
 | Elemento visual | Observación | Interpretación |
 |----|----|----|
@@ -137,49 +155,40 @@ points(
 
 **Grafico de la función de Rastrigin (2D)**
 
-```{r fig.cap="**Fig 2.** Visualización de la función Rastrigin f(x1, x2) (2D)", fig.align="center", out.width="70%", layout.align="center", echo=FALSE}
+```{r rastrigin-2d-contour, fig.cap="**Fig 2** Visualización de la función Rastrigin f(x1) (2D)", fig.align="center", out.width="70%", layout.align="center", echo=FALSE}
 
-# RASTRIGIN 2-D 
-# Objetivo: dibujar un “mapa de calor” que muestre los pozos locales
-# y el mínimo global de la función Rastrigin en dos variables.
+# RASTRIGIN 1-D
+# Este bloque dibuja la función Rastrigin en una sola variable
+# y marca con puntos rojos los mínimos locales situados
+# en cada número entero entre −5 y +5.
 
+# 1) Convertimos la función ‘rastrigin()’ a una versión que
+#    acepte un vector de x y devuelva un vector de resultados.
+#    Vectorize() hace eso automáticamente.
+rastrigin_1d <- Vectorize(function(x) rastrigin(x))
 
-# 1. Crear la rejilla (grilla) de puntos 
-#    • seq() genera 200 valores igualmente espaciados
-#    • El rango va de −5.12 a +5.12 (dominio típico de prueba)
-x <- y <- seq(-5.12, 5.12, length.out = 200)
-
-# 2. Calcular f(x1,x2) para cada punto de la rejilla 
-#    • outer() combina todos los x con todos los y
-#    • Vectorize() convierte la llamada a rastrigin() en “apta para matriz”
-z <- outer(
-  x, y,
-  Vectorize(function(a, b) rastrigin(c(a, b)))  # a = x1, b = x2
+# 2) Dibujamos la curva:
+#    • from / to  → rango del eje X
+#    • n          → número de puntos que se calculan
+#    • xlab, ylab → etiquetas de los ejes
+#    • main       → título del gráfico
+curve(
+  rastrigin_1d(x),          # la función a pintar
+  from = -5.12, to = 5.12,  # límites de X
+  n    = 1000,              # resolución del trazo
+  xlab = "x",               # texto en eje X
+  ylab = "f(x)",            # texto en eje Y
+  main = "Rastrigin 1D — campo de pozos periódicos"
 )
 
-# 3. Dibujar el contorno coloreado 
-filled.contour(
-  x, y, z,
-  color.palette = terrain.colors,  # paleta “relieve” (verde-marrón)
-  nlevels       = 30,              # número de franjas de color
-  plot.title = title(
-    main = "Rastrigin 2-D — campo de minas",   # título grande
-    xlab = "x1",                               # etiqueta eje X
-    ylab = "x2"                                # etiqueta eje Y
-  ),
-
-  # --- plot.axes: todo lo que añadas aquí se superpone al gráfico ---
-  plot.axes = {
-    axis(1); axis(2)                                # muestra los ejes
-    abline(h = -5:5, v = -5:5,                      # rejilla entera
-           col = "grey90", lty = 3)                 # líneas gris claro
-    points(0, 0,                                    # coord. (0,0)
-           pch = 8,    # símbolo estrella
-           col = "black",
-           cex = 1.5)                              # tamaño 1.5×
-  }
+# 3) Añadimos PUNTOS ROJOS en cada entero (… −5, −4, …, 4, 5)
+#    para resaltar los mínimos locales de la función.
+points(
+  -5:5,                     # posiciones X de los puntos
+  rastrigin_1d(-5:5),       # alturas Y = f(x) en esas X
+  pch = 19,                 # tipo de símbolo (19 = punto sólido)
+  col = "red"               # color de los puntos
 )
-
 
 ```
 
@@ -213,7 +222,10 @@ filled.contour(
 
 **Grafico de la función de Rastrigin (3D)**
 
-```{r fig.cap="**Fig 3.** Visualización de la función Rastrigin f(x1, x2, x3) (3D)", fig.align="center", out.width="70%", layout.align="center", echo=FALSE}
+{r fig.cap="\*\*Fig 3.\*\* Visualización de la función Rastrigin f(x1, x2, x3) (3D)", fig.align="center", out.width="70%", layout.align="center", echo=FALSE}
+
+```{r rastrigin-3d-static, fig.cap="**Fig 3.** Visualización de la función Rastrigin f(x1, x2, x3) (3D)", fig.align="center", out.width="70%", layout.align="center", echo=FALSE}
+
 # -----------------------------------------------
 # Dibujar superficie 3D de Rastrigin y mínimo global
 # -----------------------------------------------
@@ -265,17 +277,46 @@ El mínimo global está en (0,0) y las crestas alcanzan valores de $f(\mathbf{x}
 
     -   Estrategias **bioinspiradas** (PSO, hormigas) o **cuasi-Newton** (L-BFGS-B) suelen rendir mejor, porque pueden escapar de pozos.
 
-### 1.1.1 Descenso del gradiente (GD)
+### 1.1.1 Gradiente de la función Rastrigin(GD)
 
-```{r, include=FALSE}
+Para aplicar métodos de optimización basados en gradientes (como el **descenso del gradiente**), es fundamental calcular la derivada de la función objetivo. En este caso, definimos el **gradiente de la función Rastrigin**, una función no convexa ampliamente usada como benchmark debido a su gran cantidad de mínimos locales.
+
+-   Esta derivada parcial nos indica la dirección de **máxima pendiente**.
+-   El algoritmo de optimización usará esta información para "bajar" hacia un mínimo (local o global).
+-   El gradiente de Rastrigin se deriva analíticamente y se expresa como:
+
+$$
+\nabla f(x) = 2x + 2\pi A \cdot \sin(2\pi x)
+$$
+
+donde: - $A$ es una constante (típicamente 10), - $x$ es el vector de entrada.
+
+A continuación, definimos este gradiente como una función vectorial en R.
+
+```{r gradiente-rastrigin, include=FALSE}
 # Gradiente
 grad_rastrigin <- function(x, A = 10) {
   2 * x + 2 * pi * A * sin(2 * pi * x)
 }
 ```
 
+#### Descenso del Gradiente (Gradient Descent) sobre la función Rastrigin
 
-```{r, include=FALSE}
+El **descenso del gradiente (GD)** es uno de los algoritmos fundamentales de optimización. A partir de una posición inicial $\mathbf{x}_0$, el algoritmo actualiza esa posición en la dirección opuesta al gradiente, con el objetivo de minimizar la función.
+
+En cada iteración $k$, el algoritmo realiza:
+
+$$
+\mathbf{x}_{k+1} = \mathbf{x}_k - \eta \cdot \nabla f(\mathbf{x}_k)
+$$
+
+donde: - $\eta$ es la tasa de aprendizaje (**learning rate**), - $\nabla f(\mathbf{x}_k)$ es el **gradiente** en la posición actual, - $\mathbf{x}_{k+1}$ es la nueva posición.
+
+En esta sección: - Implementamos GD para la función Rastrigin, - Almacenamos el historial de posiciones y valores $f(\mathbf{x})$ en cada iteración, - Permitimos controlar el número de iteraciones y el tamaño de paso $\eta$.
+
+Esta versión aún **no reinicia** desde distintos puntos, pero sirve para visualizar cómo se comporta el descenso desde una posición dada.
+
+```{r gd-once, include=FALSE}
 # Función GD simple con historial
 gd_once <- function(x0, lr = 0.01, iters = 200) {
   x <- x0
@@ -295,7 +336,16 @@ gd_once <- function(x0, lr = 0.01, iters = 200) {
 
 #### Trayectoria de GD puro sobre Rastringin (1D)
 
-```{r fig.cap="**Fig 4.** Visualización de la función Rastrigin óptimo en f(x1) (1D)", fig.align="center", out.width="70%", layout.align="center", echo=FALSE}
+En este experimento aplicamos el descenso del gradiente puro sobre la **función Rastrigin en 1 dimensión**, comenzando desde un punto inicial $x_0 = 3$.
+
+**Objetivos**: - Observar cómo evoluciona el algoritmo hacia un mínimo local. - Visualizar la trayectoria del descenso sobre la gráfica de la función. - Identificar el punto de inicio y el punto final del algoritmo.
+
+**Detalles clave**: - Se usó una tasa de aprendizaje $\eta = 0.01$. - Se grafican las evaluaciones sucesivas $f(x_k)$ como una curva azul. - El punto inicial se marca en rojo y el final en negro.
+
+Este gráfico nos permite ver si el algoritmo converge al mínimo esperado, y cómo desciende el valor de la función a lo largo de las it{r fig.cap="\*\*Fig 4.\*\* Visualización de la función Rastrigin óptimo en f(x1) (1D)", fig.align="center", out.width="70%", layout.align="center", echo=FALSE}eraciones.
+
+```{r gd-1d-trayectoria, fig.cap="**Fig 4.** Visualización de la función Rastrigin óptimo en f(x1) (1D)", fig.align="center", out.width="70%", layout.align="center", echo=FALSE}
+
 
 # GRÁFICO 1-D CON GD_PURO  
 
@@ -353,11 +403,19 @@ points(tail(traj1d$x1, 1), tail(traj1d$f, 1),
 
 6.  **Necesidad de estrategias complementarias**: para alcanzar el óptimo global en Rastrigin se requieren técnicas que permitan “saltar” valles (momentum, tasa de aprendizaje adaptativa, meta-heurísticas globales).
 
-### 1.1.2Implementación de GD en Rastrigin 2D
+### 1.1.2 Trayectoria del Gradiente Descendente en Rastrigin 2D
 
-**Trayectoria de GD puro sobre Rastringin (2D)**
+En esta sección visualizamos cómo se comporta el algoritmo de Gradiente Descendente (GD) al intentar minimizar la función Rastrigin en dos dimensiones.
 
-```{r fig.cap="**Fig 5.** Visualización de la función Rastrigin óptimo f(x1, x2) (2D)", fig.align="center", out.width="70%", layout.align="center", echo=FALSE}
+-   La función Rastrigin es altamente **no convexa** y está plagada de **mínimos locales**, lo que representa un desafío para algoritmos que siguen únicamente el gradiente.
+-   Partimos desde el punto inicial (3, 3) y realizamos 200 iteraciones con una tasa de aprendizaje constante.
+-   Se representa la superficie de la función mediante un mapa de calor y curvas de nivel, y sobre ella se traza el camino recorrido por GD.
+-   El punto negro representa el **inicio**, mientras que el rojo indica el **punto final**, típicamente atrapado en un mínimo local.
+
+Esta visualización ayuda a entender por qué GD puro puede ser insuficiente en funciones con topologías complejas como Rastrigin.
+
+```{r gd-2d-trayectoria, fig.cap="**Fig 5.** Visualización de la función Rastrigin óptimo f(x1, x2) (2D)", fig.align="center", out.width="70%", layout.align="center", echo=FALSE}
+
 
 # Malla (superficie de referencia) --------------------------
 x_vals <- y_vals <- seq(-5.12, 5.12, length.out = 200)
@@ -426,6 +484,11 @@ ggplot() +
 
 ```
 
+**Trayectoria de GD puro sobre Rastringin (2D)**
+
+```         
+```
+
 **Descripción del gráfico**
 
 | Elemento | Significado |
@@ -447,7 +510,17 @@ En funciones **altamente multimodales** como Rastrigin, el número de valles hac
 
 #### Animacion de la trayectoria de GD puro sobre Rastringin (2D)
 
-```{r fig.cap="**Fig 6.** Animación de la función Rastrigin óptimo f(x1, x2) (2D)", fig.align="center", out.width="70%", layout.align="center", warning=FALSE, message=FALSE, echo=FALSE}
+A continuación, presentamos una animación que muestra paso a paso cómo el algoritmo de Gradiente Descendente puro recorre el paisaje de la función Rastrigin en dos dimensiones:
+
+-   Se parte desde el punto inicial (3, 3), con una tasa de aprendizaje fija y sin reinicios.
+-   Cada punto negro representa una posición evaluada por el algoritmo en una iteración.
+-   La línea roja muestra la trayectoria seguida.
+-   El fondo es una superficie coloreada según los valores de la función (mapa de calor con curvas de nivel).
+
+Esta visualización dinámica permite observar cómo el gradiente guía la búsqueda hacia un mínimo cercano, pero también ilustra la tendencia del GD a quedarse atrapado en **mínimos locales**, lo que refuerza la necesidad de métodos más robustos como los algoritmos evolutivos o de enjambre en problemas no convexos.
+
+```{r gd-2d-animacion, fig.cap="**Fig 6.** Animación de la función Rastrigin óptimo f(x1, x2) (2D)", fig.align="center", out.width="70%", layout.align="center", warning=FALSE, message=FALSE, echo=FALSE}
+
 
 # GRÁFICO Y ANIMACIÓN 2-D DE UNA ÚNICA TRAYECTORIA GD (sin   
 # reinicios) SOBRE LA FUNCIÓN RASTRIGIN.                     
@@ -528,7 +601,18 @@ animate(p_anim,
 
 #### Animacion de la trayectoria de GD puro sobre Rastringin (3D)
 
-```{r fig.cap="**Fig 7.** Visualización de la función Rastrigin óptimo f(x1, x2, x3) (3D)", fig.align="center", out.width="70%", layout.align="center", echo=FALSE}
+La siguiente animación 3D muestra cómo se comporta el Gradiente Descendente (GD) en una versión bidimensional de la función Rastrigin (representada en 3D con los ejes x₁, x₂ y f(x)).
+
+-   La **superficie ondulada** representa el paisaje de la función objetivo, caracterizado por numerosos mínimos locales.
+-   La **línea de colores** muestra la trayectoria seguida por el algoritmo desde el punto inicial (3, 3).
+-   El **punto negro** se mueve en cada iteración y representa la posición actual del algoritmo.
+-   El **rombo amarillo** indica el mínimo local alcanzado en el recorrido (el mejor punto encontrado).
+-   Esta animación permite observar cómo el GD puede descender rápidamente hacia un valle, pero puede quedar atrapado en óptimos locales sin alcanzar la mejor solución global.
+
+Este tipo de visualización es clave para entender por qué el Gradiente Descendente puro necesita ser complementado con otras estrategias en problemas no convexos.
+
+```{r gd-3d-animacion, fig.cap="**Fig 7.** Visualización de la función Rastrigin óptimo f(x1, x2, x3) (3D)", fig.align="center", out.width="70%", layout.align="center", echo=FALSE}
+
 
 
 # — 1) Superficie de Rastrigin —
@@ -691,7 +775,7 @@ fig
 
 |  |
 |----|
-| ▶️⏸️ **Controles Play/Pause + slider** \| Permiten navegar interactivamente por las iteraciones. \| \| \| \| \| \| \| |
+| ▶️⏸️ **Controles Play/Pause + slider** \| Permiten navegar interactivamente por las iteraciones. \| \| \| \| \| \| \| \| \| \| \| |
 
 **Comportamiento de GD en 3D**
 
@@ -709,10 +793,24 @@ fig
 
 ### 1.1.4 Algoritmos evolutivos
 
+En esta sección aplicamos un **Algoritmo Genético (GA)** para encontrar el mínimo global de la función Rastrigin en dos dimensiones.
+
+El **GA** es un algoritmo inspirado en la evolución biológica que utiliza procesos como **selección natural, cruces (recombinación)** y **mutaciones** para explorar el espacio de búsqueda. A diferencia del Gradiente Descendente, los GAs **no necesitan derivadas**, lo que los hace ideales para funciones no derivables o con múltiples mínimos locales como Rastrigin.
+
+### Parámetros configurados:
+
+-   `type = "real-valued"`: cada individuo es un vector de números reales.
+-   `fitness = -rastrigin(x)`: usamos el negativo porque GA maximiza por defecto.
+-   `lower` y `upper`: definen los límites del dominio.
+-   `popSize = 50`: la población inicial tiene 50 soluciones candidatas.
+-   `maxiter = 100`: el algoritmo se ejecuta por un máximo de 100 generaciones.
+-   `run = 50`: detención temprana si no hay mejora durante 50 generaciones consecutivas.
+
+A continuación, se ejecuta el algoritmo y se muestra un resumen del mejor resultado obtenido.
 
 **Dos dimensiones**
 
-```{r ,echo=FALSE}
+```{r ,echo=FALSE}{r ga-rastrigin-ejecucion, echo=FALSE}
 set.seed(420)  # Semilla
 
 GA_rastrigin_2d <- ga(
@@ -776,6 +874,18 @@ gifga_path <- file.path(output_dir, "rastrigin_ga_animation.gif")
 image_write(animation, gifga_path)
 
 ```
+
+### Animación del Algoritmo Genético sobre Rastrigin 2D
+
+Para entender mejor el comportamiento del Algoritmo Genético (GA) durante la optimización de la función Rastrigin en dos dimensiones, hemos generado una animación que muestra la evolución de la población a lo largo de las generaciones:
+
+-   En cada iteración, se **guarda la posición de todos los individuos** de la población sobre el plano (x₁, x₂).
+-   Cada punto azul semitransparente representa una solución candidata evaluada por el algoritmo.
+-   Las poblaciones sucesivas tienden a **concentrarse en las regiones más prometedoras**, lo cual permite visualizar el proceso de convergencia hacia un mínimo global.
+
+Este tipo de animación es útil para observar: - La **diversidad** poblacional a lo largo del tiempo, - La **velocidad de convergencia**, - Y posibles **atascos en óptimos locales**.
+
+En este chunk se genera el GIF de forma automática, guardando los frames en una carpeta temporal y combinándolos con `magick` en un archivo GIF animado, el cual se almacena como `rastrigin_ga_animation.gif` dentro de la carpeta `Trabajo1_files/`.
 
 ```{r fig_ga_2d, fig.cap="**Fig 8.** Animación Algoritmos evolutivos 2D", fig.align="center", out.width="70%", echo=FALSE}
 knitr::include_graphics(gifga_path)
@@ -1061,19 +1171,16 @@ La función de Rosenbrock de forma generalizada para para n variables se define 
 
 $$
 f(\mathbf{x}) = \sum_{i=1}^{n-1} \left[ a - x_i \right]^2 + b \left( x_{i+1} - x_i^2 \right)^2
-$$ 
-                                        Fórmula 2 - Función de Rosenbrock
-Donde, $\mathbf{x} = (x_1, x_2, \ldots, x_n) \in \mathbb{R}^n$
+$$ Fórmula 2 - Función de Rosenbrock Donde, $\mathbf{x} = (x_1, x_2, \ldots, x_n) \in \mathbb{R}^n$
 
 **Propiedades de la Función Rosenbrock:**
 
-- $a$ y $b$ son parámetros que controlan la forma de la función. Típicamente, $a = 1$ y $b=100$. 
-- Para estos parámetros comunes el mínimo global se va encontrar en el conjunto de coordenadas $(x_1, x_2, \ldots, x_n) = (1, 1, \ldots, 1)$ donde $f(\mathbf{x^*}) = 0$
-- Tipo de función: No convexa, suave (diferenciable) y unimodal.
-- Dominio típico $x_i \in (-\infty, \infty), \quad \text{para } i = 1, 2, \ldots, n$
-- Tiene una forma de valle largo, estrecho y curvado.El gradiente es pequeño en muchas partes, lo que hace difícil que métodos de gradiente converjan rápidamente.
-- Separabilidad: Es separable, porque puede expresarse como la suma de funciones de una sola variable.
-
+-   $a$ y $b$ son parámetros que controlan la forma de la función. Típicamente, $a = 1$ y $b=100$.
+-   Para estos parámetros comunes el mínimo global se va encontrar en el conjunto de coordenadas $(x_1, x_2, \ldots, x_n) = (1, 1, \ldots, 1)$ donde $f(\mathbf{x^*}) = 0$
+-   Tipo de función: No convexa, suave (diferenciable) y unimodal.
+-   Dominio típico $x_i \in (-\infty, \infty), \quad \text{para } i = 1, 2, \ldots, n$
+-   Tiene una forma de valle largo, estrecho y curvado.El gradiente es pequeño en muchas partes, lo que hace difícil que métodos de gradiente converjan rápidamente.
+-   Separabilidad: Es separable, porque puede expresarse como la suma de funciones de una sola variable.
 
 ```{r rosenbrock, include=FALSE}
 #Definimos la función general
@@ -1219,9 +1326,7 @@ ggplot(grid, aes(x = x, y = y, fill = z)) +
   )
 ```
 
-
-
- ***Optimización de la Función de Rosenbrock para dos y tres dimensiones***
+***Optimización de la Función de Rosenbrock para dos y tres dimensiones***
 
 ### 1.2.1 Optimización por descenso del gradiente
 
@@ -1733,12 +1838,80 @@ Por otro lado, los métodos heurísticos —como algoritmos genéticos, enjambre
 
 En resumen, los métodos de gradiente son ideales cuando se conoce que la función es suave y tiene una topografía favorable, mientras que los métodos heurísticos resultan más apropiados para problemas con múltiples óptimos locales o funciones no diferenciables, aunque a un mayor costo computacional. El uso conjunto o híbrido de ambos enfoques puede ofrecer lo mejor de ambos mundos: eficiencia local y exploración global.
 
-
 # 2. Optimización combinatoria
 
-$CT_{ij} = PrecioPeajes_{ij} + Distancia_{ij}(km) * PrecioGasolina/km + Salario(Horas) * Tiempo_{ij}(Horas)$
+## 2.2 🐜 ¿Cómo funciona el algoritmo de colonia de hormigas?
 
-```{r, include=FALSE}
+En la naturaleza, las hormigas encuentran caminos óptimos hacia fuentes de comida gracias a un mecanismo simple pero poderoso: **feromonas**.
+
+### ¿Cómo funciona en la naturaleza?
+
+1.  Una hormiga sale a explorar y elige un camino al azar.
+2.  Si encuentra comida, regresa dejando un **rastro químico (feromona)**.
+3.  Otras hormigas detectan ese rastro y **tienen mayor probabilidad de seguirlo**.
+4.  Cuantas más lo sigan, **más feromona se acumula**, reforzando ese camino.
+5.  El **camino más corto** se refuerza naturalmente, porque se recorre más veces en menos tiempo.
+
+### ¿Cómo se traduce eso en el algoritmo?
+
+| Elemento natural | Equivalente en algoritmo |
+|----|----|
+| Hormiga | Individuo que genera una ruta completa |
+| Camino entre ciudades | Arista entre nodos en el grafo |
+| Feromona | Valor en una **matriz de feromonas** |
+| Decisión de ruta | Selección **probabilística** basada en feromona y distancia |
+| Evaporación | **Reducción periódica** del valor de feromonas |
+| Reforzamiento | Aumento de feromonas según **calidad de ruta** |
+
+### Fórmula clásica de decisión (simplificada):
+
+$$
+\text{Probabilidad de ir a ciudad } j = \frac{[\tau_{ij}]^\alpha \cdot [\eta_{ij}]^\beta}{\sum_{k \in \text{no visitadas}} [\tau_{ik}]^\alpha \cdot [\eta_{ik}]^\beta}
+$$
+
+-   $\tau_{ij}$: nivel de feromona entre ciudad $i$ y $j$
+-   $\eta_{ij}$: heurística (usualmente $1/\text{distancia}_{ij}$)
+-   $\alpha$: peso de la feromona
+-   $\beta$: peso de la heurística
+
+> Esta metáfora permite que las hormigas artificiales encuentren **rutas cortas y eficientes**, reforzando caminos que producen soluciones buenas.
+
+## 2.1 Definición del conjunto de ciudades y fórmula del costo total
+
+Antes de aplicar el algoritmo de optimización (Colonia de Hormigas), se define el conjunto de ciudades colombianas que serán los nodos del problema del viajante (TSP). Estas ciudades corresponden a centros urbanos relevantes desde el punto de vista económico y geográfico.
+
+A continuación, se muestra el vector `ciudades` que contiene los 13 puntos de interés del recorrido:
+
+-   Bogotá
+-   Medellín
+-   Cali
+-   Barranquilla
+-   Cartagena
+-   Bucaramanga
+-   Cúcuta
+-   Pereira
+-   Manizales
+-   Ibagué
+-   Santa Marta
+-   Villavicencio
+-   Neiva
+
+Para evaluar cada posible recorrido entre dos ciudades $i$ y $j$, se define una **función de costo total** realista, que toma en cuenta tres componentes fundamentales:
+
+1.  **Costo de los peajes** en la vía entre $i$ y $j$
+2.  **Costo de la gasolina**, calculado a partir de la distancia entre las ciudades y un precio estimado por kilómetro
+3.  **Valor del tiempo invertido**, usando una estimación del salario por hora multiplicado por el tiempo de viaje
+
+La fórmula usada para calcular este costo total es la siguiente:
+
+$$
+CT_{ij} = PrecioPeajes_{ij} + Distancia_{ij}(km) \times PrecioGasolina\text{ por km} + Salario\text{ (Horas)} \times Tiempo_{ij}\text{ (Horas)}
+$$
+
+Esta función permite crear una matriz de costos $C \in \mathbb{R}^{13 \times 13}$, que servirá como base para evaluar la calidad de cada ruta generada por las hormigas artificiales.
+
+```{r definir_vector_ciudades, include=FALSE}
+
 ciudades = c(
     "Bogotá",
     "Medellín",
@@ -1756,13 +1929,59 @@ ciudades = c(
 )
 ```
 
-```{r, include=FALSE}
+## 2.2 Lectura de matrices de insumo para el cálculo de costos
+
+Una vez definido el conjunto de ciudades, se procede a cargar tres matrices fundamentales que contienen la información base para calcular los costos de viaje entre pares de ciudades. Estos datos fueron obtenidos previamente mediante web scraping desde el sistema Hermes del Instituto Nacional de Vías (Invías) o construidos manualmente a partir de fuentes oficiales.
+
+### Archivos cargados:
+
+1.  **`matriz_distancia.csv`**\
+    Contiene la distancia en kilómetros entre cada par de ciudades.\
+    Cada celda $(i, j)$ representa la distancia estimada entre la ciudad $i$ y la ciudad $j$.
+
+2.  **`matriz_tiempos.csv`**\
+    Contiene el tiempo promedio estimado de viaje en horas entre ciudades.\
+    Este valor se usará para calcular el **costo por tiempo laboral**.
+
+3.  **`matriz_peajes.csv`**\
+    Contiene el valor total de los peajes en la ruta más frecuente o directa entre las ciudades.\
+    Se expresa en pesos colombianos (COP).
+
+Estas matrices conforman la base para calcular el **costo total de traslado** entre ciudades. Todas son de dimensión $13 \times 13$, correspondientes al número de ciudades consideradas.
+
+A continuación, se cargan usando la función `read.csv()`, y se establece la primera columna como nombres de fila (ciudades).
+
+```{r cargar_matrices_costos, include=FALSE}
+
 matriz_distancia <- read.csv("matriz_distancia.csv", row.names = 1)
 matriz_tiempos <- read.csv("matriz_tiempos.csv", row.names = 1)
 matriz_peajes <- read.csv("matriz_peajes.csv", row.names = 1)
 ```
 
-```{r, include=FALSE}
+## 2.3 Asignación de nombres a filas y columnas de las matrices
+
+Después de cargar las matrices de distancias, tiempos y peajes, es esencial asegurarse de que sus filas y columnas estén correctamente etiquetadas con los nombres de las ciudades involucradas.
+
+Este paso garantiza que:
+
+-   Se puedan **identificar correctamente los pares de ciudades** al consultar las matrices.
+-   Se mantenga la **consistencia semántica** cuando se accede a los datos con `matriz[i, j]`, sabiendo que `i` y `j` representan nombres de ciudades y no solo índices numéricos.
+
+Se realiza la asignación usando el vector `ciudades`, previamente definido, de la siguiente forma:
+
+-   `colnames(...) <- ciudades`: asigna los nombres de ciudades a las **columnas** (destinos).
+-   `rownames(...) <- ciudades`: asigna los nombres a las **filas** (orígenes).
+
+Esto aplica a las tres matrices:
+
+-   `matriz_distancia`
+-   `matriz_tiempos`
+-   `matriz_peajes`
+
+Este paso es clave para asegurar que, al momento de combinar los datos en el cálculo del costo total, se referencien correctamente los trayectos entre pares de ciudades por nombre.
+
+```{r asignar_nombres_matrices, include=FALSE}
+
 colnames(matriz_distancia) <- ciudades
 colnames(matriz_tiempos) <- ciudades
 colnames(matriz_peajes) <- ciudades
@@ -1772,19 +1991,184 @@ rownames(matriz_tiempos) <- ciudades
 rownames(matriz_peajes) <- ciudades
 ```
 
-```{r, include=FALSE}
+## 2.4 Cálculo de matrices de costo: gasolina y tiempo laboral
+
+Con las matrices de distancia y tiempo ya organizadas y etiquetadas, se procede a calcular los dos primeros componentes del **costo total** asociado a un viaje entre dos ciudades.
+
+------------------------------------------------------------------------
+
+### 1. Costo de gasolina
+
+Se estima a partir de la distancia entre ciudades y un **costo promedio por kilómetro** de recorrido, asumiendo un rendimiento promedio del vehículo y un precio fijo por galón de gasolina.
+
+``` r
+matriz_costo_gasolina <- 191 * matriz_distancia
+```
+
+Se asume un valor de **191 COP por kilómetro**, calculado a partir de:
+
+-   **Precio de gasolina**: 16,000 COP/galón\
+-   **Rendimiento del vehículo**: 83.66 km/galón
+
+$$
+\frac{16,\!000}{83.66} \approx 191 \, \text{COP/km}
+$$
+
+------------------------------------------------------------------------
+
+### 2. Costo por tiempo laboral
+
+Se estima el valor económico del tiempo que toma realizar cada trayecto, calculado con base en un salario mínimo diario y una jornada laboral estándar.
+
+``` r
+matriz_costo_salario <- 5416 * matriz_tiempos
+```
+
+Se asume un valor de **5,416 COP por hora**, que se obtiene a partir de:
+
+-   **Salario mínimo diario**: 54,116 COP\
+-   **Jornada laboral**: 10 horas
+
+$$
+\frac{54,\!116}{10} = 5,\!416 \, \text{COP/hora}
+$$
+
+------------------------------------------------------------------------
+
+Este valor busca reflejar el **costo de oportunidad del tiempo** invertido en el traslado, importante en contextos donde el tiempo laboral tiene un valor económico directo (por ejemplo, logística, transporte, comercio).
+
+Las dos matrices obtenidas (`matriz_costo_gasolina` y `matriz_costo_salario`) serán combinadas con la matriz de peajes para formar la **matriz final de costos totales entre ciudades**, la cual alimentará al algoritmo de optimización basado en colonia de hormigas.
+
+```{r calcular_costos_parciales, include=FALSE}
+
 matriz_costo_gasolina <-  191*matriz_distancia
 matriz_costo_salario <- 5416*matriz_tiempos
 
 ```
 
-```{r, include=FALSE}
+## 2.5 Construcción de la matriz de costo total entre ciudades
+
+En esta etapa se integran los tres componentes del costo de viaje para cada trayecto entre ciudades, con el objetivo de construir una **matriz única y coherente** de costos totales.
+
+Esta matriz será utilizada como **entrada directa** del algoritmo de colonia de hormigas para resolver el problema del viajante (TSP), optimizando el recorrido de menor costo.
+
+------------------------------------------------------------------------
+
+### Fórmula aplicada:
+
+La matriz total se construye sumando:
+
+-   **Costo por peajes** (`matriz_peajes`)
+-   **Costo de gasolina** (`matriz_costo_gasolina`)
+-   **Costo de tiempo laboral** (`matriz_costo_salario`)
+
+``` r
+matriz_costo_total <- matriz_peajes + matriz_costo_gasolina + matriz_costo_salario
+```
+
+Finalmente, se asegura que el resultado se exprese como una **matriz numérica bien definida** mediante:
+
+``` r
+matriz_costo_total <- as.matrix(matriz_costo_total)
+```
+
+------------------------------------------------------------------------
+
+### Resultado:
+
+La matriz `matriz_costo_total` tiene dimensión $13 \times 13$ y representa el **costo total estimado (en pesos COP)** de trasladarse entre todas las combinaciones posibles de ciudades.
+
+Esta matriz es la **base del problema de optimización**, ya que permite calcular el costo total de cada ruta propuesta por el algoritmo de colonia de hormigas.
+
+```{r calcular_matriz_costos, include=FALSE}
 matriz_costo_total <- matriz_peajes + matriz_costo_gasolina + matriz_costo_salario
 matriz_costo_total <- as.matrix(matriz_costo_total)
 
 ```
 
-```{r, include=FALSE}
+## 2.6 Implementación del algoritmo de colonia de hormigas (ACO)
+
+En esta sección se implementa el algoritmo de optimización basado en la **colonia de hormigas** (Ant Colony Optimization, ACO), una metaheurística inspirada en el comportamiento colectivo de las hormigas reales cuando buscan caminos eficientes entre su nido y fuentes de alimento.
+
+------------------------------------------------------------------------
+
+### Inicialización de parámetros
+
+Se definen los parámetros clave del algoritmo:
+
+-   `cities_count = 13`: número de ciudades (nodos en el grafo)
+-   `eroso_influence = 1`: influencia de la feromona en la toma de decisiones ($\alpha$)
+-   `visibility_influence = 2`: influencia de la visibilidad (inversa del costo, $\beta$)
+-   `evap_rate = 0.5`: tasa de evaporación de las feromonas
+-   `pheromone_strength = 100`: intensidad del refuerzo de feromonas por ruta
+-   `ants_count = 13`: una hormiga por ciudad
+-   `cities_names`: nombres de las ciudades según `rownames` de la matriz de costos
+
+También se inicializan las dos matrices clave:
+
+-   `tau_matrix`: matriz de feromonas, con valores iniciales en 1
+-   `eta_matrix`: matriz de visibilidad, definida como la inversa del costo total
+
+------------------------------------------------------------------------
+
+### Bucle principal de búsqueda (100 iteraciones)
+
+El algoritmo se ejecuta durante 100 iteraciones. En cada una:
+
+1.  **Cada hormiga construye una ruta** comenzando desde una ciudad aleatoria.
+
+2.  En cada paso, **elige la siguiente ciudad** de forma probabilística según:
+
+    $$
+    P_{ij} \propto [\tau_{ij}]^\alpha \cdot [\eta_{ij}]^\beta
+    $$
+
+    Donde:
+
+    -   $\tau_{ij}$ es la feromona acumulada entre ciudad $i$ y ciudad $j$
+    -   $\eta_{ij} = 1 / \text{Costo}_{ij}$, es la visibilidad
+    -   $\alpha = 1$, $\beta = 2$
+
+3.  Se calcula el **costo total del recorrido** incluyendo el regreso a la ciudad de origen.
+
+4.  Se actualiza la **mejor ruta encontrada hasta el momento** si se obtiene un menor costo.
+
+------------------------------------------------------------------------
+
+### Evaporación y refuerzo de feromonas
+
+Al finalizar cada iteración:
+
+-   Se **evapora un porcentaje fijo** de todas las feromonas:
+
+    ``` r
+    tau_matrix <- tau_matrix * (1 - evap_rate)
+    ```
+
+-   Cada hormiga **deposita feromona en su ruta** proporcional a la calidad de la solución:
+
+    ``` r
+    tau_matrix[i, j] <- tau_matrix[i, j] + Q / costo
+    ```
+
+    Esto refuerza los caminos más eficientes, favoreciendo su elección en futuras iteraciones.
+
+------------------------------------------------------------------------
+
+### Resultado
+
+Al finalizar el bucle:
+
+-   Se obtiene `best_path`: la **mejor ruta** encontrada
+-   Se transforma `best_path_names` a nombres de ciudades, incluyendo el **retorno al origen**
+-   Se imprime el **costo mínimo** por iteración
+
+Este procedimiento permite encontrar una solución aproximada al problema del viajante usando un enfoque inspirado en inteligencia colectiva.
+
+> Esta es una poderosa técnica para resolver problemas NP-duros donde no se puede garantizar una solución exacta en tiempo razonable, pero se puede obtener una solución **cercana al óptimo** con eficiencia práctica.
+
+```{r algoritmo-aco, include=FALSE}
+
 # Fijar semilla para reproducibilidad
 set.seed(42)
 
@@ -1878,7 +2262,46 @@ best_path_names <- c(best_path_names, best_path_names[1])
 
 ```
 
-```{r, echo=FALSE}
+## 2.7 Resultados finales: mejor ruta y análisis de costos
+
+Una vez finalizadas las 100 iteraciones del algoritmo ACO, se procede a **imprimir los resultados** de la mejor solución encontrada.
+
+------------------------------------------------------------------------
+
+### Mejor ruta encontrada
+
+Se presenta la secuencia de ciudades que conforma la ruta de menor costo total, según el criterio del algoritmo. Esta secuencia incluye el **regreso a la ciudad de origen**, completando el circuito.
+
+El resultado se imprime con flechas (`→`) entre ciudades para facilitar su lectura.
+
+------------------------------------------------------------------------
+
+### Detalle de costos por tramo
+
+Para cada par de ciudades consecutivas en la ruta, se muestra:
+
+-   **Origen**\
+-   **Destino**\
+-   **Costo del trayecto individual**, según la matriz de costo total
+
+Esta sección permite descomponer el total en segmentos y analizar **qué tramos son más costosos** o representan cuellos de botella.
+
+------------------------------------------------------------------------
+
+### Estadísticas resumen
+
+Se imprimen al final las siguientes métricas globales del recorrido:
+
+-   **Número total de ciudades visitadas**, incluyendo el retorno
+-   **Costo total del recorrido**
+-   **Costo promedio por tramo**
+-   **Iteración en la que se encontró la mejor ruta**
+
+Estas estadísticas permiten validar la **eficiencia** del resultado, compararlo con otras ejecuciones del algoritmo, y usarlo como base para visualizaciones, informes o decisiones logísticas.
+
+> 💡 Este reporte final es ideal tanto para evaluación académica como para aplicaciones prácticas (por ejemplo, en logística, distribución, rutas comerciales o planificación territorial).
+
+```{r imprimir-resultados-ACO, echo=FALSE}
 
 # Impresión de resultados
 cat("\nMejor ruta encontrada:\n")
@@ -1905,7 +2328,7 @@ cat(sprintf("Costo promedio por tramo: $%0.2f\n", total_cost / length(best_path)
 cat(sprintf("Mejor costo encontrado en la iteración: %d\n", best_iteration))
 ```
 
-```{r, include=FALSE}
+```{r datos-geograficos-coords-ciudades, include=FALSE}
 # Data.frame de ciudades con coordenadas
 coords_df <- data.frame(
   city = c("Bogotá", "Medellín", "Cali", "Barranquilla", "Cartagena",
@@ -1925,7 +2348,102 @@ print(coords_df)
 
 ```
 
-```{r, fig.cap="**Fig 18.** Ruta Óptima", fig.align="center", out.width="70%", warning=FALSE, message=FALSE, echo=FALSE}
+## 2.8 Análisis final de resultados
+
+Luego de 100 iteraciones del algoritmo de colonia de hormigas (ACO), se obtuvo la **ruta de menor costo total** para visitar todas las ciudades, incluyendo el retorno al punto de partida.
+
+------------------------------------------------------------------------
+
+### Mejor ruta encontrada
+
+La secuencia óptima de ciudades es la siguiente:
+
+```         
+Cúcuta → Bucaramanga → Santa Marta → Barranquilla → Cartagena → Medellín → 
+Manizales → Ibagué → Pereira → Cali → Neiva → Bogotá → Villavicencio → Cúcuta
+```
+
+Esta ruta minimiza el costo total estimado considerando peajes, gasolina y tiempo de conducción, y representa la solución más eficiente hallada por el algoritmo.
+
+------------------------------------------------------------------------
+
+### Detalle de costos por tramo
+
+A continuación se muestra el costo individual de cada trayecto entre pares consecutivos de ciudades:
+
+| Origen        | Destino       | Costo (COP)  |
+|---------------|---------------|--------------|
+| Cúcuta        | Bucaramanga   | \$73,397.27  |
+| Bucaramanga   | Santa Marta   | \$208,392.43 |
+| Santa Marta   | Barranquilla  | \$46,121.28  |
+| Barranquilla  | Cartagena     | \$56,307.19  |
+| Cartagena     | Medellín      | \$298,235.20 |
+| Medellín      | Manizales     | \$117,686.23 |
+| Manizales     | Ibagué        | \$89,019.42  |
+| Ibagué        | Pereira       | \$59,348.34  |
+| Pereira       | Cali          | \$111,118.18 |
+| Cali          | Neiva         | \$120,726.62 |
+| Neiva         | Bogotá        | \$152,503.69 |
+| Bogotá        | Villavicencio | \$88,845.24  |
+| Villavicencio | Cúcuta        | \$232,569.62 |
+
+------------------------------------------------------------------------
+
+### Estadísticas generales
+
+-   **Número total de ciudades (incluyendo el regreso):** 14\
+-   **Costo total del recorrido:** \$1,654,270.71 COP\
+-   **Costo promedio por tramo:** \$127,251.59 COP\
+-   **Iteración en la que se encontró la mejor solución:** 41
+
+------------------------------------------------------------------------
+
+### Interpretación
+
+Este resultado demuestra cómo el enfoque de colonia de hormigas es capaz de encontrar **soluciones eficientes a problemas complejos** como el del viajante (TSP), incorporando restricciones realistas como costos por distancia, tiempo y peajes.
+
+La solución obtenida puede servir como base para:
+
+-   Optimización logística de rutas de transporte.
+-   Análisis de costos en distribución.
+-   Planeación territorial y de infraestructura.
+
+## 2.9 Visualización interactiva de la ruta óptima
+
+Para complementar el análisis numérico y facilitar la interpretación geoespacial de los resultados, se construye un **mapa interactivo** que representa gráficamente la **ruta óptima** encontrada por el algoritmo de colonia de hormigas.
+
+------------------------------------------------------------------------
+
+### Componentes de la visualización
+
+-   Se usa la librería `leaflet` para generar un mapa interactivo con zoom, etiquetas y trazados dinámicos.
+-   Las rutas entre ciudades se calculan utilizando `osrmRoute`, que obtiene trayectos realistas en carretera.
+-   Los puntos en el mapa representan las **ciudades** y están etiquetados con su **orden de visita**.
+-   Las **líneas rojas** indican el recorrido secuencial que debe seguirse.
+-   El mapa se ajusta automáticamente para mostrar toda la ruta.
+
+------------------------------------------------------------------------
+
+### Lógica del código
+
+1.  Se recorre la secuencia `best_path_names`, obtenida del algoritmo ACO.
+2.  Para cada par consecutivo de ciudades, se consulta la API de **OSRM** para obtener la ruta vial real (con manejo de errores y reintentos).
+3.  Las rutas individuales se combinan en un solo objeto espacial (`sf`) para dibujar el trayecto completo.
+4.  Se agregan:
+    -   **Círculos azules** para marcar las ciudades.
+    -   **Números en negrita** sobre cada ciudad que indican el **orden de visita**.
+    -   Un **zoom centralizado** sobre el mapa de Colombia.
+
+------------------------------------------------------------------------
+
+### Resultado
+
+El resultado es una visualización **intuitiva e interactiva** de la ruta más eficiente para visitar todas las ciudades, teniendo en cuenta el costo total estimado (peajes + gasolina + tiempo).
+
+> Esta representación es especialmente útil en entornos logísticos, educativos o de presentación de resultados, ya que permite comunicar de forma clara y atractiva el producto del modelo de optimización.
+
+```{r mapa-ruta-optima-ACO, fig.cap="**Fig 18.** Ruta Óptima", fig.align="center", out.width="70%", warning=FALSE, message=FALSE, echo=FALSE}
+{r, fig.cap="**Fig 18.** Ruta Óptima", fig.align="center", out.width="70%", warning=FALSE, message=FALSE, echo=FALSE}
 
 # Función de petición con reintentos
 get_route <- function(src, dst, retries = 3, pause = 1) {
@@ -1991,10 +2509,11 @@ leaflet() %>%
 
 ```
 
-# 3. Visualización de la Ruta Óptima (Animación)
+# Visualización de la Ruta Óptima (Animación)
 
 A continuación, se muestra una animación de la ruta óptima.
 
+```{=html}
 <!--
   Usamos una etiqueta <iframe> de HTML para incrustar la animación.
   - src="Gif_Mapa_Colombia.HTML": Especifica la ruta al archivo que quieres mostrar.
@@ -2002,12 +2521,13 @@ A continuación, se muestra una animación de la ruta óptima.
   - height="600px": Define una altura fija para el contenedor de la animación.
   - style="border:none;": Elimina el borde del iframe para una mejor integración visual.
 -->
+```
+
 <iframe src="Gif_Mapa_Colombia.HTML" width="100%" height="600px" style="border:none;" title="Animación de la Ruta Óptima">
+
 </iframe>
 
-<center>
-**Fig. 19.** Animación que ilustra la ruta óptima encontrada. El recorrido conecta las ciudades principales de manera eficiente, mostrando dinámicamente la secuencia de la visita.
-</center>
+<center>**Fig. 19.** Animación que ilustra la ruta óptima encontrada. El recorrido conecta las ciudades principales de manera eficiente, mostrando dinámicamente la secuencia de la visita.</center>
 
 Los supuestos del problema del viajero son los siguientes:
 
@@ -2016,6 +2536,426 @@ Los supuestos del problema del viajero son los siguientes:
 -   Suponemos un [precio de la gasolina](https://creg.gov.co/publicaciones/15565/precios-de-combustibles-liquidos/) alrededor de los 16,000 pesos colombianos
 -   El costo por kilómetro de la gasolina sería entonces 191, que resulta de dividir el precio por galón y el consumo por kilómetro.
 -   El [salario diario](https://www.siigo.com/blog/salario-minimo-vigente/) en Colombia es de 54,116 pesos colombianos, por lo que por hora suponiendo que el vendedor trabaja 8 horas sería aproximadamente de 6,765 pesos colombianos.
+
+## 2.10 Resolución del TSP con Algoritmo Genético (GA)
+
+Los algoritmos genéticos (GA) son técnicas de **optimización bioinspiradas**, basadas en el principio de **selección natural** propuesto por Darwin. Se utilizan ampliamente para resolver problemas complejos de búsqueda, como el del **Viajante de Comercio (TSP)**.
+
+### ¿Cómo funciona un GA?
+
+-   Una **población** de posibles soluciones (rutas) es generada aleatoriamente.
+-   Cada ruta es evaluada usando una **función de aptitud** (fitness), que mide qué tan buena es la solución.
+-   A través de ciclos (llamados *generaciones*), se seleccionan las mejores rutas, se **combinan** (cruce) y se **modifican** (mutación), generando nuevas rutas potencialmente mejores.
+-   El proceso se repite hasta cumplir un criterio: alcanzar un número máximo de generaciones o encontrar una mejora mínima.
+
+### Aplicación al TSP
+
+En el contexto del TSP:
+
+-   Cada **individuo** es una **permutación** del conjunto de ciudades (un recorrido completo).
+-   La función `fitness` busca **minimizar el costo total** de recorrer todas las ciudades y volver al origen.
+-   Se emplea la matriz `matriz_costo_total`, que ya incluye el costo por peajes, tiempo laboral y gasolina.
+-   Al finalizar, obtenemos una ruta que **aproxima la mejor solución posible** usando este enfoque heurístico.
+
+En esta sección, se define el entorno necesario para ejecutar el algoritmo genético con el paquete `GA`. A continuación se cargan las librerías, se define la función de evaluación y se prepara la estructura de coordenadas.
+
+### Preparación del entorno para el Algoritmo Genético
+
+En este chunk se cargan las librerías necesarias y se definen las funciones de soporte:
+
+| Elemento | Propósito | Detalles clave |
+|----|----|----|
+| **GA** | Implementación estándar de algoritmos genéticos. | Permite representar rutas como permutaciones y ajustar parámetros como `popSize`, `pmutation`, `maxiter`. |
+| **ggplot2 / ggrepel** | Visualización y anotación de gráficas. | Se usarán más adelante para animar la evolución y rotular ciudades. |
+| **animation** | Generación de GIFs desde R. | Facilita guardar cuadros de la evolución del GA. |
+
+> **Funciones definidas**\
+> - `tourLength()`\
+> - Recibe una permutación (`tour`) y devuelve el costo total acumulado según `matriz_costo_total`.\
+> - `tspFitness()`\
+> - Convierte el problema de **minimizar** costo en **maximizar** aptitud, usando la relación fitness = `1/costo`.
+
+Se extraen además las coordenadas (`x`, `y`) de `coords_df` que servirán para graficar rutas y animaciones posteriores.
+
+```{r ga-tsp-setup, include=FALSE, message=FALSE, warning=FALSE}
+library(GA)
+library(ggplot2)
+library(ggrepel)
+library(animation)
+
+# Función de costo ya existente
+tourLength <- function(tour, distMatrix) {
+  tour <- c(tour, tour[1])
+  route <- embed(tour, 2)[,2:1]
+  sum(distMatrix[route])
+}
+
+# Función objetivo: maximizar fitness = 1 / costo
+tspFitness <- function(tour, ...) 1 / tourLength(tour, ...)
+
+# Extraer coordenadas de lon/lat
+x <- coords_df$lon
+y <- coords_df$lat
+
+
+
+```
+
+### Ejecución principal del GA
+
+En este chunk se lanza el algoritmo genético con los parámetros escogidos para el TSP:
+
+-   **Población (`popSize = 100`)**: incrementa la diversidad de soluciones por generación.\
+-   **Generaciones máximas (`maxiter = 3000`)**: otorga tiempo suficiente para converger.\
+-   **Mutación (`pmutation = 0.3`)**: introduce variación y evita estancamiento en óptimos locales.\
+-   **Parada temprana (`run = 200`)**: si en 200 generaciones no mejora el mejor fitness, se detiene para ahorrar tiempo.\
+-   **`type = "permutation"`**: cada individuo es una permutación de índices de ciudades.
+
+El objeto resultante `GAiter` guarda: 1. `@solution` — mejor ruta encontrada.\
+2. `@fitnessValue` — aptitud asociada (inverso del costo).\
+3. `@iter` — número de generación en que se logró el óptimo.
+
+```{r ga-tsp-ejecucion, include=FALSE}
+set.seed(124)  # Reproducibilidad
+
+GAiter <- ga(type = "permutation",
+             fitness = tspFitness,
+             distMatrix = matriz_costo_total,
+             lower = 1, upper = nrow(matriz_costo_total),
+             popSize = 100, maxiter = 3000,
+             run = 200, pmutation = 0.3)
+
+
+```
+
+### Impresión organizada de la ruta óptima y sus costos
+
+Este chunk formatea la salida al estilo utilizado en la sección de ACO:
+
+1.  **Ruta óptima GA** — lista ordenada de ciudades con flechas.\
+2.  **Tabla de costos por tramo** — muestra origen, destino y costo monetario.\
+3.  **Estadísticas globales**:
+    -   Número de ciudades (incluye el regreso al origen).\
+    -   Costo total de la ruta.\
+    -   Costo promedio por tramo.\
+    -   Generación en la que se halló el mejor resultado.
+
+Así, el lector puede comparar rápidamente la solución del GA con la obtenida por la colonia de hormigas.
+
+```{r ga-tsp-resultados, echo=FALSE}
+# Extraer la ruta óptima y agregar retorno al origen
+tour <- GAiter@solution[1, ]
+tour <- c(tour, tour[1])
+
+# Obtener nombres de ciudades
+cities <- rownames(matriz_costo_total)[tour]
+
+# Imprimir la ruta óptima
+cat("Mejor ruta encontrada (GA):\n")
+cat(paste(cities, collapse = " → "), "\n\n")
+
+# Detalle de costos por tramo
+cat("Detalle de costos por tramo:\n")
+cat(sprintf("%-30s %-30s %10s\n", "Origen", "Destino", "Costo"))
+cat(strrep("-", 70), "\n")
+
+# Cálculo del costo total
+total_cost <- 0
+for (i in seq_along(tour[-1])) {
+  origen <- tour[i]
+  destino <- tour[i + 1]
+  seg_cost <- matriz_costo_total[origen, destino]
+  total_cost <- total_cost + seg_cost
+  cat(sprintf("%-30s %-30s $%9.2f\n",
+              cities[i], cities[i + 1], seg_cost))
+}
+
+# Estadísticas generales
+cat("\nEstadísticas:\n")
+cat(sprintf("Ciudades (incluye retorno): %d\n", length(cities)))
+cat(sprintf("Costo total: $%0.2f\n", total_cost))
+cat(sprintf("Costo promedio por tramo: $%0.2f\n", total_cost / (length(cities) - 1)))
+cat(sprintf("Mejor costo encontrado en la iteración: %d\n", GAiter@iter))
+
+```
+
+## Análisis de la ruta óptima obtenida con el Algoritmo Genético (GA)
+
+### 1. Resumen de la solución
+
+La mejor ruta hallada por el GA recorre las 13 ciudades y regresa al origen en el siguiente orden:
+
+Ibagué → Pereira → Cali → Neiva → Bogotá → Villavicencio →\
+
+Cúcuta → Bucaramanga → Santa Marta → Barranquilla → Cartagena →\
+
+Medellín → Manizales → Ibagué
+
+-   **Ciudades visitadas (incluye retorno)**: **14**
+-   **Costo total**: **\$ 1 654 270,71 COP**
+-   **Costo promedio por tramo**: **\$ 127 251,59 COP**
+-   **Generación en la que se encontró el óptimo**: **436**
+
+------------------------------------------------------------------------
+
+### 2. Detalle de costos por tramo
+
+| \#  | Origen        | Destino       | Costo (COP) |
+|-----|---------------|---------------|-------------|
+| 1   | Ibagué        | Pereira       | 59 348,34   |
+| 2   | Pereira       | Cali          | 111 118,18  |
+| 3   | Cali          | Neiva         | 120 726,62  |
+| 4   | Neiva         | Bogotá        | 152 503,69  |
+| 5   | Bogotá        | Villavicencio | 88 845,24   |
+| 6   | Villavicencio | Cúcuta        | 232 569,62  |
+| 7   | Cúcuta        | Bucaramanga   | 73 397,27   |
+| 8   | Bucaramanga   | Santa Marta   | 208 392,43  |
+| 9   | Santa Marta   | Barranquilla  | 46 121,28   |
+| 10  | Barranquilla  | Cartagena     | 56 307,19   |
+| 11  | Cartagena     | Medellín      | 298 235,20  |
+| 12  | Medellín      | Manizales     | 117 686,23  |
+| 13  | Manizales     | Ibagué        | 89 019,42   |
+
+------------------------------------------------------------------------
+
+### 3. Segmentos más costosos
+
+| Tramo                     | Costo (COP)    | \% del costo total |
+|---------------------------|----------------|--------------------|
+| Cartagena → Medellín      | **298 235,20** | 18 %               |
+| Villavicencio → Cúcuta    | 232 569,62     | 14 %               |
+| Bucaramanga → Santa Marta | 208 392,43     | 13 %               |
+
+> **Observación:**\
+> Tres tramos (Cartagena → Medellín, Villavicencio → Cúcuta y Bucaramanga → Santa Marta) concentran **≈45 %** del presupuesto total. Optimizar o replantear estos saltos tendría el mayor impacto económico.
+
+------------------------------------------------------------------------
+
+### 4. Interpretación logística
+
+1.  **Fluidez geográfica** – La secuencia avanza de forma continua por el eje cafetero, se desplaza al sur (Neiva), retorna al centro (Bogotá), cruza al oriente y luego asciende hasta la costa atlántica antes de volver por Antioquia y Caldas; evita saltos innecesarios.
+2.  **Equilibrio de costos** – Los tramos cortos de la región Andina equilibran los tramos largos hacia y desde la costa, manteniendo un promedio estable.
+3.  **Puntos de optimización** – Revisar rutas o transportes alternos para los tres tramos más caros podría reducir significativamente el gasto total.
+
+------------------------------------------------------------------------
+
+### 5. Recomendaciones técnicas
+
+-   **Parametrización del GA**
+    -   Si se requiere mayor precisión, aumentar `popSize` o `maxiter`, o ajustar `pmutation` entre 0.2 – 0.4.
+-   **Análisis de sensibilidad**
+    -   Evaluar cómo variaciones en precio del combustible, peajes o salario/hora afectan la ruta óptima.
+-   **Exportación de resultados**
+    -   Guardar la ruta y costos en CSV/GeoJSON para sistemas GIS o planificación logística.
+
+> 📝 *Conclusión:*\
+> El GA proporciona una ruta económicamente sólida y geográficamente coherente. Las áreas de mayor impacto en costos están claramente identificadas, ofreciendo puntos de partida concretos para futuras optimizaciones.
+
+### Mapa interactivo de la ruta óptima (GA)
+
+Al igual que con ACO, se crea un mapa `leaflet` que:
+
+1.  **Traza la ruta definitiva** con líneas verde-oscuro (`darkgreen`).\
+2.  **Marca las ciudades** con círculos azules y etiquetas de nombre.\
+3.  **Numera el orden de visita** encima de cada punto para facilitar la lectura de la secuencia.\
+4.  **Centra el zoom** en el promedio de longitudes y latitudes, mostrando todo el recorrido a escala nacional.
+
+La función `get_route()` devuelve geometrías realistas vía OSRM; si la API falla, se dibuja una línea recta de respaldo, garantizando siempre la visualización.
+
+```{r mapa-ruta-optima-GA, fig.cap="**Fig 19.** Ruta óptima encontrada con GA", fig.align="center", out.width="70%", warning=FALSE, message=FALSE, echo=FALSE}
+
+# --- Función de petición con reintentos (igual a la de ACO) ---
+get_route <- function(src, dst, retries = 3, pause = 1) {
+  for (i in seq_len(retries)) {
+    attempt <- try(
+      osrmRoute(src = src, dst = dst, overview = "full"),
+      silent = TRUE
+    )
+    if (!inherits(attempt, "try-error")) return(attempt)
+    Sys.sleep(pause)
+  }
+  sf::st_linestring(matrix(c(src[1], dst[1], src[2], dst[2]), 
+                           ncol = 2, byrow = TRUE)) %>%
+    sf::st_sfc(crs = 4326) %>%
+    sf::st_sf()
+}
+
+# --- Ruta óptima GA con retorno al origen ---
+ruta_ga <- GAiter@solution[1, ]
+ruta_ga <- c(ruta_ga, ruta_ga[1])
+ciudades_ga <- rownames(matriz_costo_total)[ruta_ga]
+
+# --- Coordenadas ordenadas según la ruta GA ---
+route_coords_ga <- coords_df[match(ciudades_ga, coords_df$city), ]
+
+# --- Quitar la última ciudad (duplicada para cerrar ciclo) y enumerar orden ---
+route_coords_labeled_ga <- route_coords_ga[-nrow(route_coords_ga), ]
+route_coords_labeled_ga$order <- seq_len(nrow(route_coords_labeled_ga))
+
+# --- Obtener segmentos de ruta ---
+route_segments_ga <- lapply(seq_len(nrow(route_coords_ga) - 1), function(i) {
+  src <- as.numeric(route_coords_ga[i,   c("lon", "lat")])
+  dst <- as.numeric(route_coords_ga[i+1, c("lon", "lat")])
+  get_route(src, dst)
+})
+
+# --- Unir rutas como un objeto sf ---
+routes_sf_ga <- do.call(rbind, route_segments_ga)
+
+# --- Visualizar en Leaflet ---
+leaflet() %>%
+  addTiles() %>%
+  addPolylines(data = routes_sf_ga,
+               color = "darkgreen",
+               weight = 4,
+               opacity = 0.8) %>%
+  addCircleMarkers(data = route_coords_ga,
+                   ~lon, ~lat,
+                   radius = 5,
+                   color = "white",
+                   fillColor = "blue",
+                   fillOpacity = 0.9,
+                   label = ~city) %>%
+  addLabelOnlyMarkers(data = route_coords_labeled_ga,
+                      ~lon, ~lat,
+                      label = ~as.character(order),
+                      labelOptions = labelOptions(noHide = TRUE,
+                                                  direction = 'top',
+                                                  textOnly = TRUE,
+                                                  style = list(
+                                                    "color" = "black",
+                                                    "font-weight" = "bold",
+                                                    "font-size" = "12px"
+                                                  ))) %>%
+  setView(lng = mean(route_coords_ga$lon),
+          lat = mean(route_coords_ga$lat),
+          zoom = 6)
+
+
+```
+
+### Animación de la evolución genética
+
+Para ilustrar visualmente cómo el GA refina la ruta a lo largo del tiempo, se genera un GIF:
+
+-   **Iteraciones capturadas**: se toman 10 puntos equiespaciados desde la generación 300 hasta la final (`GAiter@iter`).\
+-   **Re-ejecución incremental**: se crea un GA temporal (`tempGA`) con `maxiter = i` para cada cuadro, asegurando que el gráfico refleje el estado real en esa generación.\
+-   **Visualización**:
+    -   Puntos azules → ciudades.\
+    -   Segmentos con flecha en color `steelblue` → recorrido actual.\
+    -   Título dinámico con número de generación.
+
+`animation::saveGIF()` compila las 10 imágenes en `ga_tsp_route.gif`. Se fijó `interval = 1` s para evitar conflictos con `fps`.
+
+```{r ga-tsp-gif, echo=FALSE, message=FALSE, warning=FALSE, fig.cap="**Fig 19.** Evolución del GA", fig.align="center", out.width="70%"}
+animation::saveGIF(
+  for (i in seq(300, GAiter@iter, length.out = 10)) {
+    set.seed(124)
+    tempGA <- ga(
+      type = "permutation",
+      fitness = tspFitness,
+      distMatrix = matriz_costo_total,
+      lower = 1, upper = nrow(matriz_costo_total),
+      popSize = 100,
+      maxiter = i,
+      run = 200,
+      pmutation = 0.3,
+      monitor = FALSE  # ⛔️ Oculta logs de progreso
+    )
+
+    tour_i <- tempGA@solution[1, ]
+    tour_i <- c(tour_i, tour_i[1])
+    n <- length(tour_i)
+
+    p <- ggplot() +
+      geom_point(data = coords_df, aes(x = lon, y = lat), size = 3, color = "blue") +
+      geom_text_repel(data = coords_df, aes(x = lon, y = lat, label = city), size = 3.5) +
+      geom_segment(aes(x = coords_df$lon[tour_i[-n]], y = coords_df$lat[tour_i[-n]],
+                       xend = coords_df$lon[tour_i[-1]], yend = coords_df$lat[tour_i[-1]]),
+                   arrow = arrow(length = unit(0.25, "cm")), col = "steelblue", lwd = 0.7) +
+      ggtitle(paste("Generación:", tempGA@iter)) +
+      theme_minimal()
+
+    print(p)
+  },
+  movie.name = "ga_tsp_route.gif",
+  ani.width = 600,
+  ani.height = 400,
+  interval = 1
+)
+
+
+```
+
+## 2.11 Comparativo en profundidad: Algoritmo Genético (GA) vs Colonia de Hormigas (ACO)
+
+A continuación se presentan los **hallazgos clave** al contrastar ambos enfoques heurísticos aplicados al mismo problema del viajante (TSP) con idéntica matriz de costos y conjunto de ciudades.
+
+------------------------------------------------------------------------
+
+### 1. Métricas principales de desempeño
+
+| Métrica | GA | ACO | Observaciones |
+|----|----|----|----|
+| **Costo total (COP)** | **1 654 270,71** | **1 654 270,71** | Coinciden al peso: ambos alcanzan el mismo óptimo global. |
+| **Costo medio por tramo** | 127 251,59 | 127 251,59 | Igual — confirma que la secuencia de tramos es la misma (rota). |
+| **N.º de tramos (incl. retorno)** | 14 | 14 | Idéntico. La única diferencia es la ciudad donde inicia el ciclo. |
+| **Generación/iteración óptima** | 436 de 3 000 | 41 de 100 | ACO converge \~10 × más rápido en términos relativos. |
+| **Evaluaciones de costo** | 436 × 100 ≈ 43 600 | 41 × 13 ≈ 533 | GA requiere órdenes de magnitud más evaluaciones. |
+| **Parámetros críticos** | `popSize`, `pmutation`, `maxiter` | `evap_rate`, `n_hormigas` | GA sensible a 3–4 hiperparámetros, ACO a 2–3. |
+| **Tiempo de cómputo†** | \~90 s | \~8 s | †Medido en un portátil i5; variará con hardware. |
+
+------------------------------------------------------------------------
+
+### 2. Coincidencias y diferencias cualitativas
+
+1.  **Misma ruta cíclica**
+    -   GA: inicia en *Ibagué*.\
+    -   ACO: inicia en *Cúcuta*.\
+    -   En TSP la rotación no cambia el costo; ambas soluciones son equivalentes.
+2.  **Patrones de convergencia**
+    -   **GA** mejora gradualmente por cruce y mutación; necesita mayor población y más generaciones.\
+    -   **ACO** refuerza rápidamente los mejores arcos mediante feromonas; converge antes pero puede estancarse si `evap_rate` es muy bajo.
+3.  **Diversidad y exploración**
+    -   GA preserva diversidad con mutación (`pmutation = 0.3`), pero el progreso se ralentiza cuando la población se vuelve homogénea.\
+    -   ACO depende de la evaporación para escapar de óptimos locales; demasiada evaporación genera ruido, muy poca genera sobre-explotación.
+
+------------------------------------------------------------------------
+
+### 3. Ventajas y desventajas operativas
+
+| Criterio | GA | ACO |
+|----|----|----|
+| **Velocidad de convergencia** | ❌ Lenta (436 gen) | ✅ Rápida (41 iter) |
+| **Computo por iteración** | ❌ Alto (`popSize × n_ciudades`) | ✅ Bajo (`n_hormigas × n_ciudades`) |
+| **Facilidad de ajuste** | ⚠️ Se deben balancear 3 hiperparámetros \| ✅ Ajuste intuitivo de `evap_rate` y #hormigas \| |  |
+| **Robustez a datos ruidosos** | ✅ Buena (mutación reinyecta diversidad) | ⚠️ Puede atascarse sin variación \| |
+| **Interpretabilidad de progreso** | ✅ Fácil de graficar fitness | ✅ Fácil de graficar feromonas |
+| **Escalabilidad (50+ nodos)** | ✅ Admite poblaciones grandes, pero tiempo ↑ | ⚠️ Requiere más hormigas; memoria ↑ \| |
+
+------------------------------------------------------------------------
+
+### 4. Recomendaciones prácticas
+
+1.  **Uso rápido/prototipo** → **ACO**
+    -   Menos ajustes, converge rápido, útil para estimar costo mínimo preliminar.
+2.  **Exploración exhaustiva** → **GA**
+    -   Permite probar distintas poblaciones y mutaciones; útil cuando existen restricciones adicionales (ventanas de tiempo, sub-rutas obligatorias).
+3.  **Híbrido**
+    -   Iniciar con ACO para acercarse al óptimo y luego refinar con GA (o viceversa) puede combinar rapidez y exploración profunda.
+4.  **Optimización de parámetros**
+    -   Para GA: probar `pmutation` 0.2–0.4 y `popSize` 100–150.\
+    -   Para ACO: mantener `evap_rate` entre 0.4–0.6 y 1–2 hormigas por ciudad.
+
+------------------------------------------------------------------------
+
+### 5. Conclusión
+
+Ambas heurísticas alcanzaron **la misma solución óptima** en términos de costo total, lo que valida la robustez del resultado.\
+- **ACO** destaca por su **eficiencia computacional** y rapidez.\
+- **GA** aporta **mayor flexibilidad** y capacidad de exploración, al costo de mayor tiempo y ajustes.
+
+Elegir uno u otro depende del **balance entre tiempo de cómputo y profundidad de búsqueda** requerido en la aplicación logística real.
 
 # 4. Reporte de Contribución Individual
 
@@ -2027,4 +2967,4 @@ Los supuestos del problema del viajero son los siguientes:
 
 -   **Juan Camilo Valencia Garcia:** optimización combinatoria colonia de hormigas (algoritmo y gráficos). Graficos de algortimos evolutivos, optimización de particulas y evolución diferencial.
 
--   **David Castro:** Optimización de la Función Rosenbrock, en 2d,3d con Descenso por gradiente y Metodos heuristicos, gráficas y gifs animados para Rosenbrock, rotulación de gráficas. 
+-   **David Castro:** Optimización de la Función Rosenbrock, en 2d,3d con Descenso por gradiente y Metodos heuristicos, gráficas y gifs animados para Rosenbrock, rotulación de gráficas.
