@@ -139,13 +139,19 @@ points(
 
 **Análisis del gráfico “Rastrigin 1-D — campo de pozos periódicos”**
 
-| Elemento visual | Observación | Interpretación |
-|----|----|----|
-| **Línea negra dentada** | Ondas regulares de amplitud creciente al alejarse del centro. | Resultado de la combinación $x^2+cos(2\pi x)$. El término cuadrático empuja hacia arriba (crece como cuenco), el coseno introduce la ondulación periódica. |
-| **Puntos rojos (11)** | Un punto rojo en cada entero desde −5 hasta 5. | Representan los **mínimos locales**: los pozos donde un optimizador basado solo en gradientes podría quedar atrapado. |
-| **Valle más profundo en** $x=0$ | Punto rojo más bajo ($f(x)=0$). | **Mínimo global** de la función. |
-| **Simetría izquierda-derecha** | La curva es espejo respecto a $x=0$. | Tanto $x^2$ como $cos(2\pi x)$ son funciones pares → la función es simétrica. |
-| **Incremento de altura hacia los extremos** | Las puntas laterales alcanzan $f(x)\approx40$ . | Dominio del término $x^2$. Cuanto más lejos del centro, más alto el coste. |
++---------------------------------------------+---------------------------------------------------------------+------------------------------------------------------------------------------------------------------------------------------------------------------------+
+| Elemento visual                             | Observación                                                   | Interpretación                                                                                                                                             |
++=============================================+===============================================================+============================================================================================================================================================+
+| **Línea negra dentada**                     | Ondas regulares de amplitud creciente al alejarse del centro. | Resultado de la combinación $x^2+cos(2\pi x)$. El término cuadrático empuja hacia arriba (crece como cuenco), el coseno introduce la ondulación periódica. |
++---------------------------------------------+---------------------------------------------------------------+------------------------------------------------------------------------------------------------------------------------------------------------------------+
+| **Puntos rojos (11)**                       | Un punto rojo en cada entero desde −5 hasta 5.                | Representan los **mínimos locales**: los pozos donde un optimizador basado solo en gradientes podría quedar atrapado.                                      |
++---------------------------------------------+---------------------------------------------------------------+------------------------------------------------------------------------------------------------------------------------------------------------------------+
+| **Valle más profundo en** $x=0$             | Punto rojo más bajo ($f(x)=0$).                               | **Mínimo global** de la función.                                                                                                                           |
++---------------------------------------------+---------------------------------------------------------------+------------------------------------------------------------------------------------------------------------------------------------------------------------+
+| **Simetría izquierda-derecha**              | La curva es espejo respecto a $x=0$.                          | Tanto $x^2$ como $cos(2\pi x)$ son funciones pares → la función es simétrica.                                                                              |
++---------------------------------------------+---------------------------------------------------------------+------------------------------------------------------------------------------------------------------------------------------------------------------------+
+| **Incremento de altura hacia los extremos** | Las puntas laterales alcanzan $f(x)\approx40$ .               | Dominio del término $x^2$. Cuanto más lejos del centro, más alto el coste.                                                                                 |
++---------------------------------------------+---------------------------------------------------------------+------------------------------------------------------------------------------------------------------------------------------------------------------------+
 
 1.  **Alta multimodalidad**\
     Once pozos en un intervalo de solo 10 unidades indican que la función está plagada de óptimos locales.
@@ -491,20 +497,29 @@ ggplot() +
 
 **Descripción del gráfico**
 
-| Elemento | Significado |
-|----|----|
-| 🔵 **Trayectoria azul** | Secuencia de pasos que toma Gradient Descent desde el punto inicial. |
-| ⚫ **Círculo negro (Inicio)** | Posición de partida $(3,\ 3)$ del algoritmo. |
-| 🔺 **Triángulo rojo (Fin)** | Mínimo local donde GD queda atrapado tras 200 iteraciones. |
-| **Mapa de colores (f(x))** | Valor de la función Rastrigin; violeta oscuro ($\approx0$) (valles), amarillo ($\approx 80$) (picos). |
++-------------------------------+-------------------------------------------------------------------------------------------------------+
+| Elemento                      | Significado                                                                                           |
++===============================+=======================================================================================================+
+| 🔵 **Trayectoria azul**       | Secuencia de pasos que toma Gradient Descent desde el punto inicial.                                  |
++-------------------------------+-------------------------------------------------------------------------------------------------------+
+| ⚫ **Círculo negro (Inicio)** | Posición de partida $(3,\ 3)$ del algoritmo.                                                          |
++-------------------------------+-------------------------------------------------------------------------------------------------------+
+| 🔺 **Triángulo rojo (Fin)**   | Mínimo local donde GD queda atrapado tras 200 iteraciones.                                            |
++-------------------------------+-------------------------------------------------------------------------------------------------------+
+| **Mapa de colores (f(x))**    | Valor de la función Rastrigin; violeta oscuro ($\approx0$) (valles), amarillo ($\approx 80$) (picos). |
++-------------------------------+-------------------------------------------------------------------------------------------------------+
 
 **Análisis del comportamiento del algoritmo**
 
-| Observación | Interpretación |
-|----|----|
-| El recorrido es **muy corto** y se queda en la parte superior-derecha. | GD se vio atraído por el **valle local más próximo** y no dispuso de mecanismos para “saltar” la siguiente cresta. |
-| Valor final ($f(\mathbf{x})=17$) frente al mínimo global $f(\mathbf{x})=0$. | Confirma el **estancamiento prematuro** en un óptimo local. |
-| Trayectoria casi rectilínea hacia un solo pozo. | El gradiente inicial apunta con fuerza a la depresión más cercana; tras llegar al fondo la norma del gradiente se vuelve pequeña y el algoritmo se detiene. |
++-----------------------------------------------------------------------------+-------------------------------------------------------------------------------------------------------------------------------------------------------------+
+| Observación                                                                 | Interpretación                                                                                                                                              |
++=============================================================================+=============================================================================================================================================================+
+| El recorrido es **muy corto** y se queda en la parte superior-derecha.      | GD se vio atraído por el **valle local más próximo** y no dispuso de mecanismos para “saltar” la siguiente cresta.                                          |
++-----------------------------------------------------------------------------+-------------------------------------------------------------------------------------------------------------------------------------------------------------+
+| Valor final ($f(\mathbf{x})=17$) frente al mínimo global $f(\mathbf{x})=0$. | Confirma el **estancamiento prematuro** en un óptimo local.                                                                                                 |
++-----------------------------------------------------------------------------+-------------------------------------------------------------------------------------------------------------------------------------------------------------+
+| Trayectoria casi rectilínea hacia un solo pozo.                             | El gradiente inicial apunta con fuerza a la depresión más cercana; tras llegar al fondo la norma del gradiente se vuelve pequeña y el algoritmo se detiene. |
++-----------------------------------------------------------------------------+-------------------------------------------------------------------------------------------------------------------------------------------------------------+
 
 En funciones **altamente multimodales** como Rastrigin, el número de valles hace muy improbable que GD, partiendo lejos del origen, alcance el **mínimo global**.
 
@@ -757,25 +772,25 @@ fig
 | Elemento | Significado |
 |----------|-------------|
 
-|  |  |
-|----|----|
++--------------------------------------+-----------------------------------------------------------------------------------------------------------+
 | **Superficie translúcida (Viridis)** | Muestra el paisaje completo de la función Rastrigin: valles profundos (violeta) y picos altos (amarillo). |
++--------------------------------------+-----------------------------------------------------------------------------------------------------------+
 
-|  |  |
-|----|----|
++-----------------------------------------+---------------------------------------------------------------------------------------+
 | 🟠 **Línea multicolor (“Trayectoria”)** | Cada tonalidad marca un paso de GD: del azul al naranja conforme avanza la iteración. |
++-----------------------------------------+---------------------------------------------------------------------------------------+
 
-|  |  |
-|----|----|
++-------------------------------------+----------------------------------------------------+
 | ⚫ **Punto negro (“Punto actual”)** | Indica la posición de GD en la iteración mostrada. |
++-------------------------------------+----------------------------------------------------+
 
-|  |  |
-|----|----|
++---------------------------------------------+-----------------------------------------------------------+
 | **Diamante amarillo (“Óptimo encontrado”)** | Señala el mínimo local donde el algoritmo quedó atrapado. |
++---------------------------------------------+-----------------------------------------------------------+
 
-|  |
-|----|
++-----------------------------------------------------------------------------------------------------------------------------------+
 | ▶️⏸️ **Controles Play/Pause + slider** \| Permiten navegar interactivamente por las iteraciones. \| \| \| \| \| \| \| \| \| \| \| |
++-----------------------------------------------------------------------------------------------------------------------------------+
 
 **Comportamiento de GD en 3D**
 
@@ -1854,14 +1869,21 @@ En la naturaleza, las hormigas encuentran caminos óptimos hacia fuentes de comi
 
 ### ¿Cómo se traduce eso en el algoritmo?
 
-| Elemento natural | Equivalente en algoritmo |
-|----|----|
-| Hormiga | Individuo que genera una ruta completa |
-| Camino entre ciudades | Arista entre nodos en el grafo |
-| Feromona | Valor en una **matriz de feromonas** |
-| Decisión de ruta | Selección **probabilística** basada en feromona y distancia |
-| Evaporación | **Reducción periódica** del valor de feromonas |
-| Reforzamiento | Aumento de feromonas según **calidad de ruta** |
++-----------------------+-------------------------------------------------------------+
+| Elemento natural      | Equivalente en algoritmo                                    |
++=======================+=============================================================+
+| Hormiga               | Individuo que genera una ruta completa                      |
++-----------------------+-------------------------------------------------------------+
+| Camino entre ciudades | Arista entre nodos en el grafo                              |
++-----------------------+-------------------------------------------------------------+
+| Feromona              | Valor en una **matriz de feromonas**                        |
++-----------------------+-------------------------------------------------------------+
+| Decisión de ruta      | Selección **probabilística** basada en feromona y distancia |
++-----------------------+-------------------------------------------------------------+
+| Evaporación           | **Reducción periódica** del valor de feromonas              |
++-----------------------+-------------------------------------------------------------+
+| Reforzamiento         | Aumento de feromonas según **calidad de ruta**              |
++-----------------------+-------------------------------------------------------------+
 
 ### Fórmula clásica de decisión (simplificada):
 
@@ -2563,11 +2585,15 @@ En esta sección, se define el entorno necesario para ejecutar el algoritmo gen�
 
 En este chunk se cargan las librerías necesarias y se definen las funciones de soporte:
 
-| Elemento | Propósito | Detalles clave |
-|----|----|----|
-| **GA** | Implementación estándar de algoritmos genéticos. | Permite representar rutas como permutaciones y ajustar parámetros como `popSize`, `pmutation`, `maxiter`. |
-| **ggplot2 / ggrepel** | Visualización y anotación de gráficas. | Se usarán más adelante para animar la evolución y rotular ciudades. |
-| **animation** | Generación de GIFs desde R. | Facilita guardar cuadros de la evolución del GA. |
++-----------------------+--------------------------------------------------+-----------------------------------------------------------------------------------------------------------+
+| Elemento              | Propósito                                        | Detalles clave                                                                                            |
++=======================+==================================================+===========================================================================================================+
+| **GA**                | Implementación estándar de algoritmos genéticos. | Permite representar rutas como permutaciones y ajustar parámetros como `popSize`, `pmutation`, `maxiter`. |
++-----------------------+--------------------------------------------------+-----------------------------------------------------------------------------------------------------------+
+| **ggplot2 / ggrepel** | Visualización y anotación de gráficas.           | Se usarán más adelante para animar la evolución y rotular ciudades.                                       |
++-----------------------+--------------------------------------------------+-----------------------------------------------------------------------------------------------------------+
+| **animation**         | Generación de GIFs desde R.                      | Facilita guardar cuadros de la evolución del GA.                                                          |
++-----------------------+--------------------------------------------------+-----------------------------------------------------------------------------------------------------------+
 
 > **Funciones definidas**\
 > - `tourLength()`\
@@ -2895,15 +2921,23 @@ A continuación se presentan los **hallazgos clave** al contrastar ambos enfoque
 
 ### 1. Métricas principales de desempeño
 
-| Métrica | GA | ACO | Observaciones |
-|----|----|----|----|
-| **Costo total (COP)** | **1 654 270,71** | **1 654 270,71** | Coinciden al peso: ambos alcanzan el mismo óptimo global. |
-| **Costo medio por tramo** | 127 251,59 | 127 251,59 | Igual — confirma que la secuencia de tramos es la misma (rota). |
-| **N.º de tramos (incl. retorno)** | 14 | 14 | Idéntico. La única diferencia es la ciudad donde inicia el ciclo. |
-| **Generación/iteración óptima** | 436 de 3 000 | 41 de 100 | ACO converge \~10 × más rápido en términos relativos. |
-| **Evaluaciones de costo** | 436 × 100 ≈ 43 600 | 41 × 13 ≈ 533 | GA requiere órdenes de magnitud más evaluaciones. |
-| **Parámetros críticos** | `popSize`, `pmutation`, `maxiter` | `evap_rate`, `n_hormigas` | GA sensible a 3–4 hiperparámetros, ACO a 2–3. |
-| **Tiempo de cómputo†** | \~90 s | \~8 s | †Medido en un portátil i5; variará con hardware. |
++-----------------------------------+-----------------------------------+---------------------------+-------------------------------------------------------------------+
+| Métrica                           | GA                                | ACO                       | Observaciones                                                     |
++===================================+===================================+===========================+===================================================================+
+| **Costo total (COP)**             | **1 654 270,71**                  | **1 654 270,71**          | Coinciden al peso: ambos alcanzan el mismo óptimo global.         |
++-----------------------------------+-----------------------------------+---------------------------+-------------------------------------------------------------------+
+| **Costo medio por tramo**         | 127 251,59                        | 127 251,59                | Igual — confirma que la secuencia de tramos es la misma (rota).   |
++-----------------------------------+-----------------------------------+---------------------------+-------------------------------------------------------------------+
+| **N.º de tramos (incl. retorno)** | 14                                | 14                        | Idéntico. La única diferencia es la ciudad donde inicia el ciclo. |
++-----------------------------------+-----------------------------------+---------------------------+-------------------------------------------------------------------+
+| **Generación/iteración óptima**   | 436 de 3 000                      | 41 de 100                 | ACO converge \~10 × más rápido en términos relativos.             |
++-----------------------------------+-----------------------------------+---------------------------+-------------------------------------------------------------------+
+| **Evaluaciones de costo**         | 436 × 100 ≈ 43 600                | 41 × 13 ≈ 533             | GA requiere órdenes de magnitud más evaluaciones.                 |
++-----------------------------------+-----------------------------------+---------------------------+-------------------------------------------------------------------+
+| **Parámetros críticos**           | `popSize`, `pmutation`, `maxiter` | `evap_rate`, `n_hormigas` | GA sensible a 3–4 hiperparámetros, ACO a 2–3.                     |
++-----------------------------------+-----------------------------------+---------------------------+-------------------------------------------------------------------+
+| **Tiempo de cómputo†**            | \~90 s                            | \~8 s                     | †Medido en un portátil i5; variará con hardware.                  |
++-----------------------------------+-----------------------------------+---------------------------+-------------------------------------------------------------------+
 
 ------------------------------------------------------------------------
 
@@ -2924,14 +2958,21 @@ A continuación se presentan los **hallazgos clave** al contrastar ambos enfoque
 
 ### 3. Ventajas y desventajas operativas
 
-| Criterio | GA | ACO |
-|----|----|----|
-| **Velocidad de convergencia** | ❌ Lenta (436 gen) | ✅ Rápida (41 iter) |
-| **Computo por iteración** | ❌ Alto (`popSize × n_ciudades`) | ✅ Bajo (`n_hormigas × n_ciudades`) |
-| **Facilidad de ajuste** | ⚠️ Se deben balancear 3 hiperparámetros \| ✅ Ajuste intuitivo de `evap_rate` y #hormigas \| |  |
-| **Robustez a datos ruidosos** | ✅ Buena (mutación reinyecta diversidad) | ⚠️ Puede atascarse sin variación \| |
-| **Interpretabilidad de progreso** | ✅ Fácil de graficar fitness | ✅ Fácil de graficar feromonas |
-| **Escalabilidad (50+ nodos)** | ✅ Admite poblaciones grandes, pero tiempo ↑ | ⚠️ Requiere más hormigas; memoria ↑ \| |
++-----------------------------------+----------------------------------------------------------------------------------------------+----------------------------------------+
+| Criterio                          | GA                                                                                           | ACO                                    |
++===================================+==============================================================================================+========================================+
+| **Velocidad de convergencia**     | ❌ Lenta (436 gen)                                                                           | ✅ Rápida (41 iter)                    |
++-----------------------------------+----------------------------------------------------------------------------------------------+----------------------------------------+
+| **Computo por iteración**         | ❌ Alto (`popSize × n_ciudades`)                                                             | ✅ Bajo (`n_hormigas × n_ciudades`)    |
++-----------------------------------+----------------------------------------------------------------------------------------------+----------------------------------------+
+| **Facilidad de ajuste**           | ⚠️ Se deben balancear 3 hiperparámetros \| ✅ Ajuste intuitivo de `evap_rate` y #hormigas \| |                                        |
++-----------------------------------+----------------------------------------------------------------------------------------------+----------------------------------------+
+| **Robustez a datos ruidosos**     | ✅ Buena (mutación reinyecta diversidad)                                                     | ⚠️ Puede atascarse sin variación \|    |
++-----------------------------------+----------------------------------------------------------------------------------------------+----------------------------------------+
+| **Interpretabilidad de progreso** | ✅ Fácil de graficar fitness                                                                 | ✅ Fácil de graficar feromonas         |
++-----------------------------------+----------------------------------------------------------------------------------------------+----------------------------------------+
+| **Escalabilidad (50+ nodos)**     | ✅ Admite poblaciones grandes, pero tiempo ↑                                                 | ⚠️ Requiere más hormigas; memoria ↑ \| |
++-----------------------------------+----------------------------------------------------------------------------------------------+----------------------------------------+
 
 ------------------------------------------------------------------------
 
@@ -2961,7 +3002,7 @@ Elegir uno u otro depende del **balance entre tiempo de cómputo y profundidad d
 
 -   **Natalia Remolina:** análisis de resultados descenso del gradiente en Rastrigin, ejecución del Web Scraping, optimización combinatoria colonia de hormigas (algoritmo y gráficos).
 
--   **Jonatan Sanchez:** creación del repositorio GitHub, optimización por descenso del gradiente para Rastrigin (función, gráficos y animaciones) y análisis de resultados, ejecución del Web Scraping, optimización combinatoria colonia de hormigas (algoritmo y gráficos).
+-   **Jonatan Sanchez:** creación del repositorio GitHub, optimización por descenso del gradiente para Rastrigin (función, gráficos y animaciones) y análisis de resultados, ejecución del Web Scraping, optimización combinatoria colonia de hormigas del problema del viajante (algoritmo y gráficos). Optimización por algoritmos geneticos del problema del viajante (algoritmo y gráficos). Conclusiones comparativas entre optimización combinatoria colonia de hormigas y Optimización por algoritmos geneticos del problema del viajante.
 
 -   **Carlos Calle:** creación del repositorio GitHub, creación y ejecución del Web Scraping para obtener información de distancia, tiempo y costo de peajes desde el aplicativo Hermes de Invias, definición de los optimizadores para Rastrigin en algoritmos evolutivos y optimización de párticulas, optimización combinatoria colonia de hormigas (algoritmo y gráficos).
 
