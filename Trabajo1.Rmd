@@ -1,9 +1,12 @@
 ---
-title: "Trabajo 01: Optimización Heurística"
-author: "Jonatan Sanchez, Carlos Calle, Natalia Remolina, Juan Camilo Valencia & David Castro"
+title: 'Trabajo 01: Optimización Heurística'
+author: Jonatan Sanchez, Carlos Calle, Natalia Remolina, Juan Camilo Valencia & David
+  Castro
 date: "2025-04-23"
-output: 
+output:
   html_document:
+    toc: true
+  pdf_document:
     toc: true
 ---
 
@@ -41,7 +44,7 @@ library(htmltools)
 
 ```
 
-# 0. Introduciión
+# 0. Introdución
 
 La optimización es un arquetipo en multitud de ramas científicas e ingenieriles que se muestra a la búsqueda de las “mejores” soluciones posibles dentro de un conjunto de respuestas alternativas. En términos más generales, es una atenuación o la maximización de una función objetivo cunado se fijan condiciones en unas y a otras variables. Este enfoque es imperativo para la toma de decisiones rentables, la planificación de sistemas y la administración de problemas consolidados en campos que van desde la economía y la logística hasta la IA y el sendo aprendizaje.
 
@@ -228,8 +231,6 @@ points(
 
 **Grafico de la función de Rastrigin (3D)**
 
-{r fig.cap="\*\*Fig 3.\*\* Visualización de la función Rastrigin f(x1, x2, x3) (3D)", fig.align="center", out.width="70%", layout.align="center", echo=FALSE}
-
 ```{r rastrigin-3d-static, fig.cap="**Fig 3.** Visualización de la función Rastrigin f(x1, x2, x3) (3D)", fig.align="center", out.width="70%", layout.align="center", echo=FALSE}
 
 # -----------------------------------------------
@@ -348,7 +349,7 @@ En este experimento aplicamos el descenso del gradiente puro sobre la **función
 
 **Detalles clave**: - Se usó una tasa de aprendizaje $\eta = 0.01$. - Se grafican las evaluaciones sucesivas $f(x_k)$ como una curva azul. - El punto inicial se marca en rojo y el final en negro.
 
-Este gráfico nos permite ver si el algoritmo converge al mínimo esperado, y cómo desciende el valor de la función a lo largo de las it{r fig.cap="\*\*Fig 4.\*\* Visualización de la función Rastrigin óptimo en f(x1) (1D)", fig.align="center", out.width="70%", layout.align="center", echo=FALSE}eraciones.
+Este gráfico nos permite ver si el algoritmo converge al mínimo esperado, y cómo desciende el valor de la función a lo largo de las iteraciones.
 
 ```{r gd-1d-trayectoria, fig.cap="**Fig 4.** Visualización de la función Rastrigin óptimo en f(x1) (1D)", fig.align="center", out.width="70%", layout.align="center", echo=FALSE}
 
@@ -788,9 +789,9 @@ fig
 | **Diamante amarillo (“Óptimo encontrado”)** | Señala el mínimo local donde el algoritmo quedó atrapado. |
 +---------------------------------------------+-----------------------------------------------------------+
 
-+-----------------------------------------------------------------------------------------------------------------------------------+
-| ▶️⏸️ **Controles Play/Pause + slider** \| Permiten navegar interactivamente por las iteraciones. \| \| \| \| \| \| \| \| \| \| \| |
-+-----------------------------------------------------------------------------------------------------------------------------------+
++--------------------------------------------------------------------------------------------------------------------------------------------+
+| ▶️⏸️ **Controles Play/Pause + slider** \| Permiten navegar interactivamente por las iteraciones. \| \| \| \| \| \| \| \| \| \| \| \| \| \| |
++--------------------------------------------------------------------------------------------------------------------------------------------+
 
 **Comportamiento de GD en 3D**
 
@@ -825,7 +826,7 @@ A continuación, se ejecuta el algoritmo y se muestra un resumen del mejor resul
 
 **Dos dimensiones**
 
-```{r ,echo=FALSE}{r ga-rastrigin-ejecucion, echo=FALSE}
+```{r ga-rastrigin-ejecucion, echo=FALSE}
 set.seed(420)  # Semilla
 
 GA_rastrigin_2d <- ga(
@@ -2465,7 +2466,6 @@ El resultado es una visualización **intuitiva e interactiva** de la ruta más e
 > Esta representación es especialmente útil en entornos logísticos, educativos o de presentación de resultados, ya que permite comunicar de forma clara y atractiva el producto del modelo de optimización.
 
 ```{r mapa-ruta-optima-ACO, fig.cap="**Fig 18.** Ruta Óptima", fig.align="center", out.width="70%", warning=FALSE, message=FALSE, echo=FALSE}
-{r, fig.cap="**Fig 18.** Ruta Óptima", fig.align="center", out.width="70%", warning=FALSE, message=FALSE, echo=FALSE}
 
 # Función de petición con reintentos
 get_route <- function(src, dst, retries = 3, pause = 1) {
@@ -2958,21 +2958,21 @@ A continuación se presentan los **hallazgos clave** al contrastar ambos enfoque
 
 ### 3. Ventajas y desventajas operativas
 
-+-----------------------------------+----------------------------------------------------------------------------------------------+----------------------------------------+
-| Criterio                          | GA                                                                                           | ACO                                    |
-+===================================+==============================================================================================+========================================+
-| **Velocidad de convergencia**     | ❌ Lenta (436 gen)                                                                           | ✅ Rápida (41 iter)                    |
-+-----------------------------------+----------------------------------------------------------------------------------------------+----------------------------------------+
-| **Computo por iteración**         | ❌ Alto (`popSize × n_ciudades`)                                                             | ✅ Bajo (`n_hormigas × n_ciudades`)    |
-+-----------------------------------+----------------------------------------------------------------------------------------------+----------------------------------------+
-| **Facilidad de ajuste**           | ⚠️ Se deben balancear 3 hiperparámetros \| ✅ Ajuste intuitivo de `evap_rate` y #hormigas \| |                                        |
-+-----------------------------------+----------------------------------------------------------------------------------------------+----------------------------------------+
-| **Robustez a datos ruidosos**     | ✅ Buena (mutación reinyecta diversidad)                                                     | ⚠️ Puede atascarse sin variación \|    |
-+-----------------------------------+----------------------------------------------------------------------------------------------+----------------------------------------+
-| **Interpretabilidad de progreso** | ✅ Fácil de graficar fitness                                                                 | ✅ Fácil de graficar feromonas         |
-+-----------------------------------+----------------------------------------------------------------------------------------------+----------------------------------------+
-| **Escalabilidad (50+ nodos)**     | ✅ Admite poblaciones grandes, pero tiempo ↑                                                 | ⚠️ Requiere más hormigas; memoria ↑ \| |
-+-----------------------------------+----------------------------------------------------------------------------------------------+----------------------------------------+
++-----------------------------------+----------------------------------------------------------------------------------------------------------------+-------------------------------------------------+
+| Criterio                          | GA                                                                                                             | ACO                                             |
++===================================+================================================================================================================+=================================================+
+| **Velocidad de convergencia**     | ❌ Lenta (436 gen)                                                                                             | ✅ Rápida (41 iter)                             |
++-----------------------------------+----------------------------------------------------------------------------------------------------------------+-------------------------------------------------+
+| **Computo por iteración**         | ❌ Alto (`popSize × n_ciudades`)                                                                               | ✅ Bajo (`n_hormigas × n_ciudades`)             |
++-----------------------------------+----------------------------------------------------------------------------------------------------------------+-------------------------------------------------+
+| **Facilidad de ajuste**           | ⚠️ Se deben balancear 3 hiperparámetros \| ✅ Ajuste intuitivo de `evap_rate` y #hormigas \| \| \| \| \| \| \| |                                                 |
++-----------------------------------+----------------------------------------------------------------------------------------------------------------+-------------------------------------------------+
+| **Robustez a datos ruidosos**     | ✅ Buena (mutación reinyecta diversidad)                                                                       | ⚠️ Puede atascarse sin variación \| \| \| \|    |
++-----------------------------------+----------------------------------------------------------------------------------------------------------------+-------------------------------------------------+
+| **Interpretabilidad de progreso** | ✅ Fácil de graficar fitness                                                                                   | ✅ Fácil de graficar feromonas                  |
++-----------------------------------+----------------------------------------------------------------------------------------------------------------+-------------------------------------------------+
+| **Escalabilidad (50+ nodos)**     | ✅ Admite poblaciones grandes, pero tiempo ↑                                                                   | ⚠️ Requiere más hormigas; memoria ↑ \| \| \| \| |
++-----------------------------------+----------------------------------------------------------------------------------------------------------------+-------------------------------------------------+
 
 ------------------------------------------------------------------------
 
