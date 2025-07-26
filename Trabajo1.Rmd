@@ -233,36 +233,23 @@ points(
 
 ```{r rastrigin-3d-static, fig.cap="**Fig 3.** Visualización de la función Rastrigin f(x1, x2, x3) (3D)", fig.align="center", out.width="70%", layout.align="center", echo=FALSE}
 
-# -----------------------------------------------
-# Dibujar superficie 3D de Rastrigin y mínimo global
-# -----------------------------------------------
+# --- 1. Crear malla --------------------------------------------------
+x <- seq(-5.12, 5.12, length.out = 200)   # eje X
+y <- x                                    # eje Y (misma malla)
+z <- outer(x, y, Vectorize(function(a, b) rastrigin(c(a, b))))  # matriz Z
 
-# Evaluar el mínimo global
-min_x <- 0
-min_y <- 0
-min_z <- 20  # Para Rastrigin 2D, f(0, 0) = 20
-
-# Crear el gráfico y guardar la transformación
+# --- 2. Graficar -----------------------------------------------------
 trans <- persp(
   x, y, z,
-  theta = 60,                 # Ángulo horizontal (más frontal)
-  phi = 35,                   # Ángulo vertical (más inclinada hacia abajo)
-  expand = 0.6,
-  col = "lightblue",
-  shade = 0,
-  border = NA,
-  ticktype = "simple",
-  xlab = "x1",
-  ylab = "x2",
-  zlab = "f(x)",
-  main = "Rastrigin 2D — Superficie 3D con mínimo global"
+  theta  = 60,  phi = 35,  expand = 0.6,
+  col    = "lightsteelblue", shade = 0.4, ticktype = "simple",
+  xlab   = "x₁", ylab = "x₂", zlab = "f(x)",
+  main   = "Rastrigin 2D — Superficie 3D con mínimo global"
 )
 
-# Proyectar el punto (0, 0, f(0,0)) a 2D para añadirlo al gráfico
-punto <- trans3d(min_x, min_y, min_z, trans)
-
-# Añadir punto rojo
-points(punto, col = "salmon", pch = 16, cex = 2)  # pch 16 = círculo lleno
+# --- 3. Marcar el mínimo global -------------------------------------
+points(trans3d(0, 0, rastrigin(c(0, 0)), trans),
+       col = "red", pch = 16, cex = 2)
 
 ```
 
@@ -535,7 +522,7 @@ A continuación, presentamos una animación que muestra paso a paso cómo el alg
 
 Esta visualización dinámica permite observar cómo el gradiente guía la búsqueda hacia un mínimo cercano, pero también ilustra la tendencia del GD a quedarse atrapado en **mínimos locales**, lo que refuerza la necesidad de métodos más robustos como los algoritmos evolutivos o de enjambre en problemas no convexos.
 
-```{r gd-2d-animacion, fig.cap="**Fig 6.** Animación de la función Rastrigin óptimo f(x1, x2) (2D)", fig.align="center", out.width="70%", layout.align="center", warning=FALSE, message=FALSE, echo=FALSE}
+```{r gd-2d-animacion, fig.cap="**Fig 6.** Animación de la función Rastrigin óptimo f(x1, x2) (2D)", fig.align="center", out.width="70%", layout.align="center", warning=FALSE, message=FALSE, include=FALSE}
 
 
 # GRÁFICO Y ANIMACIÓN 2-D DE UNA ÚNICA TRAYECTORIA GD (sin   
@@ -789,9 +776,9 @@ fig
 | **Diamante amarillo (“Óptimo encontrado”)** | Señala el mínimo local donde el algoritmo quedó atrapado. |
 +---------------------------------------------+-----------------------------------------------------------+
 
-+--------------------------------------------------------------------------------------------------------------------------------------------+
-| ▶️⏸️ **Controles Play/Pause + slider** \| Permiten navegar interactivamente por las iteraciones. \| \| \| \| \| \| \| \| \| \| \| \| \| \| |
-+--------------------------------------------------------------------------------------------------------------------------------------------+
++--------------------------------------------------------------------------------------------------------------------------------------------------------+
+| ▶️⏸️ **Controles Play/Pause + slider** \| Permiten navegar interactivamente por las iteraciones. \| \| \| \| \| \| \| \| \| \| \| \| \| \| \| \| \| \| |
++--------------------------------------------------------------------------------------------------------------------------------------------------------+
 
 **Comportamiento de GD en 3D**
 
@@ -884,7 +871,7 @@ output_dir <- "Trabajo1_files"
 if (!dir.exists(output_dir)) dir.create(output_dir)
 
 # Ruta del archivo GIF de salida
-gifga_path <- file.path(output_dir, "rastrigin_ga_animation.gif")
+gifga_path <- ("Trabajo1_files/rastrigin_ga_animation.gif")
 
 # Guardar el GIF en disco
 image_write(animation, gifga_path)
@@ -903,8 +890,8 @@ Este tipo de animación es útil para observar: - La **diversidad** poblacional 
 
 En este chunk se genera el GIF de forma automática, guardando los frames en una carpeta temporal y combinándolos con `magick` en un archivo GIF animado, el cual se almacena como `rastrigin_ga_animation.gif` dentro de la carpeta `Trabajo1_files/`.
 
-```{r fig_ga_2d, fig.cap="**Fig 8.** Animación Algoritmos evolutivos 2D", fig.align="center", out.width="70%", echo=FALSE}
-knitr::include_graphics(gifga_path)
+```{r fig_ga_2d_plot, fig.cap="**Fig 8.** Animación Algoritmos evolutivos 2D", fig.align="center", out.width="70%", echo=FALSE}
+knitr::include_graphics("Trabajo1_files/rastrigin_ga_animation.gif")
 ```
 
 **Tres dimensiones**
@@ -1487,7 +1474,7 @@ kable(tabla_optimizacion_2D, caption = "Resultados Optimización de Rosenbrock p
 
 Para dos dimensiones los resultados nos muestran que todos los métodos lograron aproximarse al mínimo global de la función de Rosenbrock, aunque con diferencias significativas en eficiencia y precisión. El método de descenso por gradiente (BFGS) fue el más eficiente, alcanzando un valor prácticamente óptimo con solo 53 evaluaciones. En contraste, los métodos heurísticos requirieron muchas más evaluaciones: evolución diferencial logró un valor casi perfecto con 3500 evaluaciones, mientras que PSO alcanzó un resultado muy cercano al óptimo con 1200 evaluaciones. Por su parte, el algoritmo evolutivo fue el menos preciso, con un valor ligeramente más alejado del óptimo y un costo computacional alto (2500 evaluaciones). En resumen, los métodos tradicionales como el gradiente descendente son más eficientes cuando la función es suave y bien comportada, mientras que los métodos heurísticos ofrecen robustez frente a funciones complejas, aunque con mayor costo computacional. Es importante recordar que en el caso de métodos basados en gradiente as condiciones iniciales juegan un papel crucial en la optimización, ya que pueden determinar si el algoritmo converge rápidamente o queda atrapado en regiones poco prometedoras.
 
-```{r resultado_optimizacion_3d,fig.cap="**Tabla 3.** Resultados de la Optimizació de Rosenbrock f(x1,x2,x3)", fig.align="center", out.width="70%", echo=FALSE}
+```{r resultado_optimizacion_3d,fig.cap="**Tabla 2.** Resultados de la Optimizació de Rosenbrock f(x1,x2,x3)", fig.align="center", out.width="70%", echo=FALSE}
 tabla_optimizacion_3D <- data.frame(
   "Método" = c("Descenso por gradiente",
                "Algoritmos evolutivos",
@@ -1509,256 +1496,247 @@ El descenso por gradiente (BFGS) es el método más eficiente, logrando el valor
 ### 1.2.5 Animación del Descenso del Gradiente.
 
 ```{r animacion_gd, eval=FALSE,include=FALSE}
-rosenbrock_3d_history <- list()
+# GIF: Descenso por gradiente sobre la función de Rosenbrock (2‑D)
+# ────────────────────────────────────────────────────────────────
 
-rosenbrock_with_history_3d <- function(x) {
+## 1) Función + historial ----------------------------------------
+rosen_hist <- list()
+
+rosen_fn_hist <- function(x) {
   val <- rosenbrock_n(x)
-  rosenbrock_3d_history <<- c(rosenbrock_3d_history, list(list(x = x, value = val)))
-  return(val)
+  rosen_hist <<- c(rosen_hist, list(list(x = x, value = val)))
+  val
 }
-# Optimización 2D
 
 set.seed(1986)
+x0 <- runif(2, -3, 3)
 
-x0_3r <- runif(2, -3, 3)
-
-# Optimización
-res_3d <- optim(
-  par = x0_3r,
-  fn = rosenbrock_with_history_3d,
-  method = "BFGS",
-  control = list(trace = 1, REPORT = 1, maxit = 100)
+res_gd <- optim(
+  par = x0,
+  fn  = rosen_fn_hist,
+  method  = "BFGS",
+  control = list(maxit = 100)
 )
 
-rosenbrock_df_3d <- data.frame(
-  step = 1:length(rosenbrock_3d_history),
-  x = sapply(rosenbrock_3d_history, function(p) p$x[1]),
-  y = sapply(rosenbrock_3d_history, function(p) p$x[2]),
-  z = sapply(rosenbrock_3d_history, function(p) p$value)
+traj_df <- data.frame(
+  step = seq_along(rosen_hist),
+  x    = vapply(rosen_hist, function(p) p$x[1], numeric(1)),
+  y    = vapply(rosen_hist, function(p) p$x[2], numeric(1))
 )
 
-# Crear cuadrícula para visualización de la función
-x_vals <- seq(-3, 3, length.out = 200)
-y_vals <- seq(-3, 3, length.out = 200)
-grid <- expand.grid(x = x_vals, y = y_vals) %>%
-  rowwise() %>%
-  mutate(z = rosenbrock_n(c(x, y))) %>%
-  ungroup()
+## 2) Grid para mapa de calor ------------------------------------
+x_vals <- y_vals <- seq(-3, 3, length.out = 200)
+grid <- expand.grid(x = x_vals, y = y_vals) |>
+  dplyr::rowwise() |>
+  dplyr::mutate(z = rosenbrock_n(c(x, y))) |>
+  dplyr::ungroup()
 
-# Crear gráfico animado
-p <- ggplot() +
-  # Capa BASE de relleno para el mapa de calor
-  geom_raster(data = grid, aes(x = x, y = y, fill = z), alpha = 0.5) +
-  scale_fill_viridis_c(option = "viridis", name = "Valor de Rosenbrock") +
-  
-  # Curvas de nivel
-  geom_contour(data = grid, aes(x = x, y = y, z = z), 
-               color = "black", alpha = 0.4, bins = 15) +
-  
-  # Trayectoria del optimizador
-  geom_path(data = rosenbrock_df_3d, aes(x = x, y = y), 
-            color = "darkgrey", alpha = 0.5, linewidth = 0.8) +
-  
-  # Puntos animados (nuevo esquema de colores)
-  geom_point(data = rosenbrock_df_3d, aes(x = x, y = y, color = step), 
-             size = 3, show.legend = FALSE) +
-  scale_color_gradient(low = "orange", high = "red") +  # Naranja a rojo
-  
-  # Punto óptimo
-  geom_point(aes(x = 1, y = 1), shape = 5, color = "red", size = 4) +
-  annotate("text", x = 1, y = 1.5, label = "Óptimo Global", 
-           color = "red", fontface = "bold") +
-  
-  # Estilo y animación
+## 3) Construir animación ----------------------------------------
+library(gganimate)
+
+p_anim <- ggplot() +
+  geom_raster(data = grid, aes(x, y, fill = z), alpha = 0.55) +
+  scale_fill_viridis_c(name = "f(x)") +
+  geom_contour(data = grid, aes(x, y, z = z),
+               colour = "black", alpha = 0.35, bins = 15) +
+  geom_path(data = traj_df, aes(x, y),
+            colour = "red", linewidth = 1) +
+  geom_point(data = traj_df, aes(x, y, colour = step),
+             size = 2, show.legend = FALSE) +
+  scale_colour_gradient(low = "orange", high = "red") +
+  geom_point(aes(x = 1, y = 1), shape = 8, colour = "blue", size = 3) +
+  annotate("text", x = 1, y = 1.25, label = "Óptimo global",
+           colour = "blue", fontface = "bold") +
+  coord_cartesian(xlim = c(-3, 3), ylim = c(-3, 3)) +
+  labs(title = "GD en Rosenbrock — iteración {frame_time}",
+       x = expression(x[1]), y = expression(x[2])) +
   theme_minimal() +
-  labs(
-    title = "Optimización de la Función Rosenbrock\nIteración: {frame_time}",
-    x = "x1",
-    y = "x2"
-  ) +
   transition_time(step) +
-  shadow_wake(wake_length = 0.1, alpha = 0.3) +
-  
-  # Limitar los ejes x y y entre -2 y 2
-  xlim(-3, 3) +
-  ylim(-3, 3) +
-  
-  theme(plot.margin = margin(t = 30, r = 10, b = 10, l = 10, unit = "pt"))
+  shadow_wake(wake_length = 0.1, alpha = 0.3)
 
-# Renderizar la animación
-#animate(p, fps = 3, width = 700, height = 470, renderer = av_renderer("Trabajo1_files/rosenbrock_3d_path.mp4"))
-#renderer <- gifski_renderer(tempfile(fileext = ".gif"))
-#gganimate::animate(p, fps = 3, width = 700, height = 470, renderer = renderer)
-#animate(p, fps = 3, width = 700, height = 470, renderer = gifski_renderer("rosenbrock_3d_gifanimado.gif"))
-gganimate::animate(p, fps = 3, width = 700, height = 470,
-                   renderer = gifski_renderer("Trabajo1_files/rosenbrock_gd_2d.gif"))
+## 4) Render y guardado ------------------------------------------
+#dir.create("Trabajo1_files", showWarnings = FALSE)
+#gif_path <- file.path("Trabajo1_files", "rosenbrock_gd_2d.gif")
+
+#gganimate::animate(
+#  p_anim,
+#  fps      = 6,
+#  width    = 700,
+#  height   = 470,
+#  units    = "px",     # ← clave: ahora en píxeles
+#  renderer = gifski_renderer(gif_path)
+#)
+
+#invisible(TRUE)  # evita que aparezca el objeto en el knit
+
 ```
 
-```{r fig_dg_2d, fig.cap="**Fig 14.** Animación Descenso del gradiente 2D", fig.align="center", out.width="70%",echo=FALSE}
+```{r fig_dg_2d, fig.cap="**Fig 14.** Animación Descenso del gradiente 2D", fig.align="center", out.width="70%", warning=FALSE, echo=FALSE}
 knitr::include_graphics("Trabajo1_files/rosenbrock_gd_2d.gif")
 ```
 
 ### 1.2.6 Animación Evolución Diferencial
 
-```{r, eval=FALSE,include=FALSE}
-# Función objetivo con almacenamiento de la historia
-rosenbrock_de_history <- list()
-
-rosenbrock_with_history_de <- function(x) {
+```{r fig_ed_2d, echo=FALSE, message=FALSE, fig.cap="Animación DE en Rosenbrock 2D", warning=FALSE}
+# ────────────────────────────────────────────────────────────────
+# 1) Registrar historial de evolución diferencial ---------------
+rosen_de_hist <- list()
+rosen_fn_de_hist <- function(x) {
   val <- rosenbrock_n(x)
-  rosenbrock_de_history <<- c(rosenbrock_de_history, list(list(x = x, value = val)))
-  return(val)
+  rosen_de_hist <<- c(rosen_de_hist, list(list(x = x, value = val)))
+  val
 }
 
-# Ejecutar DEoptim
-set.seed(1986)
-control_params <- DEoptim.control(NP = 50, itermax = 100, trace = FALSE)
-
-res_de_2d <- DEoptim(
-  fn = rosenbrock_with_history_de,
-  lower = c(-3, -3),
-  upper = c(3, 3),
-  control = control_params
+# ────────────────────────────────────────────────────────────────
+# 2) Ejecutar DEoptim --------------------------------------------
+set.seed(123)
+control_de <- DEoptim.control(NP = 40, itermax = 80, trace = FALSE)
+res_de <- DEoptim(
+  fn      = rosen_fn_de_hist,
+  lower   = c(-3, -3),
+  upper   = c( 3,  3),
+  control = control_de
 )
 
-# Extraer solo el mejor individuo por generación
-evals <- split(rosenbrock_de_history, rep(1:101, each = 50))  # 101 = 1 inicial + 100 iteraciones
-
+# ────────────────────────────────────────────────────────────────
+# 3) Extraer mejor individuo por generación --------------------
+evals <- split(
+  rosen_de_hist,
+  rep(1:(control_de$itermax + 1), each = control_de$NP)
+)
 best_by_gen <- lapply(evals, function(gen) {
-  gen[[which.min(sapply(gen, function(p) p$value))]]
+  gen[[ which.min(sapply(gen, `[[`, "value")) ]]
 })
-
-rosenbrock_df_de <- data.frame(
-  step = 1:length(best_by_gen),
-  x = sapply(best_by_gen, function(p) p$x[1]),
-  y = sapply(best_by_gen, function(p) p$x[2]),
-  z = sapply(best_by_gen, function(p) p$value)
+rosen_df_de <- data.frame(
+  step = 0:control_de$itermax,
+  x    = sapply(best_by_gen, function(p) p$x[1]),
+  y    = sapply(best_by_gen, function(p) p$x[2])
 )
 
-# Crear el grid para el fondo de la animación
-x_vals <- seq(-3, 3, length.out = 200)
-y_vals <- seq(-3, 3, length.out = 200)
-grid <- expand.grid(x = x_vals, y = y_vals) %>%
-  rowwise() %>%
-  mutate(z = rosenbrock_n(c(x, y))) %>%
-  ungroup()
+# ────────────────────────────────────────────────────────────────
+# 4) Crear grid para fondo ---------------------------------------
+x_vals <- y_vals <- seq(-3, 3, length.out = 200)
+grid   <- expand.grid(x = x_vals, y = y_vals)
+grid$z <- apply(grid, 1, function(r) rosenbrock_n(c(r["x"], r["y"])))
 
-# Crear el gráfico animado
+# ────────────────────────────────────────────────────────────────
+# 5) Construir animación con gganimate --------------------------
+library(gganimate)
 p_de <- ggplot() +
-  geom_raster(data = grid, aes(x = x, y = y, fill = z), alpha = 0.5) +
-  scale_fill_viridis_c(option = "viridis") +
-  geom_contour(data = grid, aes(x = x, y = y, z = z), color = "black", alpha = 0.4) +
-  geom_path(data = rosenbrock_df_de, aes(x = x, y = y), color = "darkgrey", alpha = 0.5) +
-  geom_point(data = rosenbrock_df_de, aes(x = x, y = y, color = step), size = 3, show.legend = FALSE) +
-  scale_color_gradient(low = "blue", high = "green") +
-  geom_point(aes(x = 1, y = 1), shape = 5, color = "red", size = 4) +
-  annotate("text", x = 1, y = 1.5, label = "Óptimo Global", color = "red", fontface = "bold") +
+  geom_raster(data = grid, aes(x, y, fill = z), alpha = 0.55) +
+  scale_fill_viridis_c(name = "f(x)") +
+  geom_contour(data = grid, aes(x, y, z = z),
+               colour = "black", alpha = 0.3, bins = 15) +
+  geom_path(data = rosen_df_de, aes(x, y),
+            colour = "darkblue", size = 0.8, alpha = 0.6) +
+  geom_point(data = rosen_df_de, aes(x, y),
+             colour = "red", size = 2) +
+  geom_point(aes(x = 1, y = 1), shape = 8,
+             colour = "blue", size = 3) +
+  annotate("text", x = 1, y = 1.25,
+           label = "Óptimo global",
+           colour = "blue", fontface = "bold") +
+  coord_cartesian(xlim = c(-3, 3), ylim = c(-3, 3)) +
+  labs(title = "DE en Rosenbrock — iteración {frame_time}",
+       x = expression(x[1]), y = expression(x[2])) +
   theme_minimal() +
-  labs(
-    title = "Optimización con DE - Función Rosenbrock\nIteración: {frame_time}",
-    x = "x1", y = "x2"
-  ) +
   transition_time(step) +
-  shadow_wake(wake_length = 0.1, alpha = 0.3) +
-  xlim(-3, 3) +
-  ylim(-3, 3)
+  shadow_wake(wake_length = 0.1, alpha = 0.3)
 
-# Renderizar y guardar el GIF
-gganimate::animate(p_de, fps = 3, width = 700, height = 470,
-                   renderer = gifski_renderer("Trabajo1_files/rosenbrock_de_2d.gif"))
+# ────────────────────────────────────────────────────────────────
+# 6) Renderizar y guardar GIF -----------------------------------
+#dir.create("Trabajo1_files", showWarnings = FALSE)
+#gif_de_path <- file.path("Trabajo1_files", "rosenbrock_de_2d.gif")
+
+#animate(
+#  p_de,
+#  fps      = 6,
+#  width    = 700,
+#  height   = 470,
+#  units    = "px",                   # píxeles, no pulgadas
+#  renderer = gifski_renderer(gif_de_path)
+#)
 ```
 
-```{r fig_ed_2d, fig.cap="**Fig 15.** Animación Evolución Diferencial 2D", fig.align="center", out.width="70%",echo=FALSE}
+```{r fig_ed_2d_plot, fig.cap="**Fig 15.** Animación Evolución Diferencial 2D", fig.align="center", out.width="70%",echo=FALSE}
 knitr::include_graphics("Trabajo1_files/rosenbrock_de_2d.gif")
 ```
 
 ### 1.2.7 Animación Algoritmos Evolutivos
 
-```{r, eval=FALSE,include=FALSE}
-# Contador para las generaciones (esto va antes de correr el GA)
-rosenbrock_ga_history <- list()
-generation_counter <- 0
-individual_counter <- 0
-gen_sizes <- c()  # Para guardar el número de individuos por generación
-
-# Función de evaluación
-rosenbrock_with_history_ga <- function(x) {
-  val <- -rosenbrock_n(x)
-  rosenbrock_ga_history <<- c(rosenbrock_ga_history, list(list(x = x, value = -val, gen = generation_counter)))
-  individual_counter <<- individual_counter + 1
-  return(val)
+```{r fig_ga_2d, eval=FALSE,include=FALSE}
+# ────────────────────────────────────────────────────────────────
+# 1) Registrar historial de GA sobre Rosenbrock (2‑D) ------------
+rosen_ga_hist <- list()
+ga_fn_hist <- function(x) {
+  val <- rosenbrock_n(x)
+  rosen_ga_hist <<- c(rosen_ga_hist, list(list(x = x, value = val)))
+  val
 }
 
-# Callback para marcar el inicio de cada generación
-my_monitor <- function(obj) {
-  generation_counter <<- generation_counter + 1
-  gen_sizes <<- c(gen_sizes, individual_counter)
-  individual_counter <<- 0
-}
-
-# Ejecutar el algoritmo genético
+# ────────────────────────────────────────────────────────────────
+# 2) Ejecutar GA -------------------------------------------------
 set.seed(1986)
 res_ga <- ga(
-  type = "real-valued",
-  fitness = rosenbrock_with_history_ga,
-  lower = c(-3, -3),
-  upper = c(3, 3),
+  type    = "real-valued",
+  fitness = function(x) -ga_fn_hist(x),  # negativo porque GA maximiza
+  lower   = c(-3, -3),
+  upper   = c( 3,  3),
   popSize = 50,
-  maxiter = 50,
-  run = 50,
-  monitor = my_monitor
+  maxiter = 80,
+  run     = 50,
+  monitor = FALSE
 )
 
-# Asegurarnos de guardar la última generación
-gen_sizes <- c(gen_sizes, individual_counter)
+# ────────────────────────────────────────────────────────────────
+# 3) Procesar trayectoria en data.frame --------------------------
+traj_ga <- do.call(rbind, lapply(seq_along(rosen_ga_hist), function(i) {
+  data.frame(step = i - 1,
+             x    = rosen_ga_hist[[i]]$x[1],
+             y    = rosen_ga_hist[[i]]$x[2])
+}))
 
-# Agrupar por generación
-evals <- split(rosenbrock_ga_history, sapply(rosenbrock_ga_history, function(p) p$gen))
+# ────────────────────────────────────────────────────────────────
+# 4) Grid para el mapa de calor ---------------------------------
+x_vals <- y_vals <- seq(-3, 3, length.out = 200)
+grid   <- expand.grid(x = x_vals, y = y_vals)
+grid$z <- apply(grid, 1, function(r) rosenbrock_n(c(r["x"], r["y"])))
 
-# Extraer el mejor de cada generación
-best_by_gen <- lapply(evals, function(gen) {
-  gen[[which.min(sapply(gen, function(p) p$value))]]
-})
-
-# Dataframe para la animación
-rosenbrock_df_ga <- data.frame(
-  step = 1:length(best_by_gen),
-  x = sapply(best_by_gen, function(p) p$x[1]),
-  y = sapply(best_by_gen, function(p) p$x[2]),
-  z = sapply(best_by_gen, function(p) p$value)
-)
-
-# Crear el grid para la animación
-x_vals <- seq(-3, 3, length.out = 200)
-y_vals <- seq(-3, 3, length.out = 200)
-grid <- expand.grid(x = x_vals, y = y_vals) %>%
-  rowwise() %>%
-  mutate(z = rosenbrock_n(c(x, y))) %>%
-  ungroup()
-
-# Crear el gráfico animado
+# ────────────────────────────────────────────────────────────────
+# 5) Construir animación con gganimate ---------------------------
+library(ggplot2); library(gganimate)
 p_ga <- ggplot() +
-  geom_raster(data = grid, aes(x = x, y = y, fill = z), alpha = 0.5) +
-  scale_fill_viridis_c(option = "viridis") +
-  geom_contour(data = grid, aes(x = x, y = y, z = z), color = "black", alpha = 0.4) +
-  geom_path(data = rosenbrock_df_ga, aes(x = x, y = y), color = "darkgrey", alpha = 0.5) +
-  geom_point(data = rosenbrock_df_ga, aes(x = x, y = y, color = step), size = 3, show.legend = FALSE) +
-  scale_color_gradient(low = "blue", high = "green") +
-  geom_point(aes(x = 1, y = 1), shape = 5, color = "red", size = 4) +
-  annotate("text", x = 1, y = 1.5, label = "Óptimo Global", color = "red", fontface = "bold") +
+  geom_raster(data = grid, aes(x, y, fill = z), alpha = 0.55) +
+  scale_fill_viridis_c(name = "f(x)") +
+  geom_contour(data = grid, aes(x, y, z = z),
+               colour = "black", alpha = 0.3, bins = 15) +
+  geom_path(data = traj_ga, aes(x, y), colour = "purple", size = 1) +
+  geom_point(data = traj_ga, aes(x, y, colour = step),
+             size = 2, show.legend = FALSE) +
+  scale_colour_gradient(low = "pink", high = "purple") +
+  geom_point(aes(x = 1, y = 1), shape = 8, colour = "blue", size = 3) +
+  annotate("text", x = 1, y = 1.25, label = "Óptimo global",
+           colour = "blue", fontface = "bold") +
+  coord_cartesian(xlim = c(-3, 3), ylim = c(-3, 3)) +
+  labs(title = "GA en Rosenbrock — iteración {frame_time}",
+       x = expression(x[1]), y = expression(x[2])) +
   theme_minimal() +
-  labs(
-    title = "Optimización con GA - Función Rosenbrock\nIteración: {frame_time}",
-    x = "x1", y = "x2"
-  ) +
   transition_time(step) +
-  shadow_wake(wake_length = 0.1, alpha = 0.3) +
-  xlim(-3, 3) +
-  ylim(-3, 3)
+  shadow_wake(wake_length = 0.1, alpha = 0.3)
 
-# Renderizar y guardar el GIF
-gganimate::animate(p_ga, fps = 3, width = 700, height = 470,
-                   renderer = gifski_renderer("Trabajo1_files/rosenbrock_ga_2d.gif"))
+# ────────────────────────────────────────────────────────────────
+# 6) Renderizar y guardar GIF -----------------------------------
+#dir.create("Trabajo1_files", showWarnings = FALSE)
+#gif_ga_path <- file.path("Trabajo1_files", "rosenbrock_ga_2d.gif")
+
+#animate(
+#  p_ga,
+#  fps      = 6,
+#  width    = 700,
+#  height   = 470,
+#  units    = "px",                   # píxeles, no pulgadas
+#  renderer = gifski_renderer(gif_ga_path)
+#)
 ```
 
 ```{r gifrosen_ga, fig.cap="**Fig 16.** Animación Algoritmos Evolutivos 2D", fig.align="center", out.width="70%",echo=FALSE}
@@ -1767,79 +1745,104 @@ knitr::include_graphics("Trabajo1_files/rosenbrock_ga_2d.gif")
 
 ### 1.2.8 Animación Optimización por enjambre de Particulas
 
-```{r, eval=FALSE,include=FALSE}
-# Historial global
-rosenbrock_pso_history <- list()
-current_pso_iter <- 0
+```{r animacion_pso, echo=FALSE, message=FALSE}
+# ─────────────────────────────────────────────────
+#  Animación PSO sobre la función de Rosenbrock (2‑D)
+# ─────────────────────────────────────────────────
 
-# Función para registrar posiciones y evaluar
-rosenbrock_with_history_pso <- function(x) {
-  val <- rosenbrock_n(x)
-  rosenbrock_pso_history[[current_pso_iter]] <<- append(rosenbrock_pso_history[[current_pso_iter]], list(list(x = x, value = val)))
-  return(val)
-}
+## 1) Historial global --------------------------------------------
+rosen_pso_hist <- list()
+current_iter   <- 0
 
-# Función adaptativa para población (matriz) o individuo (vector)
-fitness_wrapper <- function(pop) {
-  current_pso_iter <<- current_pso_iter + 1
-  rosenbrock_pso_history[[current_pso_iter]] <<- list()
-  
+## 2) Wrapper para registrar posiciones ---------------------------
+rosen_fn_pso <- function(pop) {
+  # Cada llamada puede ser vector (individuo) o matriz (población)
+  current_iter <<- current_iter + 1
+  rosen_pso_hist[[current_iter]] <<- list()
+
   if (is.null(dim(pop))) {
-    # Caso: vector
-    return(rosenbrock_with_history_pso(pop))
+    # Evaluar único individuo
+    val <- rosenbrock_n(pop)
+    rosen_pso_hist[[current_iter]] <<- list(list(x = pop, value = val))
+    return(val)
   } else {
-    # Caso: matriz
-    return(apply(pop, 1, rosenbrock_with_history_pso))
+    # Evaluar toda la población
+    vals <- apply(pop, 1, function(x) {
+      v <- rosenbrock_n(x)
+      rosen_pso_hist[[current_iter]] <<-
+        c(rosen_pso_hist[[current_iter]], list(list(x = x, value = v)))
+      v
+    })
+    return(vals)
   }
 }
 
-# Ejecutar PSO
+## 3) Ejecutar PSO -----------------------------------------------
 set.seed(1986)
 res_pso <- psoptim(
-  par = c(0, 0),
-  fn = fitness_wrapper,
-  lower = c(-3, -3),
-  upper = c(3, 3),
-  control = list(maxit = 100, trace = 0,s=20)  
+  par     = c(0, 0),
+  fn      = rosen_fn_pso,
+  lower   = c(-3, -3),
+  upper   = c( 3,  3),
+  control = list(maxit = 100, s = 20, trace = FALSE)
 )
 
-# Procesar historial
-frames_pso <- do.call(rbind, lapply(seq_along(rosenbrock_pso_history), function(i) {
-  do.call(rbind, lapply(rosenbrock_pso_history[[i]], function(p) {
+## 4) Procesar historial en data.frame ----------------------------
+frames_pso <- do.call(rbind, lapply(seq_along(rosen_pso_hist), function(i) {
+  do.call(rbind, lapply(rosen_pso_hist[[i]], function(p) {
     data.frame(step = i, x = p$x[1], y = p$x[2], z = p$value)
   }))
 }))
 
-# Crear grid de fondo
+## 5) Grid de fondo para mapa de calor ---------------------------
 x_vals <- seq(-3, 3, length.out = 200)
 y_vals <- seq(-3, 3, length.out = 200)
-grid <- expand.grid(x = x_vals, y = y_vals) %>%
-  rowwise() %>%
-  mutate(z = rosenbrock_n(c(x, y))) %>%
-  ungroup()
+grid   <- expand.grid(x = x_vals, y = y_vals) |>
+  dplyr::rowwise() |>
+  dplyr::mutate(z = rosenbrock_n(c(x, y))) |>
+  dplyr::ungroup()
 
-# Crear animación
+## 6) Construir animación con gganimate ---------------------------
+library(gganimate)
+
 p_pso <- ggplot() +
-  geom_raster(data = grid, aes(x = x, y = y, fill = z), alpha = 0.5) +
-  scale_fill_viridis_c(option = "viridis") +
-  geom_contour(data = grid, aes(x = x, y = y, z = z), color = "black", alpha = 0.4) +
-  geom_point(data = frames_pso, aes(x = x, y = y, color = step), size = 2, show.legend = FALSE) +
+  geom_raster(data = grid, aes(x, y, fill = z), alpha = 0.5) +
+  scale_fill_viridis_c(option = "viridis", name = "f(x)") +
+  geom_contour(data = grid, aes(x, y, z = z),
+               color = "black", alpha = 0.4, bins = 15) +
+  geom_point(data = frames_pso, aes(x, y, color = step),
+             size = 2, show.legend = FALSE) +
   scale_color_gradient(low = "blue", high = "green") +
-  geom_point(aes(x = 1, y = 1), shape = 5, color = "red", size = 4) +
-  annotate("text", x = 1, y = 1.5, label = "Óptimo Global", color = "red", fontface = "bold") +
-  theme_minimal() +
+  geom_point(aes(x = 1, y = 1), shape = 8, color = "red", size = 4) +
+  annotate("text", x = 1, y = 1.5,
+           label = "Óptimo Global",
+           color = "red", fontface = "bold") +
+  coord_cartesian(xlim = c(-3, 3), ylim = c(-3, 3)) +
   labs(
-    title = "Optimización con PSO - Función Rosenbrock\nIteración: {frame_time}",
-    x = "x1", y = "x2"
+    title = "Optimización con PSO — iteración {frame_time}",
+    x     = expression(x[1]),
+    y     = expression(x[2])
   ) +
+  theme_minimal() +
   transition_time(step) +
-  shadow_wake(wake_length = 0.1, alpha = 0.3) +
-  xlim(-3, 3) +
-  ylim(-3, 3)
+  shadow_wake(wake_length = 0.1, alpha = 0.3)
 
-# Renderizar
-gganimate::animate(p_pso, fps = 4, width = 700, height = 470,
-                   renderer = gifski_renderer("Trabajo1_files/rosenbrock_pso_2d.gif"))
+## 7) Renderizar y guardar GIF -----------------------------------
+#dir.create("Trabajo1_files", showWarnings = FALSE)
+#gif_path <- file.path("Trabajo1_files", "rosenbrock_pso_2d.gif")
+
+#gganimate::animate(
+#  p_pso,
+#  fps      = 4,
+#  width    = 700,
+#  height   = 470,
+#  units    = "px",                # en píxeles
+#  renderer = gifski_renderer(gif_path)
+#)
+
+# Evita imprimir en el documento
+#invisible(TRUE)
+
 ```
 
 ```{r gifrosen_pso, fig.cap="**Fig 17.** Animación Optimización PSO 2D", fig.align="center", out.width="70%",echo=FALSE}
@@ -1886,11 +1889,15 @@ En la naturaleza, las hormigas encuentran caminos óptimos hacia fuentes de comi
 | Reforzamiento         | Aumento de feromonas según **calidad de ruta**              |
 +-----------------------+-------------------------------------------------------------+
 
+<center>*Tabla 3: Equivalencia del algoritmo de la hormiga viajera*</center>
+
 ### Fórmula clásica de decisión (simplificada):
 
 $$
 \text{Probabilidad de ir a ciudad } j = \frac{[\tau_{ij}]^\alpha \cdot [\eta_{ij}]^\beta}{\sum_{k \in \text{no visitadas}} [\tau_{ik}]^\alpha \cdot [\eta_{ik}]^\beta}
 $$
+
+<center>*Formula 3*: Fórmula clásica de decisión</center>
 
 -   $\tau_{ij}$: nivel de feromona entre ciudad $i$ y $j$
 -   $\eta_{ij}$: heurística (usualmente $1/\text{distancia}_{ij}$)
@@ -1930,6 +1937,8 @@ La fórmula usada para calcular este costo total es la siguiente:
 $$
 CT_{ij} = PrecioPeajes_{ij} + Distancia_{ij}(km) \times PrecioGasolina\text{ por km} + Salario\text{ (Horas)} \times Tiempo_{ij}\text{ (Horas)}
 $$
+
+<center>*Formula 4*: Fórmula Costo total</center>
 
 Esta función permite crear una matriz de costos $C \in \mathbb{R}^{13 \times 13}$, que servirá como base para evaluar la calidad de cada ruta generada por las hormigas artificiales.
 
@@ -2037,6 +2046,8 @@ $$
 \frac{16,\!000}{83.66} \approx 191 \, \text{COP/km}
 $$
 
+<center>Calculo 1: Costo de gasolina</center>
+
 ------------------------------------------------------------------------
 
 ### 2. Costo por tiempo laboral
@@ -2055,6 +2066,8 @@ Se asume un valor de **5,416 COP por hora**, que se obtiene a partir de:
 $$
 \frac{54,\!116}{10} = 5,\!416 \, \text{COP/hora}
 $$
+
+<center>Calculo 2: Costo por tiempo laboral</center>
 
 ------------------------------------------------------------------------
 
@@ -2145,6 +2158,8 @@ El algoritmo se ejecuta durante 100 iteraciones. En cada una:
     $$
     P_{ij} \propto [\tau_{ij}]^\alpha \cdot [\eta_{ij}]^\beta
     $$
+
+    <center>*Formula 5:* Siguiente ciudad</center>
 
     Donde:
 
@@ -2327,12 +2342,12 @@ Estas estadísticas permiten validar la **eficiencia** del resultado, compararlo
 ```{r imprimir-resultados-ACO, echo=FALSE}
 
 # Impresión de resultados
-cat("\nMejor ruta encontrada:\n")
-cat(paste(best_path_names, collapse = " → "), "\n")
+#cat("\nMejor ruta encontrada:\n")
+#cat(paste(best_path_names, collapse = " → "), "\n")
 
-cat("\nDetalle de costos por tramo:\n")
-cat(sprintf("%-30s %-30s %10s\n", "Origen", "Destino", "Costo"))
-cat(strrep("-", 70), "\n")
+#cat("\nDetalle de costos por tramo:\n")
+#cat(sprintf("%-30s %-30s %10s\n", "Origen", "Destino", "Costo"))
+#cat(strrep("-", 70), "\n")
 
 total_cost <- 0
 for (idx in seq_along(best_path)) {
@@ -2340,15 +2355,15 @@ for (idx in seq_along(best_path)) {
   dest <- if (idx == length(best_path)) best_path[1] else best_path[idx+1]
   seg_cost <- matriz_costo_total[origin, dest]
   total_cost <- total_cost + seg_cost
-  cat(sprintf("%-30s %-30s $%9.2f\n",
-              cities_names[[origin]], cities_names[[dest]], seg_cost))
+ # cat(sprintf("%-30s %-30s $%9.2f\n",
+   #           cities_names[[origin]], cities_names[[dest]], seg_cost))
 }
 
-cat("\nEstadísticas:\n")
-cat(sprintf("Ciudades (incluye retorno): %d\n", length(best_path_names)))
-cat(sprintf("Costo total: $%0.2f\n", total_cost))
-cat(sprintf("Costo promedio por tramo: $%0.2f\n", total_cost / length(best_path)))
-cat(sprintf("Mejor costo encontrado en la iteración: %d\n", best_iteration))
+#cat("\nEstadísticas:\n")
+#cat(sprintf("Ciudades (incluye retorno): %d\n", length(best_path_names)))
+#cat(sprintf("Costo total: $%0.2f\n", total_cost))
+#cat(sprintf("Costo promedio por tramo: $%0.2f\n", total_cost / length(best_path)))
+#cat(sprintf("Mejor costo encontrado en la iteración: %d\n", best_iteration))
 ```
 
 ```{r datos-geograficos-coords-ciudades, include=FALSE}
@@ -2365,9 +2380,6 @@ coords_df <- data.frame(
            11.2408,  4.1420,   2.9273),
   stringsAsFactors = FALSE
 )
-
-# Para comprobar
-print(coords_df)
 
 ```
 
@@ -2411,6 +2423,8 @@ A continuación se muestra el costo individual de cada trayecto entre pares cons
 | Villavicencio | Cúcuta        | \$232,569.62 |
 
 ------------------------------------------------------------------------
+
+<center>*Tabla 4:* Detalle de costos por ruta - Hormiga Viajera</center>
 
 ### Estadísticas generales
 
@@ -2677,13 +2691,13 @@ tour <- c(tour, tour[1])
 cities <- rownames(matriz_costo_total)[tour]
 
 # Imprimir la ruta óptima
-cat("Mejor ruta encontrada (GA):\n")
-cat(paste(cities, collapse = " → "), "\n\n")
+#cat("Mejor ruta encontrada (GA):\n")
+#cat(paste(cities, collapse = " → "), "\n\n")
 
 # Detalle de costos por tramo
-cat("Detalle de costos por tramo:\n")
-cat(sprintf("%-30s %-30s %10s\n", "Origen", "Destino", "Costo"))
-cat(strrep("-", 70), "\n")
+#cat("Detalle de costos por tramo:\n")
+#cat(sprintf("%-30s %-30s %10s\n", "Origen", "Destino", "Costo"))
+#cat(strrep("-", 70), "\n")
 
 # Cálculo del costo total
 total_cost <- 0
@@ -2692,16 +2706,16 @@ for (i in seq_along(tour[-1])) {
   destino <- tour[i + 1]
   seg_cost <- matriz_costo_total[origen, destino]
   total_cost <- total_cost + seg_cost
-  cat(sprintf("%-30s %-30s $%9.2f\n",
-              cities[i], cities[i + 1], seg_cost))
+  #cat(sprintf("%-30s %-30s $%9.2f\n",
+              #cities[i], cities[i + 1], seg_cost))
 }
 
 # Estadísticas generales
-cat("\nEstadísticas:\n")
-cat(sprintf("Ciudades (incluye retorno): %d\n", length(cities)))
-cat(sprintf("Costo total: $%0.2f\n", total_cost))
-cat(sprintf("Costo promedio por tramo: $%0.2f\n", total_cost / (length(cities) - 1)))
-cat(sprintf("Mejor costo encontrado en la iteración: %d\n", GAiter@iter))
+#cat("\nEstadísticas:\n")
+#cat(sprintf("Ciudades (incluye retorno): %d\n", length(cities)))
+#cat(sprintf("Costo total: $%0.2f\n", total_cost))
+#cat(sprintf("Costo promedio por tramo: $%0.2f\n", total_cost / (length(cities) - 1)))
+#cat(sprintf("Mejor costo encontrado en la iteración: %d\n", GAiter@iter))
 
 ```
 
@@ -2744,6 +2758,8 @@ Medellín → Manizales → Ibagué
 
 ------------------------------------------------------------------------
 
+<center>*Tabla 5:* Detalle de costos por ruta - Algoritmos Geneticos</center>
+
 ### 3. Segmentos más costosos
 
 | Tramo                     | Costo (COP)    | \% del costo total |
@@ -2751,6 +2767,8 @@ Medellín → Manizales → Ibagué
 | Cartagena → Medellín      | **298 235,20** | 18 %               |
 | Villavicencio → Cúcuta    | 232 569,62     | 14 %               |
 | Bucaramanga → Santa Marta | 208 392,43     | 13 %               |
+
+<center>*Tabla 6:* Segmentos más costosos</center>
 
 > **Observación:**\
 > Tres tramos (Cartagena → Medellín, Villavicencio → Cúcuta y Bucaramanga → Santa Marta) concentran **≈45 %** del presupuesto total. Optimizar o replantear estos saltos tendría el mayor impacto económico.
@@ -2788,7 +2806,7 @@ Al igual que con ACO, se crea un mapa `leaflet` que:
 
 La función `get_route()` devuelve geometrías realistas vía OSRM; si la API falla, se dibuja una línea recta de respaldo, garantizando siempre la visualización.
 
-```{r mapa-ruta-optima-GA, fig.cap="**Fig 19.** Ruta óptima encontrada con GA", fig.align="center", out.width="70%", warning=FALSE, message=FALSE, echo=FALSE}
+```{r mapa-ruta-optima-GA, fig.cap="**Fig20**Ruta óptima encontrada con GA", fig.align="center", out.width="70%", warning=FALSE, message=FALSE, echo=FALSE}
 
 # --- Función de petición con reintentos (igual a la de ACO) ---
 get_route <- function(src, dst, retries = 3, pause = 1) {
@@ -2873,7 +2891,7 @@ Para ilustrar visualmente cómo el GA refina la ruta a lo largo del tiempo, se g
 
 `animation::saveGIF()` compila las 10 imágenes en `ga_tsp_route.gif`. Se fijó `interval = 1` s para evitar conflictos con `fps`.
 
-```{r ga-tsp-gif, echo=FALSE, message=FALSE, warning=FALSE, fig.cap="**Fig 19.** Evolución del GA", fig.align="center", out.width="70%"}
+```{r ga-tsp-gif, echo=FALSE, message=FALSE, warning=FALSE, fig.cap="**Fig 21.** Evolución del GA", fig.align="center", out.width="70%"}
 animation::saveGIF(
   for (i in seq(300, GAiter@iter, length.out = 10)) {
     set.seed(124)
@@ -2913,7 +2931,21 @@ animation::saveGIF(
 
 ```
 
-## 2.11 Comparativo en profundidad: Algoritmo Genético (GA) vs Colonia de Hormigas (ACO)
+# 
+
+# Visualización de la Ruta Óptima (Animación)
+
+A continuación, se muestra una animación de la ruta óptima.
+
+<!--   Usamos una etiqueta <iframe> de HTML para incrustar la animación.   - src="Mapa_Colombia_Ruta_Actualizada.html": Especifica la ruta al archivo que quieres mostrar.   - width="100%": Hace que la animación ocupe todo el ancho disponible.   - height="600px": Define una altura fija para el contenedor de la animación.   - style="border:none;": Elimina el borde del iframe para una mejor integración visual. -->
+
+<iframe src="Mapa_Colombia_Ruta_Actualizada.html" width="100%" height="600px" style="border:none;" title="Animación de la Ruta Óptima">
+
+</iframe>
+
+<center>**Fig. 22.** Animación que ilustra la ruta óptima encontrada. El recorrido conecta las ciudades principales de manera eficiente, mostrando dinámicamente la secuencia de la visita.` </center>`{=html}
+
+## 2.11 Comparativo: Algoritmo Genético (GA) vs Colonia de Hormigas (ACO)
 
 A continuación se presentan los **hallazgos clave** al contrastar ambos enfoques heurísticos aplicados al mismo problema del viajante (TSP) con idéntica matriz de costos y conjunto de ciudades.
 
@@ -2941,6 +2973,8 @@ A continuación se presentan los **hallazgos clave** al contrastar ambos enfoque
 
 ------------------------------------------------------------------------
 
+<center>*Tabla 7:* Comparativo: Algoritmo Genético (GA) vs Colonia de Hormigas (ACO)</center>
+
 ### 2. Coincidencias y diferencias cualitativas
 
 1.  **Misma ruta cíclica**
@@ -2958,23 +2992,25 @@ A continuación se presentan los **hallazgos clave** al contrastar ambos enfoque
 
 ### 3. Ventajas y desventajas operativas
 
-+-----------------------------------+----------------------------------------------------------------------------------------------------------------+-------------------------------------------------+
-| Criterio                          | GA                                                                                                             | ACO                                             |
-+===================================+================================================================================================================+=================================================+
-| **Velocidad de convergencia**     | ❌ Lenta (436 gen)                                                                                             | ✅ Rápida (41 iter)                             |
-+-----------------------------------+----------------------------------------------------------------------------------------------------------------+-------------------------------------------------+
-| **Computo por iteración**         | ❌ Alto (`popSize × n_ciudades`)                                                                               | ✅ Bajo (`n_hormigas × n_ciudades`)             |
-+-----------------------------------+----------------------------------------------------------------------------------------------------------------+-------------------------------------------------+
-| **Facilidad de ajuste**           | ⚠️ Se deben balancear 3 hiperparámetros \| ✅ Ajuste intuitivo de `evap_rate` y #hormigas \| \| \| \| \| \| \| |                                                 |
-+-----------------------------------+----------------------------------------------------------------------------------------------------------------+-------------------------------------------------+
-| **Robustez a datos ruidosos**     | ✅ Buena (mutación reinyecta diversidad)                                                                       | ⚠️ Puede atascarse sin variación \| \| \| \|    |
-+-----------------------------------+----------------------------------------------------------------------------------------------------------------+-------------------------------------------------+
-| **Interpretabilidad de progreso** | ✅ Fácil de graficar fitness                                                                                   | ✅ Fácil de graficar feromonas                  |
-+-----------------------------------+----------------------------------------------------------------------------------------------------------------+-------------------------------------------------+
-| **Escalabilidad (50+ nodos)**     | ✅ Admite poblaciones grandes, pero tiempo ↑                                                                   | ⚠️ Requiere más hormigas; memoria ↑ \| \| \| \| |
-+-----------------------------------+----------------------------------------------------------------------------------------------------------------+-------------------------------------------------+
++-----------------------------------+----------------------------------------------------------------------------------------------------------------------------------------+-------------------------------------------------------------+
+| Criterio                          | GA                                                                                                                                     | ACO                                                         |
++===================================+========================================================================================================================================+=============================================================+
+| **Velocidad de convergencia**     | ❌ Lenta (436 gen)                                                                                                                     | ✅ Rápida (41 iter)                                         |
++-----------------------------------+----------------------------------------------------------------------------------------------------------------------------------------+-------------------------------------------------------------+
+| **Computo por iteración**         | ❌ Alto (`popSize × n_ciudades`)                                                                                                       | ✅ Bajo (`n_hormigas × n_ciudades`)                         |
++-----------------------------------+----------------------------------------------------------------------------------------------------------------------------------------+-------------------------------------------------------------+
+| **Facilidad de ajuste**           | ⚠️ Se deben balancear 3 hiperparámetros \| ✅ Ajuste intuitivo de `evap_rate` y #hormigas \| \| \| \| \| \| \| \| \| \| \| \| \| \| \| |                                                             |
++-----------------------------------+----------------------------------------------------------------------------------------------------------------------------------------+-------------------------------------------------------------+
+| **Robustez a datos ruidosos**     | ✅ Buena (mutación reinyecta diversidad)                                                                                               | ⚠️ Puede atascarse sin variación \| \| \| \| \| \| \| \|    |
++-----------------------------------+----------------------------------------------------------------------------------------------------------------------------------------+-------------------------------------------------------------+
+| **Interpretabilidad de progreso** | ✅ Fácil de graficar fitness                                                                                                           | ✅ Fácil de graficar feromonas                              |
++-----------------------------------+----------------------------------------------------------------------------------------------------------------------------------------+-------------------------------------------------------------+
+| **Escalabilidad (50+ nodos)**     | ✅ Admite poblaciones grandes, pero tiempo ↑                                                                                           | ⚠️ Requiere más hormigas; memoria ↑ \| \| \| \| \| \| \| \| |
++-----------------------------------+----------------------------------------------------------------------------------------------------------------------------------------+-------------------------------------------------------------+
 
 ------------------------------------------------------------------------
+
+<center>*Tabla 8:* Ventajas y desventajas operativas - Algoritmo Genético (GA) vs Colonia de Hormigas (ACO)</center>
 
 ### 4. Recomendaciones prácticas
 
